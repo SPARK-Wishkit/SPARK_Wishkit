@@ -1,0 +1,75 @@
+name: Notion Task Status Sync
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, closed]
+
+jobs:
+  update-notion-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Notion Task Status
+        uses: actions/github-script@v7
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        with:
+          script: |
+            const prTitle = context.payload.pull_request.title;
+            const isMerged = context.payload.pull_request.merged;
+            const isClosed = context.payload.pull_request.state === 'closed';
+
+            // 상태 결정: Closed/Merged 상태면 '완료', 그 외 열려있는 상태면 '진행 중'
+            let targetStatus = '';
+            if (isClosed && isMerged) {
+              targetStatus = '완료';
+            } else if (!isClosed) {
+              targetStatus = '진행 중';
+            }
+
+            if (!targetStatus) return;
+
+            console.log(`Checking PR Title: "${prTitle}" -> Target Status: "${targetStatus}"`);
+
+            const headers = {
+              'Authorization': `Bearer ${process.env.NOTION_TOKEN}`,
+              'Notion-Version': '2022-06-28',
+              'Content-Type': 'application/json'
+            };
+
+            const queryRes = await fetch(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify({})
+            });
+            const queryData = await queryRes.json();
+
+            if (!queryData.results) {
+              console.error('Notion API Error:', JSON.stringify(queryData, null, 2));
+              throw new Error(`Failed to query database: ${queryData.message || 'Unknown error'}`);
+            }
+
+            let matched = false;
+            for (const page of queryData.results) {
+              const taskTitle = page.properties['내용']?.title?.[0]?.plain_text;
+              if (taskTitle && prTitle.includes(taskTitle)) {
+                matched = true;
+                const patchRes = await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
+                  method: 'PATCH',
+                  headers: headers,
+                  body: JSON.stringify({
+                    properties: {
+                      '상태': {
+                        status: { name: targetStatus }
+                      }
+                    }
+                  })
+                });
+                const patchData = await patchRes.json();
+                console.log(`Successfully updated "${taskTitle}" status to "${targetStatus}" (Page ID: ${page.id})`);
+              }
+            }
+
+            if (!matched) {
+              console.log('No matching Notion task found in PR title.');
+            }

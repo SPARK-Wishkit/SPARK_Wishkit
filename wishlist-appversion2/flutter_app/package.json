@@ -1,0 +1,33 @@
+{
+  "name": "flutter_app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.25.1",
+    "@aws-amplify/backend-cli": "^1.10.0",
+    "@types/aws-lambda": "^8.10.163",
+    "@types/node": "^26.6.2",
+    "aws-cdk-lib": "^2.268.0",
+    "constructs": "^10.8.1",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1139.0",
+    "@aws-sdk/lib-dynamodb": "^3.1139.0",
+    "aws-amplify": "^6.22.0"
+  }
+}

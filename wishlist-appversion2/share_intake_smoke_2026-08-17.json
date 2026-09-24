@@ -1,0 +1,84 @@
+{
+  "date": "2026-08-17",
+  "branch": "feat/webview-scraper-stabilize",
+  "purpose": "Galaxy share-intake WebView path smoke via ParsingBridge",
+  "device": {
+    "id": "R3CY10LF2HE",
+    "model": "SM-S938N",
+    "runtime": "Android 16",
+    "jsProbe": 2,
+    "noUninstall": true,
+    "adb": "C:\\Users\\tingo\\AppData\\Local\\Android\\sdk\\platform-tools\\adb.exe",
+    "superDisplay": "stopped"
+  },
+  "notes": [
+    "Uses ShareIntakeScreen's ParsingBridge.scrapShareInput, not AppStore/Firebase save.",
+    "Python /parse and /api/scrap were not called (engineUsed=false on every row).",
+    "Coupang is not a managed domain, so generic extract is allowed when the page loads. It is flaky: run 1 auto-filled, run 2 Access Denied."
+  ],
+  "passingRun": {
+    "results": [
+      {
+        "id": "vans-share-text",
+        "mall": "반스",
+        "input": "올드스쿨 https://www.vans.co.kr/PRODUCT/VN000D6WBOM",
+        "elapsedMs": 16366,
+        "name": "올드스쿨",
+        "price": 57000,
+        "image": "https://img.vans.com/image/upload/VN000D6WBOM-HERO.jpg",
+        "productUrl": "https://www.vans.co.kr/PRODUCT/VN000D6WBOM",
+        "platform": "VANS",
+        "engineUsed": false,
+        "onDeviceExtracted": true,
+        "needsManualPrice": false,
+        "missingFields": [],
+        "extractFailureReason": null,
+        "resolvedTier": 2
+      },
+      {
+        "id": "zara-url",
+        "mall": "ZARA",
+        "input": "https://www.zara.com/kr/ko/item-p05063701.html",
+        "elapsedMs": 27315,
+        "name": "플리츠 쇼트 트렌치 코트",
+        "price": 0,
+        "image": "https://static.zara.net/assets/public/e0f3/d441/8f4a48e78f2d/67544d2ed0aa/05063701711-p/05063701711-p.jpg?ts=1786543758121&w=560",
+        "productUrl": "https://www.zara.com/kr/ko/%E1%84%91%E1%85%B3%E1%86%AF%E1%84%85%E1%85%B5%E1%84%8E%E1%85%B3-%E1%84%89%E1%85%AD%E1%84%90%E1%85%B3-%E1%84%90%E1%85%B3%E1%84%85%E1%85%A6%E1%86%AB%E1%84%8E%E1%85%B5-%E1%84%8F%E1%85%A9%E1%84%90%E1%85%B3-p05063701.html",
+        "platform": "ZARA",
+        "engineUsed": false,
+        "onDeviceExtracted": true,
+        "needsManualPrice": true,
+        "missingFields": ["price"],
+        "extractFailureReason": "price_ambiguous",
+        "resolvedTier": 3
+      },
+      {
+        "id": "coupang-url",
+        "mall": "쿠팡",
+        "input": "https://www.coupang.com/vp/products/6830320694?itemId=15948648483&vendorItemId=83406358948",
+        "elapsedMs": 15833,
+        "name": "Access Denied",
+        "price": 0,
+        "image": "",
+        "productUrl": "https://www.coupang.com/vp/products/6830320694?itemId=15948648483&vendorItemId=83406358948",
+        "platform": "쿠팡",
+        "engineUsed": false,
+        "onDeviceExtracted": true,
+        "needsManualPrice": true,
+        "missingFields": ["price", "image_url"],
+        "extractFailureReason": "access_blocked",
+        "resolvedTier": 3
+      }
+    ]
+  },
+  "firstRunCoupangBeforeAssertionFix": {
+    "elapsedMs": 16244,
+    "name": "스파클 무라벨 천연암반수 안전한생수 깨끗한물 미네랄워터, 2L, 24개",
+    "price": 11990,
+    "image": "https://thumbnail.coupangcdn.com/thumbnails/remote/492x492ex/image/vendor_inventory/c49e/45b6caafb5cd114e5e2220d420fc54e1ab82766a1c2715a99060891d831e.jpg",
+    "engineUsed": false,
+    "needsManualPrice": false,
+    "extractFailureReason": null,
+    "note": "Page loaded this attempt. Coupang is unmanaged so generic extract is allowed. Do not treat as a stable PASS."
+  }
+}

@@ -1,0 +1,41 @@
+# Flutter / Dart
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+**/Generated.xcconfig
+**/flutter_export_environment.sh
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+__MACOSX/
+
+# AWS Amplify: 사람마다 다른 설정 파일 · 로컬 작업 폴더 (절대 커밋 금지: AWS 액세스 키 .csv 도)
+**/amplify_outputs.dart
+**/amplify_outputs.json
+**/.amplify/
+**/node_modules/
+*accessKeys*.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local data
+**/server/data/*.json
+!**/server/data/.gitkeep
+
+# Cloud Functions
+functions/node_modules/

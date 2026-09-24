@@ -1,0 +1,42 @@
+Resolving dependencies...
+Downloading packages...
+  flutter_lints 5.0.0 (6.0.0 available)
+  flutter_local_notifications 19.5.0 (22.3.0 available)
+  flutter_local_notifications_linux 6.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 9.1.0 (12.2.0 available)
+  flutter_local_notifications_windows 1.0.3 (3.1.1 available)
+  go_router 17.3.0 (17.5.0 available)
+  google_fonts 6.3.3 (8.2.1 available)
+  hooks 2.0.2 (2.1.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  receive_sharing_intent 1.8.1 (1.9.0 available)
+  record_use 0.6.0 (1.1.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  vector_math 2.2.0 (2.4.2 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+18 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/bonajieun/Developer/2026-softstudio-project/wishlist-appversion2/flutter_app/integration_test/webview_all_malls_audit_test.dart
+The following plugins do not support Swift Package Manager for ios:
+  - flutter_inappwebview_ios
+  - receive_sharing_intent
+This will become an error in a future version of Flutter. Please contact the plugin maintainers to request Swift Package Manager adoption.
+Running Xcode build...                                          
+Xcode build done.                                           51.7s
+00:00 +0: 64개 등록 쇼핑몰 Android WebView 대표 상품 감사
+WEBVIEW_JS_PROBE 2.0
+WEBVIEW_AUDIT_BEGIN 24 SSG
+WEBVIEW_AUDIT_RESULT {"index":24,"mall":"SSG","url":"https://www.ssg.com/item/itemView.ssg?itemId=1000571660298","expectedAbstain":false,"timedOut":false,"classification":"BLOCKED","elapsedMs":15606,"name":"안전한 서비스 이용을 위해접속이 잠시 제한되었습니다","image":null,"price":null,"originalPrice":null,"adapter":null,"purchasePriceStatus":"unknown","priceConfidence":"unknown","availability":"unknown","optionDependent":null,"optionPriceMin":null,"optionPriceMax":null,"blocked":true,"failureReason":"access_blocked","looksLikeProductPage":true,"hasJsonLd":false,"finalUrl":"https://www.ssg.com/item/itemView.ssg?itemId=1000571660298","source":{"name":"dom","price":null,"image":null,"brand":null}}
+WEBVIEW_AUDIT_BEGIN 31 반스
+WEBVIEW_AUDIT_RESULT {"index":31,"mall":"반스","url":"https://www.vans.co.kr/PRODUCT/VN000D6WBOM","expectedAbstain":false,"timedOut":false,"classification":"PASS","elapsedMs":15713,"name":"올드스쿨","image":"https://img.vans.com/image/upload/VN000D6WBOM-HERO.jpg","price":57000,"originalPrice":95000,"adapter":"vans","purchasePriceStatus":"confirmed","priceConfidence":"medium","availability":"available","optionDependent":false,"optionPriceMin":null,"optionPriceMax":null,"blocked":false,"failureReason":null,"looksLikeProductPage":true,"hasJsonLd":false,"finalUrl":"https://www.vans.co.kr/PRODUCT/VN000D6WBOM","source":{"name":"site-adapter","price":"site-adapter","image":"og","brand":null,"adapter":"vans","field":"meta[recopick:sale_price]"}}
+WEBVIEW_AUDIT_BEGIN 37 Aritzia
+WEBVIEW_AUDIT_RESULT {"index":37,"mall":"Aritzia","url":"https://www.aritzia.com/intl/en/product/airbutter%E2%84%A2-repose-longsleeve/133550.html?color=35023","expectedAbstain":false,"timedOut":false,"classification":"PARTIAL_NO_PRICE","elapsedMs":27316,"name":"www.aritzia.com","image":null,"price":null,"originalPrice":null,"adapter":null,"purchasePriceStatus":"unknown","priceConfidence":"unknown","availability":"unknown","optionDependent":null,"optionPriceMin":null,"optionPriceMax":null,"blocked":false,"failureReason":"price_ambiguous","looksLikeProductPage":true,"hasJsonLd":false,"finalUrl":"https://www.aritzia.com/intl/en/product/airbutter%E2%84%A2-repose-longsleeve/133550.html?color=35023","source":{"name":"dom","price":null,"image":null,"brand":null}}
+WEBVIEW_AUDIT_BEGIN 40 마리떼
+WEBVIEW_AUDIT_RESULT {"index":40,"mall":"마리떼","url":"https://marithe-official.com/product/detail.html?product_no=8883","expectedAbstain":false,"timedOut":false,"classification":"PASS","elapsedMs":15697,"name":"W CLASSIC LOGO TEE red","image":"https://marithe-official.com/web/product/big/202505/6816e856b23ae0b43d9f2c398688fcbb.jpg","price":49000,"originalPrice":null,"adapter":"marithe","purchasePriceStatus":"confirmed","priceConfidence":"medium","availability":"available","optionDependent":false,"optionPriceMin":null,"optionPriceMax":null,"blocked":false,"failureReason":null,"looksLikeProductPage":true,"hasJsonLd":true,"finalUrl":"https://marithe-official.com/product/detail.html?product_no=8883","source":{"name":"json-ld","price":"site-adapter","image":"json-ld","brand":"json-ld","adapter":"marithe","field":"product:sale_price:amount + Product.offers[InStock]"}}
+01:16 +1: (tearDownAll)
+01:17 +1: All tests passed!
