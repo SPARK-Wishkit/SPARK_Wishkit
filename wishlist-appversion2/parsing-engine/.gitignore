@@ -1,0 +1,7 @@
+server/.env
+server/venv/
+**/__pycache__/
+*.pyc
+tools/golden_regression_result.json
+server.log
+*.log

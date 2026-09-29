@@ -1,0 +1,142 @@
+{
+  "1": {
+    "batch_wall_ms": 4589,
+    "results": [
+      {
+        "url": "https://www.musinsa.com/products/4341120",
+        "status": 200,
+        "wall_ms": 4589,
+        "server_metrics": {
+          "total_elapsed_ms": 4546,
+          "render_elapsed_ms": 2539,
+          "gemini_text_elapsed_ms": 2007,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 1453.0
+        }
+      }
+    ]
+  },
+  "3": {
+    "batch_wall_ms": 20190,
+    "results": [
+      {
+        "url": "https://www.musinsa.com/products/4341120",
+        "status": 200,
+        "wall_ms": 6114,
+        "server_metrics": {
+          "total_elapsed_ms": 6083,
+          "render_elapsed_ms": 4244,
+          "gemini_text_elapsed_ms": 1839,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 2323.8
+        }
+      },
+      {
+        "url": "https://kream.co.kr/products/1012767",
+        "status": 200,
+        "wall_ms": 6404,
+        "server_metrics": {
+          "total_elapsed_ms": 6377,
+          "render_elapsed_ms": 4159,
+          "gemini_text_elapsed_ms": 2217,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 2322.7
+        }
+      },
+      {
+        "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%9E%AC%ED%82%B7-6afaYkrC/IM4254-104",
+        "status": 502,
+        "wall_ms": 20190,
+        "server_metrics": {
+          "detail": "렌더링 오류: TimeoutError: Page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%9E%AC%ED%82%B7-6afaYkrC/IM4254-104\", waiting until \"domcontentloaded\"\n"
+        }
+      }
+    ]
+  },
+  "6": {
+    "batch_wall_ms": 10595,
+    "results": [
+      {
+        "url": "https://www.musinsa.com/products/4341120",
+        "status": 200,
+        "wall_ms": 8891,
+        "server_metrics": {
+          "total_elapsed_ms": 8881,
+          "render_elapsed_ms": 6733,
+          "gemini_text_elapsed_ms": 2148,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 4283.1
+        }
+      },
+      {
+        "url": "https://kream.co.kr/products/1012767",
+        "status": 200,
+        "wall_ms": 9643,
+        "server_metrics": {
+          "total_elapsed_ms": 9624,
+          "render_elapsed_ms": 7259,
+          "gemini_text_elapsed_ms": 2364,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 4285.8
+        }
+      },
+      {
+        "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%9E%AC%ED%82%B7-6afaYkrC/IM4254-104",
+        "status": 200,
+        "wall_ms": 10595,
+        "server_metrics": {
+          "total_elapsed_ms": 10569,
+          "render_elapsed_ms": 7277,
+          "gemini_text_elapsed_ms": 3292,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 4171.6
+        }
+      },
+      {
+        "url": "https://web.queenit.kr/product/421b849e05731238976b9f01d96c7e31",
+        "status": 200,
+        "wall_ms": 7322,
+        "server_metrics": {
+          "total_elapsed_ms": 7296,
+          "render_elapsed_ms": 5647,
+          "gemini_text_elapsed_ms": 1649,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 4169.2
+        }
+      },
+      {
+        "url": "https://www.ssfshop.com/GOOD-ON/GPCX21040888339/good",
+        "status": 200,
+        "wall_ms": 7656,
+        "server_metrics": {
+          "total_elapsed_ms": 7625,
+          "render_elapsed_ms": 5185,
+          "gemini_text_elapsed_ms": 2439,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 4179.3
+        }
+      },
+      {
+        "url": "https://posty.kr/products/169042232",
+        "status": 200,
+        "wall_ms": 8475,
+        "server_metrics": {
+          "total_elapsed_ms": 8427,
+          "render_elapsed_ms": 6120,
+          "gemini_text_elapsed_ms": 2306,
+          "gemini_vision_elapsed_ms": 0,
+          "cache_hit": false,
+          "peak_rss_mb": 4253.2
+        }
+      }
+    ]
+  }
+}

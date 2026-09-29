@@ -1,0 +1,11 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+playwright==1.63.0  # Dockerfile 베이스 이미지(mcr.microsoft.com/playwright/python:v1.63.0-noble) 버전과 정확히 맞춰야 함 — 어긋나면 컨테이너의 Chromium과 버전 불일치로 브라우저 실행 오류가 남
+beautifulsoup4>=4.12
+google-genai>=1.0
+python-dotenv>=1.0
+psutil>=6.0
+pydantic>=2.7
+# anthropic/openai는 providers.py에서 지연 임포트(키가 있을 때만 필요) — 지금 이 서버는
+# GEMINI_API_KEY만 쓰므로 기본 설치엔 포함하지 않았다. 필요해지면:
+#   pip install anthropic openai

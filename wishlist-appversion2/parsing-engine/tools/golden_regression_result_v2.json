@@ -1,0 +1,1871 @@
+[
+  {
+    "mall": "무신사",
+    "url": "https://www.musinsa.com/products/4341120",
+    "golden": {
+      "mall": "무신사",
+      "url": "https://www.musinsa.com/products/4341120",
+      "name": "클래식 반소매 티셔츠 - 블랙 / 801474YB2FT1000",
+      "price": 105990,
+      "image": "https://image.msscdn.net/images/goods_img/20240819/4341120/4341120_17254134643550_500.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3486,
+    "extracted": {
+      "product_name": "클래식 반소매 티셔츠 - 블랙 / 801474YB2FT1000",
+      "price": {
+        "unconditional_price": 105990,
+        "regular_price": 838000,
+        "currency": "KRW"
+      },
+      "image_url": "https://image.msscdn.net/images/goods_img/20240819/4341120/4341120_17254134643550_500.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.musinsa.com/products/4341120"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3471,
+        "render_elapsed_ms": 1538,
+        "gemini_text_elapsed_ms": 1933,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1447.9
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "무신사",
+    "url": "https://www.musinsa.com/products/6797005",
+    "golden": {
+      "mall": "무신사",
+      "url": "https://www.musinsa.com/products/6797005",
+      "name": "Days Comfort Fit Shirt_White",
+      "price": 89000,
+      "image": "https://image.msscdn.net/images/goods_img/20260707/6797005/6797005_17852305721496_500.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3448,
+    "extracted": {
+      "product_name": "Days Comfort Fit Shirt_White",
+      "price": {
+        "unconditional_price": 84550,
+        "regular_price": 89000,
+        "currency": "KRW"
+      },
+      "image_url": "https://image.msscdn.net/images/goods_img/20260707/6797005/6797005_17852305721496_500.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": false,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": false
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.musinsa.com/products/6797005"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3441,
+        "render_elapsed_ms": 1854,
+        "gemini_text_elapsed_ms": 1587,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1535.6
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "무신사",
+    "url": "https://www.musinsa.com/products/6677115",
+    "golden": {
+      "mall": "무신사",
+      "url": "https://www.musinsa.com/products/6677115",
+      "name": "소프트 헨리넥 반팔 티셔츠 [브라운]",
+      "price": 45000,
+      "image": "https://image.msscdn.net/images/goods_img/20260616/6677115/6677115_17852914703616_500.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3332,
+    "extracted": {
+      "product_name": "르아르(LEIRE) 소프트 헨리넥 반팔 티셔츠 [브라운]",
+      "price": {
+        "unconditional_price": 24900,
+        "regular_price": 45000,
+        "currency": "KRW"
+      },
+      "image_url": "https://image.msscdn.net/images/goods_img/20260616/6677115/6677115_17852914703616_500.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.musinsa.com/products/6677115"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3325,
+        "render_elapsed_ms": 1598,
+        "gemini_text_elapsed_ms": 1727,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1547.4
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.762,
+      "image_match": true,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "W컨셉",
+    "url": "https://www.wconcept.co.kr/Product/308678703",
+    "golden": {
+      "mall": "W컨셉",
+      "url": "https://www.wconcept.co.kr/Product/308678703",
+      "name": "멀티 유즈 슬리브리스 탑 브라운 OU2006",
+      "price": 52000,
+      "image": "https://product-image.wconcept.co.kr/productimg/image/img9/03/308678703_UI25679.jpg",
+      "brand": "ouie"
+    },
+    "http_status": 200,
+    "wall_ms": 4142,
+    "extracted": {
+      "product_name": "[한정특가] 멀티 유즈 슬리브리스 탑 브라운 OU2006",
+      "price": {
+        "unconditional_price": 44200,
+        "regular_price": 52000,
+        "currency": "KRW"
+      },
+      "image_url": "https://product-image.wconcept.co.kr/productimg/image/img0/03/308678703_UI25679.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.wconcept.co.kr/Product/308678703"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4134,
+        "render_elapsed_ms": 1936,
+        "gemini_text_elapsed_ms": 2197,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1760.6
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.864,
+      "image_match": true,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "W컨셉",
+    "url": "https://www.wconcept.co.kr/Product/308589275",
+    "golden": {
+      "mall": "W컨셉",
+      "url": "https://www.wconcept.co.kr/Product/308589275",
+      "name": "Soft Drape T-shirt_3Color",
+      "price": 88000,
+      "image": "https://product-image.wconcept.co.kr/productimg/image/img9/75/308589275_EP72624.jpg",
+      "brand": "FLOWOOM"
+    },
+    "http_status": 200,
+    "wall_ms": 4295,
+    "extracted": {
+      "product_name": "[FLOWOOM 플로움] Soft Drape T-shirt_3Color",
+      "price": {
+        "unconditional_price": 88000,
+        "regular_price": 88000,
+        "currency": "KRW"
+      },
+      "image_url": "https://product-image.wconcept.co.kr/productimg/image/img2/75/308589275_EP72624.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": false,
+        "image_grounded": true,
+        "all_grounded": false
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.wconcept.co.kr/Product/308589275"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4287,
+        "render_elapsed_ms": 2461,
+        "gemini_text_elapsed_ms": 1826,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1801.2
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.793,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "W컨셉",
+    "url": "https://www.wconcept.co.kr/Product/308629259",
+    "golden": {
+      "mall": "W컨셉",
+      "url": "https://www.wconcept.co.kr/Product/308629259",
+      "name": "[단독][SET] Wrap Detail T-Shirt & V-Neck Sleeveless Top",
+      "price": 102000,
+      "image": "https://product-image.wconcept.co.kr/productimg/image/img9/59/308629259_VW44687.jpg",
+      "brand": "THE RYE"
+    },
+    "http_status": 200,
+    "wall_ms": 3832,
+    "extracted": {
+      "product_name": "[단독][SET] Wrap Detail T-Shirt & V-Neck Sleeveless Top",
+      "price": {
+        "unconditional_price": 102000,
+        "regular_price": 102000,
+        "currency": "KRW"
+      },
+      "image_url": "https://product-image.wconcept.co.kr/productimg/image/img2/59/308629259_VW44687.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.wconcept.co.kr/Product/308629259"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3822,
+        "render_elapsed_ms": 1469,
+        "gemini_text_elapsed_ms": 2352,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1768.0
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "29CM",
+    "url": "https://www.29cm.co.kr/products/3769341",
+    "golden": {
+      "mall": "29CM",
+      "url": "https://www.29cm.co.kr/products/3769341",
+      "name": "[꼬민지PICK/29CM 단독] SIOT4182 하이 넥 버튼 블루종_Navy",
+      "price": 167000,
+      "image": "https://img.29cm.co.kr/item/202602/11f10e4064ca6ebca3c031a646d4f5cd.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3539,
+    "extracted": {
+      "product_name": "SIOT4182 하이 넥 버튼 블루종_Navy",
+      "price": {
+        "unconditional_price": 114980,
+        "regular_price": 167000,
+        "currency": "KRW"
+      },
+      "image_url": "https://img.29cm.co.kr/item/202602/11f10e4064ca6ebca3c031a646d4f5cd.jpg?width=1200&format=webp",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.29cm.co.kr/products/3769341"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3531,
+        "render_elapsed_ms": 1576,
+        "gemini_text_elapsed_ms": 1954,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1741.2
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.724,
+      "image_match": true,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "29CM",
+    "url": "https://www.29cm.co.kr/products/3423314",
+    "golden": {
+      "mall": "29CM",
+      "url": "https://www.29cm.co.kr/products/3423314",
+      "name": "[Atelier Edition] W/Two Way Vegan Leather Jacket_2COLOR(WC25-OT09)",
+      "price": 225500,
+      "image": "https://img.29cm.co.kr/item/202509/11f093803023ba4494a2b7e59c753ef1.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3972,
+    "extracted": {
+      "product_name": "[10차 리오더][Atelier Edition] W/Two Way Vegan Leather Jacket_2COLOR(WC25-OT09)",
+      "price": {
+        "unconditional_price": 153340,
+        "regular_price": 225500,
+        "currency": "KRW"
+      },
+      "image_url": "https://img.29cm.co.kr/item/202509/11f093803023ba4494a2b7e59c753ef1.jpg?width=1200&format=webp",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.29cm.co.kr/products/3423314"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3964,
+        "render_elapsed_ms": 1706,
+        "gemini_text_elapsed_ms": 2258,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1793.9
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.938,
+      "image_match": true,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "29CM",
+    "url": "https://www.29cm.co.kr/products/3765311",
+    "golden": {
+      "mall": "29CM",
+      "url": "https://www.29cm.co.kr/products/3765311",
+      "name": "[10월 02일 예약발송][꼬민지 PICK][14th] faux leather half coat_black",
+      "price": 219000,
+      "image": "https://img.29cm.co.kr/item/202608/11f199cc75fcdd8885e1f77211683ab4.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3952,
+    "extracted": {
+      "product_name": "[10월 02일 예약발송][14th] faux leather half coat_black",
+      "price": {
+        "unconditional_price": 139950,
+        "regular_price": 219000,
+        "currency": "KRW"
+      },
+      "image_url": "https://img.29cm.co.kr/item/202602/11f101747f13e3d0a540354b70be0763.jpg?width=1200&format=webp",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.29cm.co.kr/products/3765311"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3945,
+        "render_elapsed_ms": 1754,
+        "gemini_text_elapsed_ms": 2190,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1697.5
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.905,
+      "image_match": false,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "유니클로",
+    "url": "https://www.uniqlo.com/kr/ko/products/E488796-000/00?colorDisplayCode=00&sizeDisplayCode=005",
+    "golden": {
+      "mall": "유니클로",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488796-000/00?colorDisplayCode=00&sizeDisplayCode=005",
+      "name": "젠더리스 옥스포드오버사이즈셔츠",
+      "price": 49900,
+      "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488796/sub/krgoods_488796_sub14_3x4.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 5908,
+    "extracted": {
+      "product_name": "옥스포드오버사이즈셔츠",
+      "price": {
+        "unconditional_price": 49900,
+        "regular_price": null,
+        "currency": "KRW"
+      },
+      "image_url": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488796/item/krgoods_00_488796_3x4.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.uniqlo.com/kr/ko/products/E488796-000/00?colorDisplayCode=00&sizeDisplayCode=005"
+      },
+      "metrics": {
+        "total_elapsed_ms": 5900,
+        "render_elapsed_ms": 3701,
+        "gemini_text_elapsed_ms": 2198,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1798.8
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.846,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "유니클로",
+    "url": "https://www.uniqlo.com/kr/ko/products/E488798-000/00?colorDisplayCode=32&sizeDisplayCode=005",
+    "golden": {
+      "mall": "유니클로",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488798-000/00?colorDisplayCode=32&sizeDisplayCode=005",
+      "name": "젠더리스 옥스포드오버사이즈셔츠(스트라이프)B",
+      "price": 49900,
+      "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488798/sub/krgoods_488798_sub3_3x4.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 5689,
+    "extracted": {
+      "product_name": "젠더리스 옥스포드오버사이즈셔츠(스트라이프)B",
+      "price": {
+        "unconditional_price": 49900,
+        "regular_price": null,
+        "currency": "KRW"
+      },
+      "image_url": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488798/item/krgoods_32_488798_3x4.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.uniqlo.com/kr/ko/products/E488798-000/00?colorDisplayCode=32&sizeDisplayCode=005"
+      },
+      "metrics": {
+        "total_elapsed_ms": 5682,
+        "render_elapsed_ms": 3500,
+        "gemini_text_elapsed_ms": 2181,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1807.6
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "유니클로",
+    "url": "https://www.uniqlo.com/kr/ko/products/E488797-000/00?colorDisplayCode=54&sizeDisplayCode=005",
+    "golden": {
+      "mall": "유니클로",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488797-000/00?colorDisplayCode=54&sizeDisplayCode=005",
+      "name": "젠더리스 옥스포드오버사이즈셔츠(스트라이프)A",
+      "price": 49900,
+      "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488797/sub/krgoods_488797_sub3_3x4.jpg",
+      "brand": null
+    },
+    "http_status": 504,
+    "wall_ms": 45009
+  },
+  {
+    "mall": "에이블리",
+    "url": "https://mobile.a-bly.com/goods/75432976",
+    "golden": {
+      "mall": "에이블리",
+      "url": "https://mobile.a-bly.com/goods/75432976",
+      "name": "[하이넥/간절기필수🍂] 톤텔 루즈 사선 지퍼 후드집업",
+      "price": 43000,
+      "image": "https://imgb.a-bly.com/data/goods/7b7beef563b76b4fa88149111c73b23f.gif",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 4178,
+    "extracted": {
+      "product_name": "루너프 [하이넥/간절기필수🍂] 톤텔 루즈 사선 지퍼 후드집업",
+      "price": {
+        "unconditional_price": 23010,
+        "regular_price": 43000,
+        "currency": "KRW"
+      },
+      "image_url": "https://d3ha2047wt6x28.cloudfront.net/kg4zkpqYUko/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjYwODExXzE3ODY0MzM1OTM5MTgzMTNtLmpwZw",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://mobile.a-bly.com/goods/75432976"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4170,
+        "render_elapsed_ms": 2088,
+        "gemini_text_elapsed_ms": 2082,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1633.0
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.941,
+      "image_match": false,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "에이블리",
+    "url": "https://mobile.a-bly.com/goods/75506878",
+    "golden": {
+      "mall": "에이블리",
+      "url": "https://mobile.a-bly.com/goods/75506878",
+      "name": "[여리코어🪡] made 소피 여리 펀칭 니트 - 4color",
+      "price": 30000,
+      "image": "https://imgb.a-bly.com/data/goods/1ae2f183f57bb3474c726cf53f09e5e0.gif",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 7167,
+    "extracted": {
+      "product_name": null,
+      "price": {
+        "unconditional_price": null,
+        "regular_price": null,
+        "currency": "KRW"
+      },
+      "image_url": null,
+      "ambiguous": true,
+      "ambiguity_reason": "The screenshot shows an incomplete or empty product page with 0원 price and missing product name, making it impossible to extract valid and reliable product information.",
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": false,
+        "name_grounded": false,
+        "image_grounded": false,
+        "all_grounded": false
+      },
+      "screenshot_fallback_used": true,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://mobile.a-bly.com/goods/75506878"
+      },
+      "metrics": {
+        "total_elapsed_ms": 7158,
+        "render_elapsed_ms": 1989,
+        "gemini_text_elapsed_ms": 1762,
+        "gemini_vision_elapsed_ms": 3407,
+        "cache_hit": false,
+        "peak_rss_mb": 1612.1
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": false,
+      "name_similarity": 0.0,
+      "image_match": false,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "에이블리",
+    "url": "https://mobile.a-bly.com/goods/28244036",
+    "golden": {
+      "mall": "에이블리",
+      "url": "https://mobile.a-bly.com/goods/28244036",
+      "name": "🏆1위🏆 스킨 레이어 핏 파운데이션",
+      "price": 26600,
+      "image": "https://imgb.a-bly.com/data/goods/25557256cc908c7eb4887da1cef5cc5e.gif",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 4029,
+    "extracted": {
+      "product_name": "어바웃톤 [🏆1위🏆] 스킨 레이어 핏 파운데이션",
+      "price": {
+        "unconditional_price": 15050,
+        "regular_price": null,
+        "currency": "KRW"
+      },
+      "image_url": "https://d3ha2047wt6x28.cloudfront.net/N9Oj1uuKFvI/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjYwOTA0XzE3ODg0ODA0MDM4MjExNzNtLnBuZw",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://mobile.a-bly.com/goods/28244036"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3999,
+        "render_elapsed_ms": 2230,
+        "gemini_text_elapsed_ms": 1767,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1755.3
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.833,
+      "image_match": false,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "지그재그",
+    "url": "https://zigzag.kr/catalog/products/159126270",
+    "golden": {
+      "mall": "지그재그",
+      "url": "https://zigzag.kr/catalog/products/159126270",
+      "name": "[MADE] 로브닝 레이스 브이넥 슬리브리스",
+      "price": 22000,
+      "image": "https://cf.product-image.s.zigzag.kr/original/c/15/912/627/159126270-2264955569924090591.jpeg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3743,
+    "extracted": {
+      "product_name": "모어렌 [4만장판매🏆직잭단독] [MADE] 로브닝 레이스 브이넥 슬리브리스",
+      "price": {
+        "unconditional_price": 17000,
+        "regular_price": 22000,
+        "currency": "KRW"
+      },
+      "image_url": "https://cf.product-image.s.zigzag.kr/original/c/15/912/627/159126270-2264955569924090591.jpeg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://zigzag.kr/catalog/products/159126270"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3718,
+        "render_elapsed_ms": 1906,
+        "gemini_text_elapsed_ms": 1812,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1678.4
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.727,
+      "image_match": true,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "지그재그",
+    "url": "https://zigzag.kr/catalog/products/168362278",
+    "golden": {
+      "mall": "지그재그",
+      "url": "https://zigzag.kr/catalog/products/168362278",
+      "name": "화이트랩스 치아미백기 LED 셀프 자가 치아미백기계 & 치아미백젤 세트 (1인용)",
+      "price": 179000,
+      "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/2/3/59382_202602031710060884_61349.jpeg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3538,
+    "extracted": {
+      "product_name": "화이트랩스 치아미백기 LED 셀프 자가 치아미백기계 & 치아미백젤 세트 (1인용)",
+      "price": {
+        "unconditional_price": 179000,
+        "regular_price": 249000,
+        "currency": "KRW"
+      },
+      "image_url": "https://cf.product-image.s.zigzag.kr/original/d/2026/2/3/59382_202602031710060884_61349.jpeg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://zigzag.kr/catalog/products/168362278"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3530,
+        "render_elapsed_ms": 1866,
+        "gemini_text_elapsed_ms": 1664,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1823.6
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "지그재그",
+    "url": "https://zigzag.kr/catalog/products/161980550",
+    "golden": {
+      "mall": "지그재그",
+      "url": "https://zigzag.kr/catalog/products/161980550",
+      "name": "💓뷰티위크 특가💓 [조말론] 블랙베리 앤 베이 코롱 100ml (블랙베리향) (+선물포장)",
+      "price": 191290,
+      "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/7/16/40976_202607161436522871_71643.jpeg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3645,
+    "extracted": {
+      "product_name": "뷰티크 🚎직진위크 특가🚎 [조말론] 블랙베리 앤 베이 코롱 100ml (블랙베리향) (+선물포장)",
+      "price": {
+        "unconditional_price": 191290,
+        "regular_price": 235000,
+        "currency": "KRW"
+      },
+      "image_url": "https://cf.product-image.s.zigzag.kr/original/d/2026/7/16/40976_202607161436522871_71643.jpeg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://zigzag.kr/catalog/products/161980550"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3631,
+        "render_elapsed_ms": 1862,
+        "gemini_text_elapsed_ms": 1769,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1676.2
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.918,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "KREAM",
+    "url": "https://kream.co.kr/products/1012767",
+    "golden": {
+      "mall": "KREAM",
+      "url": "https://kream.co.kr/products/1012767",
+      "name": "[KREAM 단독] Thevinylhouse x Bocchi the Rock! Kessoku Star Layered Ls Tee Black",
+      "price": 75000,
+      "image": "https://kream-phinf.pstatic.net/MjAyNjA3MjFfMTg4/MDAxNzg0NjI1NjU1NjM1.2BI9VXVbcdapWUmRh0WlEwr_hv_5W7N9xFYqHb05Pycg.GPpdMDscTfgzG9PM3uOktT3yV5TjyOibgMklxlCgfnsg.PNG/p_d155324f3a38439dbbfd707b2d447f5f.png",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 4812,
+    "extracted": {
+      "product_name": "[KREAM 단독] Thevinylhouse x Bocchi the Rock! Kessoku Star Layered Ls Tee Black",
+      "price": {
+        "unconditional_price": 75000,
+        "regular_price": 75000,
+        "currency": "KRW"
+      },
+      "image_url": "https://kream-phinf.pstatic.net/MjAyNjA3MjFfMTg4/MDAxNzg0NjI1NjU1NjM1.2BI9VXVbcdapWUmRh0WlEwr_hv_5W7N9xFYqHb05Pycg.GPpdMDscTfgzG9PM3uOktT3yV5TjyOibgMklxlCgfnsg.PNG/p_d155324f3a38439dbbfd707b2d447f5f.png",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://kream.co.kr/products/1012767"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4799,
+        "render_elapsed_ms": 2292,
+        "gemini_text_elapsed_ms": 2507,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1659.7
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "KREAM",
+    "url": "https://kream.co.kr/products/1012757",
+    "golden": {
+      "mall": "KREAM",
+      "url": "https://kream.co.kr/products/1012757",
+      "name": "[KREAM 단독] Thevinylhouse x Bocchi the Rock! Kessoku Acrylic Key Ring Pink",
+      "price": 19000,
+      "image": "https://kream-phinf.pstatic.net/MjAyNjA3MjFfOTUg/MDAxNzg0NjE1NTMwMjk2.BAmLftkmc4G7A3xzGvewt3OmPuR_sRzpIjmUn7hExxYg.8IxWY5b80ELy9K0tNXYS15aisYfYNbEuPg5k6ibXFQAg.PNG/p_b2b51d61d9264fc68948da832b0c0906.png",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 4293,
+    "extracted": {
+      "product_name": "[KREAM 단독] Thevinylhouse x Bocchi the Rock! Kessoku Acrylic Key Ring Pink",
+      "price": {
+        "unconditional_price": 19000,
+        "regular_price": 19000,
+        "currency": "KRW"
+      },
+      "image_url": "https://kream-phinf.pstatic.net/MjAyNjA3MjFfOTUg/MDAxNzg0NjE1NTMwMjk2.BAmLftkmc4G7A3xzGvewt3OmPuR_sRzpIjmUn7hExxYg.8IxWY5b80ELy9K0tNXYS15aisYfYNbEuPg5k6ibXFQAg.PNG/p_b2b51d61d9264fc68948da832b0c0906.png",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://kream.co.kr/products/1012757"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4286,
+        "render_elapsed_ms": 1901,
+        "gemini_text_elapsed_ms": 2385,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1608.5
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "KREAM",
+    "url": "https://kream.co.kr/products/1012784",
+    "golden": {
+      "mall": "KREAM",
+      "url": "https://kream.co.kr/products/1012784",
+      "name": "[KREAM 단독] Thevinylhouse x Bocchi the Rock! Kessoku Friends Tee Black",
+      "price": 59000,
+      "image": "https://kream-phinf.pstatic.net/MjAyNjA3MjFfMjI3/MDAxNzg0NjE3ODY4Mzg1.UDEeWJY1fUchthKDAaTpRFlDedLp0QZPloakINgb3oAg.XJv6aiPlKmv1s-z6TL5OOoBvQpD_URRpaU45gZYk0mYg.PNG/p_aef519f6b61f43fabb7eda41dac1a1bd.png",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 4045,
+    "extracted": {
+      "product_name": "[KREAM 단독] Thevinylhouse x Bocchi the Rock! Kessoku Friends Tee Black",
+      "price": {
+        "unconditional_price": 59000,
+        "regular_price": 59000,
+        "currency": "KRW"
+      },
+      "image_url": "https://kream-phinf.pstatic.net/MjAyNjA3MjFfMjI3/MDAxNzg0NjE3ODY4Mzg1.UDEeWJY1fUchthKDAaTpRFlDedLp0QZPloakINgb3oAg.XJv6aiPlKmv1s-z6TL5OOoBvQpD_URRpaU45gZYk0mYg.PNG/p_aef519f6b61f43fabb7eda41dac1a1bd.png",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://kream.co.kr/products/1012784"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4038,
+        "render_elapsed_ms": 2003,
+        "gemini_text_elapsed_ms": 2035,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1667.7
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "나이키",
+    "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%9E%AC%ED%82%B7-6afaYkrC/IM4254-104",
+    "golden": {
+      "mall": "나이키",
+      "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%9E%AC%ED%82%B7-6afaYkrC/IM4254-104",
+      "name": "ACG '돌로미티' 코듀로이 재킷",
+      "price": 189000,
+      "image": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/02416b55-9304-42b2-95fc-12ff75aada31/AS+U+ACG+DOLOMITI+YUNNAN+CORD.png",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3839,
+    "extracted": {
+      "product_name": "ACG 돌로미티 코듀로이 재킷",
+      "price": {
+        "unconditional_price": 189000,
+        "regular_price": null,
+        "currency": "KRW"
+      },
+      "image_url": "https://static.nike.com/a/images/t_web_pdp_535_v2/f_auto,u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/02416b55-9304-42b2-95fc-12ff75aada31/AS+U+ACG+DOLOMITI+YUNNAN+CORD.png",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%9E%AC%ED%82%B7-6afaYkrC/IM4254-104"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3832,
+        "render_elapsed_ms": 1760,
+        "gemini_text_elapsed_ms": 2071,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1691.2
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.929,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "나이키",
+    "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%87%BC%EC%B8%A0-wqfRDNM2/IM4222-104",
+    "golden": {
+      "mall": "나이키",
+      "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%87%BC%EC%B8%A0-wqfRDNM2/IM4222-104",
+      "name": "ACG '돌로미티' 코듀로이 쇼츠",
+      "price": 115000,
+      "image": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/1ca8ce9e-fa71-4dd0-a7ec-722906e781da/AS+U+ACG+DOLOMITI+YUNNAN+CRD+S.png",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 4208,
+    "extracted": {
+      "product_name": "ACG 돌로미티 코듀로이 쇼츠",
+      "price": {
+        "unconditional_price": 115000,
+        "regular_price": null,
+        "currency": "KRW"
+      },
+      "image_url": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/1ca8ce9e-fa71-4dd0-a7ec-722906e781da/AS+U+ACG+DOLOMITI+YUNNAN+CRD+S.png",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%87%BC%EC%B8%A0-wqfRDNM2/IM4222-104"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4201,
+        "render_elapsed_ms": 2192,
+        "gemini_text_elapsed_ms": 2009,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1724.7
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.929,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "나이키",
+    "url": "https://www.nike.com/kr/t/%EB%82%98%EC%9D%B4%ED%82%A4-%ED%8E%98%EA%B0%80%EC%88%98%EC%8A%A4-42-%EC%97%AC%EC%84%B1-%EB%A1%9C%EB%93%9C-%EB%9F%AC%EB%8B%9D%ED%99%94-J3FQiYIc/IB1881-106",
+    "golden": {
+      "mall": "나이키",
+      "url": "https://www.nike.com/kr/t/%EB%82%98%EC%9D%B4%ED%82%A4-%ED%8E%98%EA%B0%80%EC%88%98%EC%8A%A4-42-%EC%97%AC%EC%84%B1-%EB%A1%9C%EB%93%9C-%EB%9F%AC%EB%8B%9D%ED%99%94-J3FQiYIc/IB1881-106",
+      "name": "나이키 페가수스 42 여성 로드 러닝화",
+      "price": 169000,
+      "image": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/522aebea-2c93-411d-a8ef-cad78715368a/W+NIKE+AIR+ZOOM+PEGASUS+42.png",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 18705,
+    "extracted": {
+      "product_name": "나이키 페가수스 42 여성 로드 러닝화",
+      "price": {
+        "unconditional_price": 169000,
+        "regular_price": null,
+        "currency": "KRW"
+      },
+      "image_url": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/522aebea-2c93-411d-a8ef-cad78715368a/W+NIKE+AIR+ZOOM+PEGASUS+42.png",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.nike.com/kr/t/%EB%82%98%EC%9D%B4%ED%82%A4-%ED%8E%98%EA%B0%80%EC%88%98%EC%8A%A4-42-%EC%97%AC%EC%84%B1-%EB%A1%9C%EB%93%9C-%EB%9F%AC%EB%8B%9D%ED%99%94-J3FQiYIc/IB1881-106"
+      },
+      "metrics": {
+        "total_elapsed_ms": 18697,
+        "render_elapsed_ms": 1832,
+        "gemini_text_elapsed_ms": 16865,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1682.1
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "퀸잇",
+    "url": "https://web.queenit.kr/product/421b849e05731238976b9f01d96c7e31",
+    "golden": {
+      "mall": "퀸잇",
+      "url": "https://web.queenit.kr/product/421b849e05731238976b9f01d96c7e31",
+      "name": "[M,L 사이즈/벨트세트]반팔 데님 원피스(하객룩, 하객원피스)",
+      "price": 29900,
+      "image": "https://image.queenit.kr/product/asset/v1/upload/04120430d08047c38524a66065b43ca2.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3456,
+    "extracted": {
+      "product_name": "[M,L 사이즈/벨트세트]반팔 데님 원피스(하객룩, 하객원피스)",
+      "price": {
+        "unconditional_price": 29900,
+        "regular_price": 99000,
+        "currency": "KRW"
+      },
+      "image_url": "https://image.queenit.kr/product/asset/v1/upload/04120430d08047c38524a66065b43ca2.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://web.queenit.kr/product/421b849e05731238976b9f01d96c7e31"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3448,
+        "render_elapsed_ms": 1874,
+        "gemini_text_elapsed_ms": 1574,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1822.0
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "퀸잇",
+    "url": "https://web.queenit.kr/product/360e9e7089a6346d2e9b5de2b2d8e121",
+    "golden": {
+      "mall": "퀸잇",
+      "url": "https://web.queenit.kr/product/360e9e7089a6346d2e9b5de2b2d8e121",
+      "name": "[비버리힐스폴로클럽]여성 케이블 라운드 니트 폴로 가디건 TK001 _A",
+      "price": 33900,
+      "image": "https://imgs.kshop.co.kr/d2/emc/goods/openmarket/queenit/5250535/5250535_20250421165441.png",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3404,
+    "extracted": {
+      "product_name": "여성 케이블 라운드 니트 폴로 가디건 TK001 _A",
+      "price": {
+        "unconditional_price": 33900,
+        "regular_price": 133000,
+        "currency": "KRW"
+      },
+      "image_url": "https://imgs.kshop.co.kr/d2/emc/goods/openmarket/queenit/5250535/5250535_20250421165441.png",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://web.queenit.kr/product/360e9e7089a6346d2e9b5de2b2d8e121"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3390,
+        "render_elapsed_ms": 1875,
+        "gemini_text_elapsed_ms": 1515,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1857.2
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.8,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "퀸잇",
+    "url": "https://web.queenit.kr/product/b52c66c75291c8ef4d9f136282cac90c",
+    "golden": {
+      "mall": "퀸잇",
+      "url": "https://web.queenit.kr/product/b52c66c75291c8ef4d9f136282cac90c",
+      "name": "모에나 레이어 가디건",
+      "price": 35900,
+      "image": "https://irisccc.cafe24.com/web/upload/NNEditor/20260316/8f6ebe26042b013dbd95d700f5d3abfe.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3375,
+    "extracted": {
+      "product_name": "모에나 레이어 가디건",
+      "price": {
+        "unconditional_price": 35900,
+        "regular_price": 35900,
+        "currency": "KRW"
+      },
+      "image_url": "https://irisccc.cafe24.com/web/upload/NNEditor/20260316/8f6ebe26042b013dbd95d700f5d3abfe.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://web.queenit.kr/product/b52c66c75291c8ef4d9f136282cac90c"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3366,
+        "render_elapsed_ms": 1837,
+        "gemini_text_elapsed_ms": 1529,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1759.1
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "4910",
+    "url": "https://4910.kr/goods/44678113",
+    "golden": {
+      "mall": "4910",
+      "url": "https://4910.kr/goods/44678113",
+      "name": "그루브스텝 [2PACK] 1+1 랩스타미니 라운드 반팔 티셔츠 S0217 - 4910 | 사고 싶은 스타일의 발견",
+      "price": 34800,
+      "image": "https://d3ha2047wt6x28.cloudfront.net/FA45r5mdpZY/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjYwNTIyXzE3Nzk0NTI1Mjg0MTgwOTdtLnBuZw",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3103,
+    "extracted": {
+      "product_name": "그루브스텝 [2PACK] 1+1 랩스타미니 라운드 반팔 티셔츠 S0217",
+      "price": {
+        "unconditional_price": 34800,
+        "regular_price": 99000,
+        "currency": "KRW"
+      },
+      "image_url": "https://d3ha2047wt6x28.cloudfront.net/FA45r5mdpZY/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjYwNTIyXzE3Nzk0NTI1Mjg0MTgwOTdtLnBuZw",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://4910.kr/desktop/goods/44678113"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3072,
+        "render_elapsed_ms": 1263,
+        "gemini_text_elapsed_ms": 1807,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1697.2
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.805,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "4910",
+    "url": "https://4910.kr/goods/71195041",
+    "golden": {
+      "mall": "4910",
+      "url": "https://4910.kr/goods/71195041",
+      "name": "모즈모즈 [단독1+1] 무지 배색 롤업 반팔티셔츠 - 4910 | 사고 싶은 스타일의 발견",
+      "price": 47200,
+      "image": "https://d3ha2047wt6x28.cloudfront.net/YL2tLW-EPb0/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjYwNjE4XzE3ODE3NjU3OTQ1MzAyMDJtLmpwZw",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 6650,
+    "extracted": {
+      "product_name": "[단독1+1] 무지 배색 롤업 반팔티셔츠",
+      "price": {
+        "unconditional_price": 47200,
+        "regular_price": 59000,
+        "currency": "KRW"
+      },
+      "image_url": "https://d3ha2047wt6x28.cloudfront.net/7JOIxJBzWQ0/pr:NEW_GOODS_THUMB_STILL_SQUARE/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzNiNGRhZWFlZWZjMTBlODU3YjZhMzRjYThmOTU4ODY2LmpwZw",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": false,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": false
+      },
+      "screenshot_fallback_used": true,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://4910.kr/desktop/goods/71195041"
+      },
+      "metrics": {
+        "total_elapsed_ms": 6612,
+        "render_elapsed_ms": 1680,
+        "gemini_text_elapsed_ms": 1968,
+        "gemini_vision_elapsed_ms": 2964,
+        "cache_hit": false,
+        "peak_rss_mb": 1714.4
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 0.643,
+      "image_match": false,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "4910",
+    "url": "https://4910.kr/goods/3954236",
+    "golden": {
+      "mall": "4910",
+      "url": "https://4910.kr/goods/3954236",
+      "name": "플루크 캠퍼밴 투어 피그먼트 반팔티셔츠 FST710 / 4color W - 4910 | 사고 싶은 스타일의 발견",
+      "price": 24800,
+      "image": "https://d3ha2047wt6x28.cloudfront.net/z6T_-U60HFk/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjMwODA5XzE2OTE1NjQwMDAwMzI1MTZtLmpwZw",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 6479,
+    "extracted": {
+      "product_name": "플루크 캠퍼밴 투어 피그먼트 반팔티셔츠 FST710 / 4color W",
+      "price": {
+        "unconditional_price": 24000,
+        "regular_price": 39000,
+        "currency": "KRW"
+      },
+      "image_url": "https://d3ha2047wt6x28.cloudfront.net/z6T_-U60HFk/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjMwODA5XzE2OTE1NjQwMDAwMzI1MTZtLmpwZw",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": false,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": false
+      },
+      "screenshot_fallback_used": true,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://4910.kr/desktop/goods/3954236"
+      },
+      "metrics": {
+        "total_elapsed_ms": 6471,
+        "render_elapsed_ms": 1268,
+        "gemini_text_elapsed_ms": 1795,
+        "gemini_vision_elapsed_ms": 3408,
+        "cache_hit": false,
+        "peak_rss_mb": 1763.3
+      }
+    },
+    "compare": {
+      "price_match": false,
+      "name_match": true,
+      "name_similarity": 0.795,
+      "image_match": true,
+      "full_match": false
+    }
+  },
+  {
+    "mall": "SSF샵",
+    "url": "https://www.ssfshop.com/GOOD-ON/GPCX21040888339/good",
+    "golden": {
+      "mall": "SSF샵",
+      "url": "https://www.ssfshop.com/GOOD-ON/GPCX21040888339/good",
+      "name": "굿온 피그먼트 다잉 베이스볼 티셔츠 - 네츄럴",
+      "price": 70400,
+      "image": "https://img.ssfshop.com/cmd/LB_750x1000/src/https://img.ssfshop.com/goods/ORBR/21/04/08/GPCX21040888339_0_THNAIL_ORGINL_20240503185548877.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 4017,
+    "extracted": {
+      "product_name": "굿온 피그먼트 다잉 베이스볼 티셔츠 - 네츄럴",
+      "price": {
+        "unconditional_price": 70400,
+        "regular_price": 88000,
+        "currency": "KRW"
+      },
+      "image_url": "https://img.ssfshop.com/cmd/LB_750x1000/src/https://img.ssfshop.com/goods/ORBR/21/04/08/GPCX21040888339_0_THNAIL_ORGINL_20240503185548877.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.ssfshop.com/GOOD-ON/GPCX21040888339/good"
+      },
+      "metrics": {
+        "total_elapsed_ms": 4009,
+        "render_elapsed_ms": 1413,
+        "gemini_text_elapsed_ms": 2594,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1685.4
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "SSF샵",
+    "url": "https://www.ssfshop.com/GOOD-ON/GPCX21031513266/good",
+    "golden": {
+      "mall": "SSF샵",
+      "url": "https://www.ssfshop.com/GOOD-ON/GPCX21031513266/good",
+      "name": "굿온 피그먼트 다잉 베이스볼 티셔츠 - 바나나",
+      "price": 70400,
+      "image": "https://img.ssfshop.com/cmd/LB_750x1000/src/https://img.ssfshop.com/goods/ORBR/21/03/15/GPCX21031513266_0_ORGINL_20220708125043755.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3173,
+    "extracted": {
+      "product_name": "굿온 피그먼트 다잉 베이스볼 티셔츠 - 바나나",
+      "price": {
+        "unconditional_price": 70400,
+        "regular_price": 88000,
+        "currency": "KRW"
+      },
+      "image_url": "https://img.ssfshop.com/cmd/LB_750x1000/src/https://img.ssfshop.com/goods/ORBR/21/03/15/GPCX21031513266_0_ORGINL_20220708125043755.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.ssfshop.com/GOOD-ON/GPCX21031513266/good"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3165,
+        "render_elapsed_ms": 1166,
+        "gemini_text_elapsed_ms": 1999,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1646.8
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "SSF샵",
+    "url": "https://www.ssfshop.com/GOOD-ON/GPCX22072270530/good",
+    "golden": {
+      "mall": "SSF샵",
+      "url": "https://www.ssfshop.com/GOOD-ON/GPCX22072270530/good",
+      "name": "굿온 피그먼트 다잉 베이스볼 티셔츠 - 세이지",
+      "price": 70400,
+      "image": "https://img.ssfshop.com/cmd/LB_750x1000/src/https://img.ssfshop.com/goods/ORBR/22/07/22/GPCX22072270530_0_ORGINL_20230428144836311.jpg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3201,
+    "extracted": {
+      "product_name": "굿온 피그먼트 다잉 베이스볼 티셔츠 - 세이지",
+      "price": {
+        "unconditional_price": 70400,
+        "regular_price": 88000,
+        "currency": "KRW"
+      },
+      "image_url": "https://img.ssfshop.com/cmd/LB_750x1000/src/https://img.ssfshop.com/goods/ORBR/22/07/22/GPCX22072270530_0_ORGINL_20230428144836311.jpg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://www.ssfshop.com/GOOD-ON/GPCX22072270530/good"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3193,
+        "render_elapsed_ms": 1031,
+        "gemini_text_elapsed_ms": 2162,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1683.4
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "포스티",
+    "url": "https://posty.kr/products/169042232",
+    "golden": {
+      "mall": "포스티",
+      "url": "https://posty.kr/products/169042232",
+      "name": "[1+1] 바겐슈타이거  플래티넘 실리콘 멜로우 와이드 뒤집개",
+      "price": 10900,
+      "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/3/17/58450_202603171149510230_29243.jpeg?width=720&height=720&quality=80&format=jpeg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3506,
+    "extracted": {
+      "product_name": "[1+1] 바겐슈타이거  플래티넘 실리콘 멜로우 와이드 뒤집개",
+      "price": {
+        "unconditional_price": 10900,
+        "regular_price": 59600,
+        "currency": "KRW"
+      },
+      "image_url": "https://cf.product-image.s.zigzag.kr/original/d/2026/3/17/58450_202603171149510230_29243.jpeg?width=720&height=720&quality=80&format=jpeg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://posty.kr/products/169042232"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3497,
+        "render_elapsed_ms": 1626,
+        "gemini_text_elapsed_ms": 1871,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1920.1
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "포스티",
+    "url": "https://posty.kr/products/171822906",
+    "golden": {
+      "mall": "포스티",
+      "url": "https://posty.kr/products/171822906",
+      "name": "[쉬즈프리티] 아모스빈티지스웨이드자켓",
+      "price": 39900,
+      "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/9/6/62697_202609061801101378_79249.jpeg?width=720&height=720&quality=80&format=jpeg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 19340,
+    "extracted": {
+      "product_name": "[쉬즈프리티] 아모스빈티지스웨이드자켓",
+      "price": {
+        "unconditional_price": 39900,
+        "regular_price": 39900,
+        "currency": "KRW"
+      },
+      "image_url": "https://cf.product-image.s.zigzag.kr/original/d/2026/9/6/62697_202609061801101378_79249.jpeg?width=720&height=720&quality=80&format=jpeg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://posty.kr/products/171822906"
+      },
+      "metrics": {
+        "total_elapsed_ms": 19334,
+        "render_elapsed_ms": 1700,
+        "gemini_text_elapsed_ms": 17632,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1845.8
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  },
+  {
+    "mall": "포스티",
+    "url": "https://posty.kr/products/170139765",
+    "golden": {
+      "mall": "포스티",
+      "url": "https://posty.kr/products/170139765",
+      "name": "[예쎄] 셔링 주름 퍼프 소매 롱 원피스(S6MOP064A)",
+      "price": 31900,
+      "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/6/22/27674_202606221018040984_36315.jpeg?width=720&height=720&quality=80&format=jpeg",
+      "brand": null
+    },
+    "http_status": 200,
+    "wall_ms": 3963,
+    "extracted": {
+      "product_name": "[예쎄] 셔링 주름 퍼프 소매 롱 원피스(S6MOP064A)",
+      "price": {
+        "unconditional_price": 31900,
+        "regular_price": 239000,
+        "currency": "KRW"
+      },
+      "image_url": "https://cf.product-image.s.zigzag.kr/original/d/2026/6/22/27674_202606221018040984_36315.jpeg?width=720&height=720&quality=80&format=jpeg",
+      "ambiguous": false,
+      "ambiguity_reason": null,
+      "confidence": "high",
+      "grounding": {
+        "price_grounded": true,
+        "name_grounded": true,
+        "image_grounded": true,
+        "all_grounded": true
+      },
+      "screenshot_fallback_used": false,
+      "render": {
+        "ok": true,
+        "blocked": false,
+        "final_url": "https://posty.kr/products/170139765"
+      },
+      "metrics": {
+        "total_elapsed_ms": 3957,
+        "render_elapsed_ms": 1993,
+        "gemini_text_elapsed_ms": 1963,
+        "gemini_vision_elapsed_ms": 0,
+        "cache_hit": false,
+        "peak_rss_mb": 1872.4
+      }
+    },
+    "compare": {
+      "price_match": true,
+      "name_match": true,
+      "name_similarity": 1.0,
+      "image_match": true,
+      "full_match": true
+    }
+  }
+]
