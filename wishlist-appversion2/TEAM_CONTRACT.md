@@ -3,7 +3,7 @@
 **역할**
 - 백엔드 담당(로그인 포함 Firebase → AWS 이전 전체): `lib/auth/`, `lib/services/account_repository.dart`, `amplify/`, 푸시·서버 함수
 - 앱 기능 담당: 화면(`lib/screens/`, auth 제외), `lib/data/app_store.dart`의 앱 로직, 위젯·테마
-- 엔진 담당: 파싱 엔진. 백엔드와 겹치는 부분 없음
+- 엔진 담당: 파싱 엔진 (`wishlist-appversion2/parsing-engine/`). 백엔드와 겹치는 부분 없음
 
 ---
 
