@@ -57,42 +57,6 @@ void main() {
     expect(store.tabs.map((tab) => tab.id), ['all', 'b', 'c', 'a']);
   });
 
-  test('publishReview keeps a local blog-style review', () async {
-    SharedPreferences.setMockInitialValues({});
-    final store = AppStore(backendConfigured: false);
-    await store.init();
-    store.currentUser = AppUser(
-      uid: 'user-1',
-      name: '나',
-      handle: '@me',
-      avatarUrl: 'https://example.com/me.png',
-    );
-    store.products = [
-      Product(
-        id: 7,
-        listId: 'all',
-        name: '테스트 니트',
-        price: 32000,
-        image: 'https://example.com/knit.png',
-        platform: '테스트몰',
-      ),
-    ];
-
-    final review = await store.publishReview(
-      product: store.products.first,
-      title: '보풀은 나지만 따뜻해요',
-      body: '일주일 입어본 솔직 후기입니다.',
-      mood: 5,
-    );
-
-    expect(review!.title, '보풀은 나지만 따뜻해요');
-    expect(store.myReviews, hasLength(1));
-    expect(store.myReviewForProduct(7)?.body, contains('솔직 후기'));
-    expect(store.reviewFeed.first.id, review.id);
-    expect(review.mood, 5);
-    expect(review.imageUrls, isEmpty);
-  });
-
   test('overlapping addTab keeps a single new list', () async {
     SharedPreferences.setMockInitialValues({});
     final store = AppStore(backendConfigured: false);
@@ -120,41 +84,6 @@ void main() {
     lock.end('addTab');
     expect(await store.addTab('여름'), isTrue);
     expect(store.tabs.last.name, '여름');
-  });
-
-  test('overlapping publishReview keeps a single review', () async {
-    SharedPreferences.setMockInitialValues({});
-    final store = AppStore(backendConfigured: false);
-    await store.init();
-    store.currentUser = AppUser(
-      uid: 'user-1',
-      name: '나',
-      handle: '@me',
-      avatarUrl: 'https://example.com/me.png',
-    );
-    final product = Product(
-      id: 7,
-      listId: 'all',
-      name: '테스트 니트',
-      price: 32000,
-      image: 'https://example.com/knit.png',
-      platform: '테스트몰',
-    );
-
-    final first = store.publishReview(
-      product: product,
-      title: '첫번째',
-      body: '먼저 올린 후기입니다.',
-    );
-    final second = store.publishReview(
-      product: product,
-      title: '두번째',
-      body: '겹친 후기입니다.',
-    );
-    final results = await Future.wait([first, second]);
-    expect(results.where((r) => r != null), hasLength(1));
-    expect(store.myReviews, hasLength(1));
-    expect(store.myReviews.first.title, '첫번째');
   });
 
   test('Product json round-trips list privacy', () {

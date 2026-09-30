@@ -170,32 +170,6 @@ void main() {
     });
   });
 
-  test('친구 리뷰는 로그인한 사람이 읽을 수 있다', () async {
-    appsync.caller = 'bob';
-    await data.upsertReview(
-      'bob',
-      ProductReview(
-        id: 'r1',
-        authorUid: 'bob',
-        authorName: '밥',
-        authorHandle: '@bob',
-        authorAvatar: '',
-        productId: 10,
-        productName: '운동화',
-        productImage: '',
-        productPlatform: '',
-        productPrice: 1,
-        title: '편해요',
-        body: '',
-        createdAt: DateTime.utc(2026, 9, 1),
-        updatedAt: DateTime.utc(2026, 9, 1),
-      ),
-    );
-    appsync.caller = 'amy';
-    final reviews = await data.loadReviews('bob');
-    expect(reviews.single.title, '편해요');
-  });
-
   test('회원 탈퇴: 내가 한 팔로우와 나를 향한 팔로우가 모두 지워진다', () async {
     await social.setFollowing(myUid: 'amy', targetUid: 'bob', follow: true);
     appsync.caller = 'cho';

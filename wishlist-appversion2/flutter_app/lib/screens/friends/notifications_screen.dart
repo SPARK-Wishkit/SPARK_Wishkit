@@ -121,11 +121,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return;
     }
     if (n.type == AppNotificationType.review) {
-      if (n.relatedId != null) {
-        context.push('/reviews/${n.relatedId}');
-      } else {
-        context.go('/friends');
-      }
+      context.go('/friends');
       return;
     }
     if (n.type == AppNotificationType.comment) {

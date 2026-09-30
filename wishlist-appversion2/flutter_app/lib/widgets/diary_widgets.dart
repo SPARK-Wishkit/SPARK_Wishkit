@@ -372,3 +372,13 @@ String formatWon(int price) {
   }
   return '${buf.toString()}원';
 }
+
+/// "방금 · N분 전 · N시간 전 · N일 전", 일주일이 넘으면 날짜로 보여준다.
+String relativeTime(DateTime t) {
+  final diff = DateTime.now().difference(t);
+  if (diff.inMinutes < 1) return '방금';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+  if (diff.inHours < 24) return '${diff.inHours}시간 전';
+  if (diff.inDays < 7) return '${diff.inDays}일 전';
+  return '${t.year}.${t.month}.${t.day}';
+}

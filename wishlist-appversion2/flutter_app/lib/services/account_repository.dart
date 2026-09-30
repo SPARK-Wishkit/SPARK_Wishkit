@@ -24,7 +24,7 @@ class AccountRepository {
         _baskets = baskets ?? AwsBasketStore(),
         _files = files ?? AwsFileStore();
 
-  /// 2단계: 내 데이터 (프로필 · 아이디 · 탭 · 상품 · 리뷰).
+  /// 2단계: 내 데이터 (프로필 · 아이디 · 탭 · 상품).
   final AwsUserDataStore _aws;
 
   /// 3-1단계: 팔로우 · 친구 목록 · 친구 공개 위시리스트.
@@ -33,7 +33,7 @@ class AccountRepository {
   /// 3-2단계: 살까말까 · 댓글 · 알림.
   final AwsBasketStore _baskets;
 
-  /// 4단계: 프로필 사진 · 리뷰 사진 · 공유 페이지 (S3 + CloudFront).
+  /// 4단계: 프로필 사진 · 공유 페이지 (S3 + CloudFront).
   final AwsFileStore _files;
 
   /// 회원 탈퇴용: [uid] 의 앱 데이터와 파일을 모두 지운다.
@@ -98,14 +98,6 @@ class AccountRepository {
   /// 프로필 사진을 올리고 영구 주소를 돌려준다. (옛 사진은 정리한다)
   Future<String> uploadAvatarFile(String uid, File file) =>
       _files.uploadAvatar(file);
-
-  Future<String> uploadReviewPhoto({
-    required String uid,
-    required String reviewId,
-    required File file,
-    required int index,
-  }) =>
-      _files.uploadReviewPhoto(reviewId: reviewId, file: file, index: index);
 
   /// 살까말까 공유 페이지(HTML)를 올리고, 로그인 없이 열리는 주소를 돌려준다.
   /// 28일 뒤 자동 삭제는 S3 규칙이 한다. 같은 [pageId] 로 다시 올리면 같은 주소에 덮어쓴다.
@@ -184,28 +176,6 @@ class AccountRepository {
 
   Future<void> markNotificationsRead(String uid, List<String> ids) =>
       _baskets.markNotificationsRead(uid, ids);
-
-  Future<List<ProductReview>> loadReviews(String uid) =>
-      _aws.loadReviews(uid);
-
-  Future<void> upsertReview(String uid, ProductReview review) =>
-      _aws.upsertReview(uid, review);
-
-  Future<void> deleteReview(String uid, String reviewId) =>
-      _aws.deleteReview(uid, reviewId);
-
-  Future<List<ProductReview>> loadFriendReviews(
-    List<Friend> followingFriends,
-  ) async {
-    final out = <ProductReview>[];
-    for (final friend in followingFriends.where((f) => f.isFollowing)) {
-      try {
-        out.addAll(await loadReviews(friend.id));
-      } catch (_) {}
-    }
-    out.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    return out;
-  }
 
   Future<List<SharedBasket>> loadSentBaskets(String uid) =>
       _baskets.loadSentBaskets(uid);

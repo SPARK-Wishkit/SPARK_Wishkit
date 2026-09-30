@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,7 +24,6 @@ class AppStore extends ChangeNotifier {
   // Legacy per-type keys, read once to migrate into _notificationsEnabledKey.
   static const _legacyNotifyFollowKey = 'notify_follow';
   static const _legacyNotifyBasketKey = 'notify_basket';
-  static const _reviewsKey = 'my_reviews';
   static const _hiddenFeedKey = 'hidden_feed_baskets';
 
   AppStore({
@@ -69,8 +67,6 @@ class AppStore extends ChangeNotifier {
   List<AppUser> followerUsers = [];
   List<AppNotification> notifications = [];
   List<SharedBasket> receivedBaskets = [];
-  List<ProductReview> myReviews = [];
-  List<ProductReview> friendReviews = [];
   final Map<String, SharedBasket> sharedBaskets = {};
 
   /// Baskets the user X-ed out of the 내 친구 탭 feed. The profile doc is the
@@ -171,7 +167,6 @@ class AppStore extends ChangeNotifier {
       debugPrint('AppStore: 친구 정보 불러오기 실패 (${e.runtimeType})');
     }
     await _loadInboxSafely(fresh.uid);
-    await _loadReviewsSafely(fresh.uid);
     _syncFriendCounts();
     isLoggedIn = true;
     selectedTabId = 'all';
@@ -255,22 +250,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _loadReviewsSafely(String userId) async {
-    try {
-      myReviews = await _repo.loadReviews(userId);
-    } catch (_) {
-      await _restoreLocalReviews();
-    }
-    if (myReviews.isEmpty) {
-      await _restoreLocalReviews();
-    }
-    try {
-      friendReviews = await _repo.loadFriendReviews(friends);
-    } catch (_) {
-      friendReviews = [];
-    }
-  }
-
   Future<void> _clearSessionLocal() async {
     _stopInboxWatch();
     isLoggedIn = false;
@@ -282,8 +261,6 @@ class AppStore extends ChangeNotifier {
     followerUsers = [];
     notifications = [];
     receivedBaskets = [];
-    myReviews = [];
-    friendReviews = [];
     _hiddenFeedIds = {};
     _pendingHideIds = {};
     _pendingUnhideIds = {};
@@ -795,7 +772,6 @@ class AppStore extends ChangeNotifier {
     friendWishlists = await _repo.loadFriendWishlists(friends);
     followerUsers = await _repo.loadUsers(await _repo.followerIds(userId));
     await _loadInboxSafely(userId);
-    await _loadReviewsSafely(userId);
     _syncFriendCounts();
     final profile = await _repo.loadProfile(userId);
     if (profile != null) {
@@ -859,9 +835,6 @@ class AppStore extends ChangeNotifier {
         following: friends.where((f) => f.isFollowing).length,
       );
       friendWishlists = await _repo.loadFriendWishlists(friends);
-      try {
-        friendReviews = await _repo.loadFriendReviews(friends);
-      } catch (_) {}
       _syncFriendCounts();
       notifyListeners();
       return true;
@@ -1376,133 +1349,6 @@ class AppStore extends ChangeNotifier {
     return null;
   }
 
-  List<ProductReview> get reviewFeed {
-    final byId = <String, ProductReview>{};
-    for (final r in [...friendReviews, ...myReviews]) {
-      byId[r.id] = r;
-    }
-    final list = byId.values.toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    return list;
-  }
-
-  ProductReview? reviewById(String id) {
-    return reviewFeed.where((r) => r.id == id).firstOrNull;
-  }
-
-  ProductReview? myReviewForProduct(int productId) {
-    return myReviews.where((r) => r.productId == productId).firstOrNull;
-  }
-
-  Future<void> _restoreLocalReviews() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('${_reviewsKey}_${uid ?? 'guest'}');
-    if (raw == null || raw.isEmpty) return;
-    try {
-      final list = jsonDecode(raw) as List;
-      final restored = list
-          .map(
-            (e) => ProductReview.fromJson(Map<String, dynamic>.from(e as Map)),
-          )
-          .toList();
-      if (myReviews.isEmpty) {
-        myReviews = restored;
-      }
-    } catch (_) {}
-  }
-
-  Future<void> _persistLocalReviews() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      '${_reviewsKey}_${uid ?? 'guest'}',
-      jsonEncode(myReviews.map((r) => r.toJson()).toList()),
-    );
-  }
-
-  /// Returns null when a publish for this product is already in flight.
-  Future<ProductReview?> publishReview({
-    required Product product,
-    required String title,
-    required String body,
-    int mood = 3,
-    List<String> imageUrls = const [],
-    List<File> newPhotos = const [],
-    String? existingId,
-  }) async {
-    final userId = uid;
-    if (userId == null) {
-      throw Exception('로그인된 계정이 없어요.');
-    }
-    final trimmedTitle = title.trim();
-    final trimmedBody = body.trim();
-    if (trimmedTitle.isEmpty) {
-      throw Exception('제목을 입력해 주세요.');
-    }
-    if (trimmedBody.isEmpty) {
-      throw Exception('본문을 입력해 주세요.');
-    }
-
-    return _withLock('publishReview:${existingId ?? product.id}', () async {
-      final now = DateTime.now();
-      final existing = existingId != null
-          ? myReviews.where((r) => r.id == existingId).firstOrNull
-          : myReviewForProduct(product.id);
-      final reviewId = existing?.id ?? 'rv-${now.millisecondsSinceEpoch}';
-      final uploaded = [...imageUrls];
-      for (var i = 0; i < newPhotos.length; i++) {
-        uploaded.add(
-          await _storeReviewPhoto(
-            userId: userId,
-            reviewId: reviewId,
-            file: newPhotos[i],
-            index: uploaded.length,
-          ),
-        );
-      }
-
-      final review = existing == null
-          ? ProductReview(
-              id: reviewId,
-              authorUid: userId,
-              authorName: currentUser.name,
-              authorHandle: currentUser.handle,
-              authorAvatar: currentUser.avatarUrl,
-              productId: product.id,
-              productName: product.name,
-              productImage: product.image,
-              productPlatform: product.platform,
-              productPrice: product.price,
-              productUrl: product.productUrl,
-              title: trimmedTitle,
-              body: trimmedBody,
-              createdAt: now,
-              updatedAt: now,
-              mood: mood,
-              imageUrls: uploaded,
-            )
-          : existing.copyWith(
-              title: trimmedTitle,
-              body: trimmedBody,
-              updatedAt: now,
-              authorName: currentUser.name,
-              authorHandle: currentUser.handle,
-              authorAvatar: currentUser.avatarUrl,
-              mood: mood,
-              imageUrls: uploaded,
-            );
-
-      myReviews = [review, ...myReviews.where((r) => r.id != review.id)];
-      await _persistLocalReviews();
-      try {
-        await _repo.upsertReview(userId, review);
-      } catch (_) {
-        // Local review still works if the backend is unreachable.
-      }
-      notifyListeners();
-      return review;
-    });
-  }
-
   Future<T?> _withLock<T>(String key, Future<T> Function() action) async {
     if (!_actionLock.begin(key)) return null;
     try {
@@ -1510,47 +1356,5 @@ class AppStore extends ChangeNotifier {
     } finally {
       _actionLock.end(key);
     }
-  }
-
-  Future<String> _storeReviewPhoto({
-    required String userId,
-    required String reviewId,
-    required File file,
-    required int index,
-  }) async {
-    try {
-      return await _repo.uploadReviewPhoto(
-        uid: userId,
-        reviewId: reviewId,
-        file: file,
-        index: index,
-      );
-    } catch (_) {
-      final dir = await getApplicationDocumentsDirectory();
-      final folder = Directory('${dir.path}/reviews/$reviewId');
-      if (!await folder.exists()) {
-        await folder.create(recursive: true);
-      }
-      final ext = file.path.split('.').last.toLowerCase();
-      final safeExt =
-          (ext == 'png' || ext == 'webp' || ext == 'jpg' || ext == 'jpeg')
-          ? ext
-          : 'jpg';
-      final dest = File('${folder.path}/$index.$safeExt');
-      await file.copy(dest.path);
-      return dest.path;
-    }
-  }
-
-  Future<void> deleteReview(String reviewId) async {
-    final userId = uid;
-    myReviews = myReviews.where((r) => r.id != reviewId).toList();
-    await _persistLocalReviews();
-    if (userId != null) {
-      try {
-        await _repo.deleteReview(userId, reviewId);
-      } catch (_) {}
-    }
-    notifyListeners();
   }
 }

@@ -15,7 +15,7 @@ class FilesConfig {
 /// 파일 올리기·지우기의 실제 수단. 테스트에서는 가짜로 바꿔 끼운다.
 abstract interface class FileTransport {
   /// [relativePath] 는 "내 폴더" 아래 경로 (예: '1727...jpg').
-  /// [folder] 는 'avatars' · 'reviews' · 'share-pages' 중 하나.
+  /// [folder] 는 'avatars' · 'share-pages' 중 하나.
   /// 올라간 전체 경로(S3 키)를 돌려준다.
   Future<String> upload({
     required String folder,
@@ -84,7 +84,7 @@ class AmplifyFileTransport implements FileTransport {
   }
 }
 
-/// 4단계: 프로필 사진 · 리뷰 사진 · 살까말까 공유 페이지.
+/// 4단계: 프로필 사진 · 살까말까 공유 페이지.
 ///
 /// - 올린 파일의 주소는 `https://<배달망>/<경로>` 영구 주소다. (DB 에 저장해도 깨지지 않음)
 /// - 파일 이름에 시각을 붙여 매번 새 이름으로 올린다 → 사진을 바꾸면 캐시 때문에
@@ -101,7 +101,6 @@ class AwsFileStore {
   final DateTime Function() _now;
 
   static const avatarMaxBytes = 5 * 1024 * 1024;
-  static const reviewMaxBytes = 8 * 1024 * 1024;
   static const sharePageMaxBytes = 1 * 1024 * 1024;
 
   String get baseUrl {
@@ -134,23 +133,6 @@ class AwsFileStore {
     return urlFor(path);
   }
 
-  Future<String> uploadReviewPhoto({
-    required String reviewId,
-    required File file,
-    required int index,
-  }) async {
-    final (ext, type) = imageType(file.path);
-    await _checkSize(file, reviewMaxBytes, '리뷰 사진은 8MB 이하만 올릴 수 있어요.');
-    final path = await _t.upload(
-      folder: 'reviews',
-      relativePath: '${_safeSegment(reviewId)}/$index-${_stamp()}.$ext',
-      file: file,
-      bytes: null,
-      contentType: type,
-    );
-    return urlFor(path);
-  }
-
   /// 같은 [pageId] 로 다시 올리면 같은 주소에 덮어쓴다 (보낸 링크가 그대로 유효).
   Future<String> uploadSharePage({
     required String pageId,
@@ -173,7 +155,7 @@ class AwsFileStore {
   /// 회원 탈퇴: 내 폴더의 파일을 모두 지운다.
   Future<void> deleteAll() async {
     final all = <String>[
-      for (final folder in const ['avatars', 'reviews', 'share-pages'])
+      for (final folder in const ['avatars', 'share-pages'])
         ...await _safeList(folder),
     ];
     if (all.isNotEmpty) await _t.removeAll(all);

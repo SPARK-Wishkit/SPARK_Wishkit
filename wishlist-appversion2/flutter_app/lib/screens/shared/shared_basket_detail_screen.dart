@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import '../../data/app_store.dart';
 import '../../models/models.dart';
 import '../../theme/diary_theme.dart';
+import '../../widgets/diary_widgets.dart';
 import '../mypage/sent_baskets_screen.dart';
 import '../product/product_detail_screen.dart';
-import '../reviews/review_widgets.dart';
 import '../wishlist/wishlist_screen.dart';
 
 /// Shared 살까말까 post: products, sender memo, Instagram-style comments.

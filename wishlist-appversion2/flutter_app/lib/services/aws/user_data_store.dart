@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import '../../auth/auth_validators.dart';
@@ -9,7 +8,7 @@ import 'gql_runner.dart';
 
 /// 2단계: "내가 쓰는 데이터"를 AWS(AppSync + DynamoDB)에 저장한다.
 ///
-/// 프로필 · 아이디 · 탭 · 상품 · 리뷰 · (본인 전용) 푸시 토큰/숨긴 피드.
+/// 프로필 · 아이디 · 탭 · 상품 · (본인 전용) 푸시 토큰/숨긴 피드.
 /// AccountRepository 가 같은 이름의 함수를 이 클래스로 넘긴다.
 /// 화면·AppStore 는 이 클래스를 직접 쓰지 않는다.
 class AwsUserDataStore {
@@ -439,44 +438,6 @@ class AwsUserDataStore {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // 리뷰
-  // ─────────────────────────────────────────────────────────────
-
-  Future<List<ProductReview>> loadReviews(String uid) async {
-    final rows = await _listAll(Gql.listReviews, 'listReviews', uid);
-    final list = <ProductReview>[];
-    for (final r in rows) {
-      final data = _jsonMap(r['data']);
-      if (data == null) continue;
-      data['id'] = data['id'] ?? r['reviewId'];
-      list.add(ProductReview.fromJson(data));
-    }
-    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    return list;
-  }
-
-  Future<void> upsertReview(String uid, ProductReview review) async {
-    await _upsert(
-      create: Gql.createReview,
-      update: Gql.updateReview,
-      input: {
-        'ownerId': uid,
-        'reviewId': review.id,
-        'productId': review.productId,
-        // AWSJSON 은 JSON "문자열"로 보내야 한다.
-        'data': jsonEncode(review.toJson()),
-      },
-    );
-  }
-
-  Future<void> deleteReview(String uid, String reviewId) async {
-    await _deleteIgnoringMissing(
-      Gql.deleteReview,
-      {'ownerId': uid, 'reviewId': reviewId},
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────
   // 회원 탈퇴
   // ─────────────────────────────────────────────────────────────
 
@@ -487,7 +448,6 @@ class AwsUserDataStore {
 
     final tabs = await _listAll(Gql.listTabs, 'listWishTabs', uid);
     final products = await _listAll(Gql.listProducts, 'listWishProducts', uid);
-    final reviews = await _listAll(Gql.listReviews, 'listReviews', uid);
     await _runLimited([
       for (final t in tabs)
         () => _deleteIgnoringMissing(
@@ -498,11 +458,6 @@ class AwsUserDataStore {
         () => _deleteIgnoringMissing(
               Gql.deleteProduct,
               {'ownerId': uid, 'productId': p['productId']},
-            ),
-      for (final r in reviews)
-        () => _deleteIgnoringMissing(
-              Gql.deleteReview,
-              {'ownerId': uid, 'reviewId': r['reviewId']},
             ),
     ]);
 
@@ -622,6 +577,4 @@ class AwsUserDataStore {
 
   static int _int(Object? v) => (v as num?)?.toInt() ?? 0;
   static int? _intOrNull(Object? v) => (v as num?)?.toInt();
-
-  static Map<String, dynamic>? _jsonMap(Object? raw) => decodeAwsJson(raw);
 }
