@@ -1,6 +1,7 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { publicWishlist } from '../functions/public-wishlist/resource';
 import { socialActions } from '../functions/social-actions/resource';
+import { parsingProxy } from '../functions/parsing-proxy/resource';
 
 /**
  * wishkit 데이터 설계도 (AWS AppSync + DynamoDB)
@@ -316,6 +317,35 @@ const schema = a.schema({
     .returns(a.ref('WishlistCount').required().array().required())
     .authorization((allow) => [allow.authenticated()])
     .handler(a.handler.function(publicWishlist)),
+
+  // ── AI 추출 엔진(parsing-engine) 연동 ──────────────────────
+
+  /**
+   * 엔진 서버(POST /extract)의 실제 응답을 그대로 옮긴 모양.
+   * 필드 설명은 parsing-engine/server/main.py `_extract()` 참고.
+   */
+  ExtractedProduct: a.customType({
+    productName: a.string(),
+    unconditionalPrice: a.integer(),
+    regularPrice: a.integer(),
+    currency: a.string(),
+    imageUrl: a.string(),
+    ambiguous: a.boolean().required(),
+    ambiguityReason: a.string(),
+    confidence: a.string(),
+  }),
+
+  /**
+   * 상품 URL 하나를 AI 추출 엔진에 넘겨 이름·가격·이미지를 뽑는다. 로그인 사용자만
+   * 호출 가능 — 엔진 서버 자체는 VPC 프라이빗 서브넷에 있어 이 함수를 거치지 않고는
+   * 접근할 수 없다(Gemini API 남용·과금 폭탄 방지).
+   */
+  extractProduct: a
+    .query()
+    .arguments({ url: a.string().required() })
+    .returns(a.ref('ExtractedProduct'))
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(parsingProxy)),
 });
 
 export type Schema = ClientSchema<typeof schema>;
