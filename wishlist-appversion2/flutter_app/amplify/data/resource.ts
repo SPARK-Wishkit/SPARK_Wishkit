@@ -105,23 +105,6 @@ const schema = a.schema({
     ]),
 
   /**
-   * 리뷰는 항목이 많아 본문을 data(JSON)로 통째로 저장한다. (ProductReview.toJson)
-   * 친구 리뷰 화면을 위해 로그인한 사람은 읽을 수 있다. (예전과 같은 범위)
-   */
-  Review: a
-    .model({
-      ownerId: a.id().required(),
-      reviewId: a.string().required(),
-      productId: a.integer(),
-      data: a.json().required(),
-    })
-    .identifier(['ownerId', 'reviewId'])
-    .authorization((allow) => [
-      allow.ownerDefinedIn('ownerId').identityClaim('sub'),
-      allow.authenticated().to(['read']),
-    ]),
-
-  /**
    * 팔로우 관계 한 줄 = "followerId 가 followeeId 를 팔로우한다".
    * - 팔로우/언팔로우: 팔로우하는 사람(followerId)만 만들고 지운다.
    * - 팔로워 삭제: 팔로우 당하는 사람(followeeId)도 지울 수 있다.

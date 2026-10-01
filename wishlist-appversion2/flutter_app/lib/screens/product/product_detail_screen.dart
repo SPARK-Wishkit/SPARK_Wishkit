@@ -262,29 +262,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: 14),
-                        if (isOwn)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: DiaryButton(
-                              label:
-                                  store.myReviewForProduct(product.id) == null
-                                  ? '이 상품 리뷰 쓰기'
-                                  : '내 리뷰 보기',
-                              icon: Icons.edit_outlined,
-                              onPressed: () {
-                                final existing = store.myReviewForProduct(
-                                  product.id,
-                                );
-                                if (existing != null) {
-                                  context.push('/reviews/${existing.id}');
-                                } else {
-                                  context.push(
-                                    '/reviews/write?productId=${product.id}',
-                                  );
-                                }
-                              },
-                            ),
-                          ),
                         Row(
                           children: [
                             Expanded(

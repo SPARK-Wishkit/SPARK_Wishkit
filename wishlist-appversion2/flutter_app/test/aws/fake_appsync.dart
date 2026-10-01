@@ -24,7 +24,6 @@ class FakeAppSync implements GqlRunner {
     'Handle': ['handleLower'],
     'WishTab': ['ownerId', 'tabId'],
     'WishProduct': ['ownerId', 'productId'],
-    'Review': ['ownerId', 'reviewId'],
     'Follow': ['followerId', 'followeeId'],
     'SentBasket': ['ownerId', 'basketId'],
     'ReceivedBasket': ['recipientId', 'basketId'],
@@ -57,7 +56,6 @@ class FakeAppSync implements GqlRunner {
   static const _lists = {
     'listWishTabs': ('WishTab', 'ownerId'),
     'listWishProducts': ('WishProduct', 'ownerId'),
-    'listReviews': ('Review', 'ownerId'),
     'listFollows': ('Follow', 'followerId'),
     'listFollowsByFollowee': ('Follow', 'followeeId'),
     'listProfiles': ('Profile', null),
@@ -68,7 +66,7 @@ class FakeAppSync implements GqlRunner {
   };
 
   /// 로그인한 사람이면 남의 것도 읽을 수 있는 표
-  static const _readableByAnyone = {'Profile', 'Handle', 'Review', 'Follow'};
+  static const _readableByAnyone = {'Profile', 'Handle', 'Follow'};
 
   Map<String, Map<String, dynamic>> table(String model) =>
       tables.putIfAbsent(model, () => {});

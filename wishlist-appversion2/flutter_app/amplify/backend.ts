@@ -140,7 +140,7 @@ cfnUserPoolClient.tokenValidityUnits = {
   // S3 는 공개하지 않고, CloudFront 만 읽을 수 있게 한다 (Origin Access Control).
   // 앱에 저장되는 사진 주소는 https://<배달망 주소>/avatars/... 형태의 영구 주소가 된다.
   const cdn = new cloudfront.Distribution(stack, 'FilesCdn', {
-    comment: 'wishkit files (avatars, review photos, share pages)',
+    comment: 'wishkit files (avatars, share pages)',
     defaultBehavior: {
       origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
       viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,

@@ -11,7 +11,6 @@ const _tabFields = 'ownerId tabId name isPublic colorHex sortOrder';
 const _productFields =
     'ownerId productId listId name price image platform originalPrice '
     'discount productUrl memo isPublic';
-const _reviewFields = 'ownerId reviewId productId data';
 
 abstract final class Gql {
   // ── Profile ──
@@ -104,27 +103,6 @@ mutation UpdateWishProduct(\$input: UpdateWishProductInput!) {
   static const deleteProduct = '''
 mutation DeleteWishProduct(\$input: DeleteWishProductInput!) {
   deleteWishProduct(input: \$input) { ownerId productId }
-}''';
-
-  // ── Review ──
-  static const listReviews = '''
-query ListReviews(\$ownerId: ID!, \$limit: Int, \$nextToken: String) {
-  listReviews(ownerId: \$ownerId, limit: \$limit, nextToken: \$nextToken) {
-    items { $_reviewFields }
-    nextToken
-  }
-}''';
-  static const createReview = '''
-mutation CreateReview(\$input: CreateReviewInput!) {
-  createReview(input: \$input) { ownerId reviewId }
-}''';
-  static const updateReview = '''
-mutation UpdateReview(\$input: UpdateReviewInput!) {
-  updateReview(input: \$input) { ownerId reviewId }
-}''';
-  static const deleteReview = '''
-mutation DeleteReview(\$input: DeleteReviewInput!) {
-  deleteReview(input: \$input) { ownerId reviewId }
 }''';
 
   // ── 3-1: 친구 목록 ──
@@ -260,7 +238,6 @@ mutation NotifyFollow(\$targetId: ID!) {
     getHandle, createHandle, deleteHandle,
     listTabs, createTab, updateTab, deleteTab,
     listProducts, createProduct, updateProduct, deleteProduct,
-    listReviews, createReview, updateReview, deleteReview,
     listProfiles, listFollowing, listFollowers, createFollow, deleteFollow,
     publicWishlist, publicWishlistCounts,
     listSentBaskets, createSentBasket, updateSentBasket, deleteSentBasket,

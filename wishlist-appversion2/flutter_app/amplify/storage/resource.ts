@@ -13,7 +13,6 @@ export const storage = defineStorage({
   name: 'wishkitFiles',
   access: (allow) => ({
     'avatars/{entity_id}/*': [allow.entity('identity').to(['read', 'write', 'delete'])],
-    'reviews/{entity_id}/*': [allow.entity('identity').to(['read', 'write', 'delete'])],
     'share-pages/{entity_id}/*': [allow.entity('identity').to(['read', 'write', 'delete'])],
   }),
 });

@@ -90,24 +90,6 @@ void main() {
     expect(s3.files, isEmpty);
   });
 
-  test('리뷰 사진: 리뷰별 폴더, 8MB 제한', () async {
-    final url = await store.uploadReviewPhoto(
-      reviewId: 'r/1',
-      file: await fileOf('p.jpg', 10),
-      index: 0,
-    );
-    expect(url, contains('/reviews/'));
-    expect(s3.files.keys.single, contains('/r_1/0-')); // 경로에 쓸 수 없는 글자는 바꾼다
-    await expectLater(
-      store.uploadReviewPhoto(
-        reviewId: 'r1',
-        file: await fileOf('big.jpg', 8 * 1024 * 1024 + 1),
-        index: 1,
-      ),
-      throwsA(predicate((e) => e.toString().contains('8MB'))),
-    );
-  });
-
   test('공유 페이지: 같은 id 로 다시 올리면 같은 주소에 덮어쓴다', () async {
     final a = await store.uploadSharePage(pageId: 'page1', html: '<p>하나</p>');
     final b = await store.uploadSharePage(pageId: 'page1', html: '<p>둘</p>');
@@ -123,9 +105,8 @@ void main() {
     );
   });
 
-  test('회원 탈퇴: 세 폴더의 내 파일을 모두 지운다', () async {
+  test('회원 탈퇴: 두 폴더의 내 파일을 모두 지운다', () async {
     await store.uploadAvatar(await fileOf('a.jpg', 1));
-    await store.uploadReviewPhoto(reviewId: 'r', file: await fileOf('b.jpg', 1), index: 0);
     await store.uploadSharePage(pageId: 'p', html: 'x');
     await store.deleteAll();
     expect(s3.files, isEmpty);
