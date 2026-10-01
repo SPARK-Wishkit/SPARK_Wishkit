@@ -2,8 +2,11 @@ import { defineBackend } from '@aws-amplify/backend';
 import { Duration, Stack } from 'aws-cdk-lib';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
+import { parsingProxy } from './functions/parsing-proxy/resource';
 import { publicWishlist } from './functions/public-wishlist/resource';
 import { socialActions } from './functions/social-actions/resource';
 import { storage } from './storage/resource';
@@ -14,6 +17,7 @@ const backend = defineBackend({
   publicWishlist,
   socialActions,
   storage,
+  parsingProxy,
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -45,6 +49,54 @@ const backend = defineBackend({
   fn.addEnvironment('COMMENT_TABLE', tables['BasketComment'].tableName);
   fn.addEnvironment('RECEIVED_TABLE', tables['ReceivedBasket'].tableName);
   fn.addEnvironment('NOTIFICATION_TABLE', tables['Notification'].tableName);
+}
+
+// ─────────────────────────────────────────────────────────────
+// AI 추출 엔진(parsing-engine, Fargate) 연동: parsing-proxy를 엔진과 같은 VPC에 붙인다
+// ─────────────────────────────────────────────────────────────
+// ⚠️ 미검증 — 이 블록은 로컬에 Node.js가 없는 환경에서 작성돼 `npm install`/타입체크를
+//    못 했다. 백엔드 담당이 pull 후 `npx ampx sandbox` 전에 최소한 타입 에러가 없는지
+//    확인해줄 것(특히 `fn.resources.lambda.role`을 `iam.Role`로 캐스팅하는 부분).
+//
+// parsing-proxy는 엔진 서버(Fargate)의 프라이빗 IP로만 호출해야 하므로, defineFunction이
+// 지원하지 않는 vpc 설정을 CDK 이스케이프 해치로 넣는다(Amplify Gen2가 아직
+// FunctionProps에 vpc를 노출하지 않음 — aws-amplify/amplify-backend#1112).
+//
+// ⚠️ 이 네 값을 채우기 전에는 일부러 배포가 실패하게 해뒀다(잘못된 값으로 조용히
+//    배포되는 것보다 안전) — 엔진 서버가 실제로 어느 AWS 계정/VPC에 뜨는지부터
+//    (이 Amplify 백엔드와 같은 계정인지) 확인한 뒤 채울 것:
+//    ENGINE_VPC_ID              엔진 Fargate 태스크가 있는 VPC ID
+//    ENGINE_PRIVATE_SUBNET_IDS  이 함수를 붙일 프라이빗 서브넷 ID들(콤마로 구분)
+//    ENGINE_LAMBDA_SG_ID        이 함수에 붙일 보안그룹 ID
+//                               (엔진 태스크의 보안그룹이 "이 SG에서 8000번 포트 허용"
+//                               규칙을 갖고 있어야 함 — 반대 방향 아님)
+//    ENGINE_BASE_URL            엔진 서버 내부 주소(예: 내부 ALB의 http://<DNS>)
+{
+  const vpcId = process.env.ENGINE_VPC_ID;
+  const subnetIds = process.env.ENGINE_PRIVATE_SUBNET_IDS?.split(',').map((s) => s.trim()).filter(Boolean);
+  const lambdaSgId = process.env.ENGINE_LAMBDA_SG_ID;
+  const engineBaseUrl = process.env.ENGINE_BASE_URL;
+
+  if (!vpcId || !subnetIds?.length || !lambdaSgId || !engineBaseUrl) {
+    throw new Error(
+      'parsing-proxy를 배포하려면 ENGINE_VPC_ID, ENGINE_PRIVATE_SUBNET_IDS, ' +
+        'ENGINE_LAMBDA_SG_ID, ENGINE_BASE_URL 환경변수를 먼저 설정해야 합니다 ' +
+        '(엔진 서버 Fargate 배포 후 그 값으로 채울 것 — backend.ts 위 주석 참고).',
+    );
+  }
+
+  const fn = backend.parsingProxy;
+  const cfnFunction = fn.resources.lambda.node.defaultChild as lambda.CfnFunction;
+  cfnFunction.vpcConfig = {
+    subnetIds,
+    securityGroupIds: [lambdaSgId],
+  };
+  // VPC에 붙은 Lambda는 ENI 생성·관리 권한(AWSLambdaVPCAccessExecutionRole)이 필요하다 —
+  // defineFunction 기본 역할에는 없어서 직접 붙인다.
+  (fn.resources.lambda.role as iam.Role | undefined)?.addManagedPolicy(
+    iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'),
+  );
+  fn.addEnvironment('ENGINE_BASE_URL', engineBaseUrl);
 }
 
 // ─────────────────────────────────────────────────────────────

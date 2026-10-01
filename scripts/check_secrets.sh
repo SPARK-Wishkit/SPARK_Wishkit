@@ -11,6 +11,9 @@ bad=0
 while IFS= read -r f; do
   [ -f "$f" ] || continue
   case "$f" in
+    # 예외: 이 파일 하나만 — 실제 키 없는 템플릿, 엔진 팀이 커밋해야 하는 파일
+    wishlist-appversion2/parsing-engine/server/.env.example)
+      ;;
     *amplify_outputs.dart|*amplify_outputs.json)
       echo "🚫 $f — 사람마다 다른 AWS 설정 파일이에요. 올리지 마세요."; bad=1 ;;
     *.csv)
