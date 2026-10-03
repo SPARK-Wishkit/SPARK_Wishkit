@@ -247,14 +247,14 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 ListTile(
                   leading: Icon(
                     Icons.delete_outline,
-                    color: Colors.red.shade400,
+                    color: DiaryColors.pin,
                   ),
                   title: Text(
                     '삭제',
                     style: DiaryTheme.ui(
                       15,
                       weight: FontWeight.w600,
-                      color: Colors.red.shade400,
+                      color: DiaryColors.pin,
                     ),
                   ),
                   onTap: () {
@@ -784,7 +784,7 @@ class _PrivacyBanner extends StatelessWidget {
                 style: DiaryTheme.ui(
                   12,
                   weight: FontWeight.w700,
-                  color: const Color(0xFF5B7C99),
+                  color: DiaryColors.ink,
                 ),
               ),
             ),

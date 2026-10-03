@@ -38,7 +38,7 @@ class MyPageScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               CustomPaint(
-                painter: _TagPainter(color: const Color(0xFFE8B4A8)),
+                painter: _TagPainter(color: DiaryColors.fileStone),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(28, 18, 14, 14),
                   child: Row(
