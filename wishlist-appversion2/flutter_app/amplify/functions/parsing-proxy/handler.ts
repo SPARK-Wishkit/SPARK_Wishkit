@@ -5,9 +5,10 @@ import { isValidHttpUrl, toExtractedProduct, type EngineExtractResponse, type Ex
 // 닿는 주소라 이 값 자체는 비밀이 아니다 — 실제 접근 통제는 보안그룹이 한다.
 const ENGINE_BASE_URL = process.env.ENGINE_BASE_URL ?? '';
 
-// 엔진 서버 자체 타임아웃(45초)보다 여유를 주되, 이 함수의 timeoutSeconds(60, resource.ts)
-// 보다는 짧게 잡아서 Lambda가 강제 종료되기 전에 정상적인 에러 메시지를 돌려준다.
-const FETCH_TIMEOUT_MS = 55_000;
+// AppSync 30초 하드 리밋(조정 불가) > Lambda timeoutSeconds 28초(resource.ts)
+// > 이 fetch 중단 25초 > 엔진 EXTRACT_TIMEOUT_S 22초(배포 시 env로 지정) 순으로 안쪽이
+// 바깥쪽보다 항상 짧아야, Lambda가 강제 종료되기 전에 정상적인 에러 메시지를 돌려준다.
+const FETCH_TIMEOUT_MS = 25_000;
 
 type Args = { url: string };
 
