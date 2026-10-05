@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../data/app_store.dart';
 import '../../models/models.dart';
+import '../../services/aws/engine_store.dart';
+import '../../services/aws/gql_runner.dart';
 import '../../services/parsing_bridge.dart';
 import '../../services/webview_scraper.dart';
 import '../../theme/diary_theme.dart';
@@ -20,7 +22,10 @@ class ShareIntakeScreen extends StatefulWidget {
 }
 
 class _ShareIntakeScreenState extends State<ShareIntakeScreen> {
-  final bridge = ParsingBridge();
+  // ENGINE_ENABLED 기본값은 꺼짐(false) — 켜질 때만 AI 추출 엔진을 먼저 시도한다.
+  final bridge = ParsingBridge(
+    engine: kEngineEnabled ? AppSyncEngineClient(const AmplifyGqlRunner()) : null,
+  );
   final urlCtrl = TextEditingController();
   final titleCtrl = TextEditingController();
   final priceCtrl = TextEditingController();

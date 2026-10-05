@@ -252,6 +252,21 @@ mutation NotifyFollow(\$targetId: ID!) {
   notifyFollow(targetId: \$targetId)
 }''';
 
+  // ── AI 추출 엔진(parsing-engine) ──
+  static const extractProduct = '''
+query ExtractProduct(\$url: String!) {
+  extractProduct(url: \$url) {
+    productName
+    unconditionalPrice
+    regularPrice
+    currency
+    imageUrl
+    ambiguous
+    ambiguityReason
+    confidence
+  }
+}''';
+
   /// 검증 스크립트가 전부 훑어볼 수 있도록 한곳에 모은 목록.
   static const all = <String>[
     getProfile, createProfile, updateProfile, deleteProfile,
@@ -268,5 +283,6 @@ mutation NotifyFollow(\$targetId: ID!) {
     listBasketComments, addBasketComment, editBasketComment,
     removeBasketComment,
     listNotifications, markNotificationRead, deleteNotification, notifyFollow,
+    extractProduct,
   ];
 }
