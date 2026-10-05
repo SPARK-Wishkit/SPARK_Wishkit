@@ -267,4 +267,107 @@ void main() {
       expect(result.resolvedTier, 3);
     });
   });
+
+  group('엔진 결과 보충(WebView, 최대 8초)', () {
+    EngineClient engineWith({String? name, String? image}) =>
+        _FakeEngineClient(
+          (_) async => ExtractedProductDto(
+            productName: name,
+            unconditionalPrice: 10000,
+            regularPrice: 12000,
+            currency: 'KRW',
+            imageUrl: image,
+            ambiguous: false,
+            confidence: 'high',
+          ),
+        );
+
+    test('이미지만 비어 있으면 WebView로 이미지만 채운다(가격은 엔진 값 유지)', () async {
+      final bridge = ParsingBridge(
+        engine: engineWith(name: '엔진상품', image: null),
+        extract: (_) async => OnDeviceExtract(
+          name: '웹뷰상품',
+          image: 'https://img.example/webview.jpg',
+          price: 99999,
+        ),
+      );
+
+      final result = await bridge.parseProductUrl('https://shop.example/p');
+
+      expect(result.name, '엔진상품');
+      expect(result.image, 'https://img.example/webview.jpg');
+      expect(result.price, 10000);
+      expect(result.engineUsed, isTrue);
+      expect(result.onDeviceExtracted, isFalse);
+    });
+
+    test('이름만 비어 있으면 WebView로 이름만 채운다(이미지는 엔진 값 유지)', () async {
+      final bridge = ParsingBridge(
+        engine: engineWith(name: null, image: 'https://img.example/engine.jpg'),
+        extract: (_) async => OnDeviceExtract(
+          name: '웹뷰상품',
+          image: 'https://img.example/webview-ignored.jpg',
+        ),
+      );
+
+      final result = await bridge.parseProductUrl('https://shop.example/p');
+
+      expect(result.name, '웹뷰상품');
+      expect(result.image, 'https://img.example/engine.jpg');
+      expect(result.engineUsed, isTrue);
+      expect(result.onDeviceExtracted, isFalse);
+    });
+
+    test('이름·이미지가 둘 다 있으면 WebView를 호출하지 않는다', () async {
+      var webViewCalled = false;
+      final bridge = ParsingBridge(
+        engine: engineWith(
+          name: '엔진상품',
+          image: 'https://img.example/engine.jpg',
+        ),
+        extract: (_) async {
+          webViewCalled = true;
+          return OnDeviceExtract(name: '웹뷰상품', image: 'https://img.example/x.jpg');
+        },
+      );
+
+      final result = await bridge.parseProductUrl('https://shop.example/p');
+
+      expect(webViewCalled, isFalse);
+      expect(result.name, '엔진상품');
+      expect(result.image, 'https://img.example/engine.jpg');
+    });
+
+    test('WebView 보충이 실패해도 엔진 결과를 그대로 쓴다(예외가 새지 않음)', () async {
+      final bridge = ParsingBridge(
+        engine: engineWith(name: null, image: null),
+        extract: (_) async => throw Exception('webview down'),
+      );
+
+      final result = await bridge.parseProductUrl('https://shop.example/p');
+
+      expect(result.price, 10000);
+      expect(result.engineUsed, isTrue);
+      expect(result.missingFields, containsAll(['title', 'image_url']));
+    });
+
+    test('WebView가 다른 가격·원가를 줘도 엔진 가격·원가를 그대로 유지한다', () async {
+      final bridge = ParsingBridge(
+        engine: engineWith(name: null, image: null),
+        extract: (_) async => OnDeviceExtract(
+          name: '웹뷰상품',
+          image: 'https://img.example/webview.jpg',
+          price: 1,
+          originalPrice: 2,
+        ),
+      );
+
+      final result = await bridge.parseProductUrl('https://shop.example/p');
+
+      expect(result.name, '웹뷰상품');
+      expect(result.image, 'https://img.example/webview.jpg');
+      expect(result.price, 10000);
+      expect(result.originalPrice, 12000);
+    });
+  });
 }

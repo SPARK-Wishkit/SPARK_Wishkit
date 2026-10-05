@@ -46,12 +46,13 @@ class ParsingBridge {
     if (url.isNotEmpty && _engine != null) {
       final engineExtract = await _tryEngine(url);
       if (engineExtract != null) {
-        return productFromOnDeviceExtract(
+        final engineResult = productFromOnDeviceExtract(
           url: url,
           extract: engineExtract,
           titleHint: titleHint,
           engineUsed: true,
         );
+        return _supplementFromWebView(engineResult, url);
       }
     }
 
@@ -84,6 +85,77 @@ class ParsingBridge {
     } catch (_) {
       return null;
     }
+  }
+
+  /// 엔진이 확정 가격을 줬는데 이름 또는 이미지가 비어 있으면, 단말 WebView를 최대
+  /// 8초만 돌려서 **비어 있는 이름/이미지만** 채운다. 엔진의 가격·원가·신뢰도는 절대
+  /// 덮어쓰지 않는다 — WebView가 다른 가격을 줘도 무시한다. WebView가 실패·타임아웃
+  /// 돼도 엔진 결과를 그대로 쓴다(예외가 밖으로 새지 않음).
+  ///
+  /// onDeviceExtracted는 false로 둔다 — 가격(화면에서 가장 중요한 값)은 여전히
+  /// 엔진에서 왔으므로, 보충이 섞였다고 "휴대폰에서 읽음"으로 표시하면 안 된다
+  /// (models.dart의 mergeOnDevice는 이 값을 무조건 true로 고정해서 재사용하지
+  /// 않았다 — 아래 참고).
+  Future<ParsedProductInfo> _supplementFromWebView(
+    ParsedProductInfo engineResult,
+    String url,
+  ) async {
+    final needsName = engineResult.missingFields.contains('title');
+    final needsImage = engineResult.missingFields.contains('image_url');
+    if (!needsName && !needsImage) return engineResult;
+    if (!(_extract != null || WebViewScraper.isSupported)) return engineResult;
+
+    OnDeviceExtract? device;
+    try {
+      device = await (_extract ?? _webView.extract)(
+        url,
+      ).timeout(const Duration(seconds: 8));
+    } catch (_) {
+      return engineResult;
+    }
+    if (device == null) return engineResult;
+
+    final deviceName = device.name?.trim();
+    final deviceImage = device.image?.trim();
+    final filledName = needsName && deviceName != null && deviceName.isNotEmpty
+        ? deviceName
+        : engineResult.name;
+    final filledImage =
+        needsImage && deviceImage != null && deviceImage.isNotEmpty
+        ? deviceImage
+        : engineResult.image;
+
+    if (filledName == engineResult.name && filledImage == engineResult.image) {
+      return engineResult;
+    }
+
+    final remainingMissing = engineResult.missingFields.where((f) {
+      if (f == 'title') return filledName.isEmpty || filledName == '공유된 상품';
+      if (f == 'image_url') return filledImage.isEmpty;
+      return true;
+    }).toList();
+
+    return ParsedProductInfo(
+      name: filledName,
+      price: engineResult.price,
+      platform: engineResult.platform,
+      image: filledImage,
+      productUrl: engineResult.productUrl,
+      originalPrice: engineResult.originalPrice,
+      discount: engineResult.discount,
+      missingFields: remainingMissing,
+      resolvedTier: engineResult.resolvedTier,
+      engineUsed: engineResult.engineUsed,
+      onDeviceExtracted: false,
+      purchasePriceStatus: engineResult.purchasePriceStatus,
+      priceConfidence: engineResult.priceConfidence,
+      availability: engineResult.availability,
+      optionDependent: engineResult.optionDependent,
+      optionPriceMin: engineResult.optionPriceMin,
+      optionPriceMax: engineResult.optionPriceMax,
+      priceEvidence: engineResult.priceEvidence,
+      extractFailureReason: engineResult.extractFailureReason,
+    );
   }
 }
 

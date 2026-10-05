@@ -57,11 +57,14 @@ abstract interface class EngineClient {
 /// 엔진 서버 자체는 VPC 프라이빗 서브넷에 있어 이 경로로만 접근할 수 있다 — 로그인
 /// 사용자만 호출 가능하므로(GqlAuth.user), 비로그인 상태에서는 엔진을 쓸 수 없다.
 class AppSyncEngineClient implements EngineClient {
-  AppSyncEngineClient(this._gql, {this.timeout = const Duration(seconds: 50)});
+  AppSyncEngineClient(this._gql, {this.timeout = const Duration(seconds: 27)});
 
   final GqlRunner _gql;
 
-  /// 서버 자체 타임아웃(EXTRACT_TIMEOUT_S=45초)과 Lambda 타임아웃(60초) 사이로 잡는다.
+  /// AppSync 30초 하드 리밋(조정 불가)보다 살짝 짧게 — 체인: 엔진 EXTRACT_TIMEOUT_S
+  /// 22초(배포 env) < Lambda fetch 중단 25초 < Lambda timeoutSeconds 28초 <
+  /// AppSync 30초. 앱은 그 30초보다 먼저 포기해서 사용자에게 "너무 오래 걸림"
+  /// 메시지를 AppSync 자체 타임아웃 오류보다 먼저 보여준다.
   final Duration timeout;
 
   @override

@@ -193,6 +193,16 @@ void main() {
   });
 
   group('AppSyncEngineClient', () {
+    test(
+      '기본 timeout은 27초다(AppSync 30초 하드 리밋보다 짧게 먼저 포기)',
+      () {
+        final client = AppSyncEngineClient(
+          _FakeEngineAppSync((_, __, ___) async => const {}),
+        );
+        expect(client.timeout, const Duration(seconds: 27));
+      },
+    );
+
     test('extractProduct 쿼리를 로그인 권한으로, url 변수와 함께 보낸다', () async {
       final fake = _FakeEngineAppSync((document, variables, auth) async {
         return {
