@@ -5,3 +5,4 @@ server/venv/
 tools/golden_regression_result.json
 server.log
 *.log
+deploy/deploy_state.json
