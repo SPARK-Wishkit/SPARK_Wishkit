@@ -198,7 +198,11 @@ class FakeAppSync implements GqlRunner {
     final products = table('WishProduct')
         .values
         .where((r) => r['ownerId'] == ownerId && r['isPublic'] == true)
-        .map((r) => {...r}..remove('memo')..remove('ownerId')..remove('isPublic'))
+        .map((r) => {...r}
+          ..remove('memo')
+          ..remove('ownerId')
+          ..remove('isPublic')
+          ..remove('tagImageUrl'))
         .toList();
     return {
       'ownerId': ownerId,

@@ -25,7 +25,8 @@ enum NativeShareBridge {
       for item in items {
         if let path = item["path"] as? String {
           let trimmed = path.trimmingCharacters(in: .whitespacesAndNewlines)
-          if !trimmed.isEmpty, !parts.contains(trimmed) {
+          // 공유 글에 이미 들어 있는 URL 은 다시 붙이지 않는다(같은 URL 이 여러 번 보이던 문제).
+          if !trimmed.isEmpty, !parts.contains(where: { $0.contains(trimmed) }) {
             parts.append(trimmed)
           }
         }

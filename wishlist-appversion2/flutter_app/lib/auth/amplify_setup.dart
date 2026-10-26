@@ -28,6 +28,7 @@ Future<String?> configureAmplify({
     ]);
     await Amplify.configure(amplifyConfig);
     FilesConfig.baseUrl = _customValue('filesBaseUrl');
+    FilesConfig.sharePagesBaseUrl = _customValue('sharePagesBaseUrl');
     return null;
   } on AmplifyAlreadyConfiguredException {
     return null;

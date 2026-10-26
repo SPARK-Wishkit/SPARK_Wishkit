@@ -40,8 +40,8 @@ async def one_request(client: httpx.AsyncClient, url: str) -> dict:
         return {"url": url, "status": 0, "wall_ms": int((time.monotonic() - t0) * 1000), "error": str(exc)}
 
 
-async def run_batch(base_url: str, concurrency: int) -> list[dict]:
-    urls = (URLS * ((concurrency // len(URLS)) + 1))[:concurrency]
+async def run_batch(base_url: str, concurrency: int) -> tuple[list[dict], int]:
+    urls = [URLS[i % len(URLS)] for i in range(concurrency)]
     async with httpx.AsyncClient(base_url=base_url) as client:
         t0 = time.monotonic()
         results = await asyncio.gather(*[one_request(client, u) for u in urls])
@@ -61,7 +61,7 @@ async def main():
         results, batch_wall_ms = await run_batch(args.server, n)
         for r in results:
             print(f"  status={r['status']} wall_ms={r['wall_ms']} "
-                  f"peak_rss_mb={ (r.get('server_metrics') or {}).get('peak_rss_mb') }")
+                  f"peak_rss_mb={(r.get('server_metrics') or {}).get('peak_rss_mb')}")
         ok = [r for r in results if r["status"] == 200]
         peaks = [r["server_metrics"]["peak_rss_mb"] for r in ok]
         print(f"  배치 전체 소요: {batch_wall_ms}ms / 성공 {len(ok)}/{n} / "

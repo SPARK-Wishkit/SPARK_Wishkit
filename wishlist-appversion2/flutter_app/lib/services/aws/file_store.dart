@@ -9,13 +9,19 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 /// 예: https://d1234abcd.cloudfront.net
 class FilesConfig {
   FilesConfig._();
+
+  /// 앱용 배달망(한국에서만 열림). 프로필 사진·태그 사진.
   static String baseUrl = '';
+
+  /// 공유 페이지 전용 배달망(나라 제한 없음, share-pages/ 폴더만 연결). backend.ts 참고.
+  /// 비어 있으면(옛 백엔드) 앱용 배달망 주소로 공유 링크를 만든다.
+  static String sharePagesBaseUrl = '';
 }
 
 /// 파일 올리기·지우기의 실제 수단. 테스트에서는 가짜로 바꿔 끼운다.
 abstract interface class FileTransport {
   /// [relativePath] 는 "내 폴더" 아래 경로 (예: '1727...jpg').
-  /// [folder] 는 'avatars' · 'share-pages' 중 하나.
+  /// [folder] 는 'avatars' · 'share-pages' · 'tag-photos' 중 하나.
   /// 올라간 전체 경로(S3 키)를 돌려준다.
   Future<String> upload({
     required String folder,
@@ -91,29 +97,47 @@ class AmplifyFileTransport implements FileTransport {
 ///   옛 사진이 보이는 일이 없다. 옛 프로필 사진은 새로 올린 뒤 지운다.
 /// - 공유 페이지는 S3 가 28일 뒤 자동으로 지운다 (backend.ts).
 class AwsFileStore {
-  AwsFileStore({FileTransport? transport, String? baseUrl, DateTime Function()? now})
-      : _t = transport ?? const AmplifyFileTransport(),
+  AwsFileStore({
+    FileTransport? transport,
+    String? baseUrl,
+    String? sharePagesBaseUrl,
+    DateTime Function()? now,
+  })  : _t = transport ?? const AmplifyFileTransport(),
         _baseUrl = baseUrl,
+        _sharePagesBaseUrl = sharePagesBaseUrl,
         _now = now ?? DateTime.now;
 
   final FileTransport _t;
   final String? _baseUrl;
+  final String? _sharePagesBaseUrl;
   final DateTime Function() _now;
 
   static const avatarMaxBytes = 5 * 1024 * 1024;
   static const sharePageMaxBytes = 1 * 1024 * 1024;
+  static const tagPhotoMaxBytes = 5 * 1024 * 1024;
+  static const _myFolders = ['avatars', 'share-pages', 'tag-photos'];
 
   String get baseUrl {
-    final b = (_baseUrl ?? FilesConfig.baseUrl).trim();
+    final b = _trimSlash((_baseUrl ?? FilesConfig.baseUrl).trim());
     if (b.isEmpty) {
       throw Exception('파일 저장소 설정이 아직 없어요. sandbox 를 다시 실행해 주세요.');
     }
-    return b.endsWith('/') ? b.substring(0, b.length - 1) : b;
+    return b;
   }
 
   /// S3 경로 → 영구 주소. 경로의 각 부분을 안전하게 인코딩한다.
-  String urlFor(String path) =>
-      '$baseUrl/${path.split('/').map(Uri.encodeComponent).join('/')}';
+  String urlFor(String path) => '$baseUrl/${_encodePath(path)}';
+
+  static const _sharePagesFolder = 'share-pages/';
+
+  /// 공유 페이지 S3 경로 → SNS로 보낼 주소.
+  /// 공유 배달망은 share-pages/ 폴더에 바로 연결돼 있어서, 주소에서는 'share-pages/' 를 뺀다.
+  /// 공유 배달망 주소가 없으면(옛 백엔드) 앱용 배달망 주소를 쓴다 — 이 경우 해외에서는 안 열린다.
+  String sharePageUrlFor(String path) {
+    final shareBase = _trimSlash((_sharePagesBaseUrl ?? FilesConfig.sharePagesBaseUrl).trim());
+    if (shareBase.isEmpty || !path.startsWith(_sharePagesFolder)) return urlFor(path);
+    return '$shareBase/${_encodePath(path.substring(_sharePagesFolder.length))}';
+  }
 
   Future<String> uploadAvatar(File file) async {
     final (ext, type) = imageType(file.path);
@@ -149,14 +173,48 @@ class AwsFileStore {
       bytes: bytes,
       contentType: 'text/html; charset=utf-8',
     );
+    return sharePageUrlFor(path);
+  }
+
+  /// 태그 사진으로 담은 상품의 태그 사진을 올리고 영구 주소를 돌려준다.
+  ///
+  /// 파일 이름은 추측할 수 없는 무작위 값이다 — 주소는 주인의 상품 기록에만 저장되고,
+  /// 친구에게 보이는 공개 목록에는 들어가지 않는다.
+  Future<String> uploadTagPhoto(List<int> bytes, {required String mimeType}) async {
+    if (bytes.isEmpty) throw Exception('태그 사진이 비어 있어요.');
+    if (bytes.length > tagPhotoMaxBytes) {
+      throw Exception('태그 사진은 5MB 이하만 저장할 수 있어요.');
+    }
+    final (ext, type) = switch (mimeType) {
+      'image/png' => ('png', 'image/png'),
+      'image/webp' => ('webp', 'image/webp'),
+      'image/heic' || 'image/heif' => ('heic', 'image/heic'),
+      _ => ('jpg', 'image/jpeg'),
+    };
+    final path = await _t.upload(
+      folder: 'tag-photos',
+      relativePath: '${_randomName()}.$ext',
+      file: null,
+      bytes: bytes,
+      contentType: type,
+    );
     return urlFor(path);
+  }
+
+  /// [url] 이 내 태그 사진 주소면 그 파일을 지운다. 아니면 아무것도 안 한다.
+  /// (상품을 지울 때 함께 부른다 — 실패해도 상품 삭제는 막지 않게 호출하는 쪽에서 감싼다)
+  Future<void> removeTagPhoto(String url) async {
+    final prefix = '$baseUrl/';
+    if (!url.startsWith(prefix)) return;
+    final path = url.substring(prefix.length).split('/').map(Uri.decodeComponent).join('/');
+    if (!path.startsWith('tag-photos/')) return;
+    await _t.removeAll([path]);
   }
 
   /// 회원 탈퇴: 내 폴더의 파일을 모두 지운다.
   Future<void> deleteAll() async {
     final all = <String>[
-      for (final folder in const ['avatars', 'share-pages'])
-        ...await _safeList(folder),
+      for (final folder in _myFolders) ...await _safeList(folder),
     ];
     if (all.isNotEmpty) await _t.removeAll(all);
   }
@@ -173,12 +231,24 @@ class AwsFileStore {
     };
   }
 
+  static String _encodePath(String path) =>
+      path.split('/').map(Uri.encodeComponent).join('/');
+
+  static String _trimSlash(String url) =>
+      url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+
   static String _safeSegment(String raw) {
     final s = raw.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
     return s.isEmpty ? 'x' : s;
   }
 
   String _stamp() => '${_now().millisecondsSinceEpoch}';
+
+  static final _rng = Random.secure();
+
+  /// 128비트 무작위 이름(32자리 16진수). 주소를 추측할 수 없게 한다.
+  static String _randomName() =>
+      List.generate(16, (_) => _rng.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
 
   Future<List<String>> _safeList(String folder) async {
     try {

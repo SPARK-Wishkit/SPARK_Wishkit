@@ -408,6 +408,7 @@ class AwsUserDataStore {
         'productUrl': product.productUrl,
         'memo': product.memo,
         'isPublic': product.isPublic,
+        'tagImageUrl': product.tagImageUrl,
       },
     );
   }
@@ -434,6 +435,7 @@ class AwsUserDataStore {
       productUrl: r['productUrl'] as String?,
       memo: r['memo'] as String?,
       isPublic: r['isPublic'] as bool? ?? false,
+      tagImageUrl: r['tagImageUrl'] as String?,
     );
   }
 

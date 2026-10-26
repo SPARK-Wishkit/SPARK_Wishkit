@@ -5,6 +5,7 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { auth } from './auth/resource';
+import { engineEnv } from './engine-env';
 import { data } from './data/resource';
 import { parsingProxy } from './functions/parsing-proxy/resource';
 import { publicWishlist } from './functions/public-wishlist/resource';
@@ -21,42 +22,46 @@ const backend = defineBackend({
 });
 
 // ─────────────────────────────────────────────────────────────
-// 서버 함수 권한: 공개 위시리스트 함수는 탭·상품 표를 "읽기만" 할 수 있다.
+// 서버 함수 권한: 함수별로 "어떤 표를, 읽기만/읽고 쓰기, 어떤 환경변수 이름으로" 줄지 표로 정리
 // ─────────────────────────────────────────────────────────────
-{
+type TableName = keyof typeof backend.data.resources.tables;
+type TableGrant = { table: TableName; env: string; write?: boolean };
+
+type FunctionHandle = {
+  resources: { lambda: lambda.IFunction };
+  addEnvironment(key: string, value: string): void;
+};
+
+function grantTables(fn: FunctionHandle, grants: TableGrant[]) {
   const tables = backend.data.resources.tables;
-  const fn = backend.publicWishlist;
-  tables['WishTab'].grantReadData(fn.resources.lambda);
-  tables['WishProduct'].grantReadData(fn.resources.lambda);
-  fn.addEnvironment('WISH_TAB_TABLE', tables['WishTab'].tableName);
-  fn.addEnvironment('WISH_PRODUCT_TABLE', tables['WishProduct'].tableName);
+  for (const { table, env, write } of grants) {
+    const t = tables[table];
+    if (write) t.grantReadWriteData(fn.resources.lambda);
+    else t.grantReadData(fn.resources.lambda);
+    fn.addEnvironment(env, t.tableName);
+  }
 }
 
+// 공개 위시리스트 함수: 탭·상품 표를 "읽기만" 한다.
+grantTables(backend.publicWishlist, [
+  { table: 'WishTab', env: 'WISH_TAB_TABLE' },
+  { table: 'WishProduct', env: 'WISH_PRODUCT_TABLE' },
+]);
+
 // 살까말까·댓글·알림 함수: 프로필·팔로우는 읽기만, 댓글방·댓글·받은함·알림은 읽고 쓰기.
-{
-  const tables = backend.data.resources.tables;
-  const fn = backend.socialActions;
-  const lambda = fn.resources.lambda;
-  tables['Profile'].grantReadData(lambda);
-  tables['Follow'].grantReadData(lambda);
-  tables['BasketThread'].grantReadWriteData(lambda);
-  tables['BasketComment'].grantReadWriteData(lambda);
-  tables['ReceivedBasket'].grantReadWriteData(lambda);
-  tables['Notification'].grantReadWriteData(lambda);
-  fn.addEnvironment('PROFILE_TABLE', tables['Profile'].tableName);
-  fn.addEnvironment('FOLLOW_TABLE', tables['Follow'].tableName);
-  fn.addEnvironment('THREAD_TABLE', tables['BasketThread'].tableName);
-  fn.addEnvironment('COMMENT_TABLE', tables['BasketComment'].tableName);
-  fn.addEnvironment('RECEIVED_TABLE', tables['ReceivedBasket'].tableName);
-  fn.addEnvironment('NOTIFICATION_TABLE', tables['Notification'].tableName);
-}
+grantTables(backend.socialActions, [
+  { table: 'Profile', env: 'PROFILE_TABLE' },
+  { table: 'Follow', env: 'FOLLOW_TABLE' },
+  { table: 'BasketThread', env: 'THREAD_TABLE', write: true },
+  { table: 'BasketComment', env: 'COMMENT_TABLE', write: true },
+  { table: 'ReceivedBasket', env: 'RECEIVED_TABLE', write: true },
+  { table: 'Notification', env: 'NOTIFICATION_TABLE', write: true },
+]);
 
 // ─────────────────────────────────────────────────────────────
 // AI 추출 엔진(parsing-engine, Fargate) 연동: parsing-proxy를 엔진과 같은 VPC에 붙인다
 // ─────────────────────────────────────────────────────────────
-// ⚠️ 미검증 — 이 블록은 로컬에 Node.js가 없는 환경에서 작성돼 `npm install`/타입체크를
-//    못 했다. 백엔드 담당이 pull 후 `npx ampx sandbox` 전에 최소한 타입 에러가 없는지
-//    확인해줄 것(특히 `fn.resources.lambda.role`을 `iam.Role`로 캐스팅하는 부분).
+// 타입 체크(tsc --noEmit)는 통과 확인됨. 실제 배포(`npx ampx sandbox`)는 아직 미검증.
 //
 // parsing-proxy는 엔진 서버(Fargate)의 프라이빗 IP로만 호출해야 하므로, defineFunction이
 // 지원하지 않는 vpc 설정을 CDK 이스케이프 해치로 넣는다(Amplify Gen2가 아직
@@ -71,11 +76,19 @@ const backend = defineBackend({
 //                               (엔진 태스크의 보안그룹이 "이 SG에서 8000번 포트 허용"
 //                               규칙을 갖고 있어야 함 — 반대 방향 아님)
 //    ENGINE_BASE_URL            엔진 서버 내부 주소(예: 내부 ALB의 http://<DNS>)
-{
-  const vpcId = process.env.ENGINE_VPC_ID;
-  const subnetIds = process.env.ENGINE_PRIVATE_SUBNET_IDS?.split(',').map((s) => s.trim()).filter(Boolean);
-  const lambdaSgId = process.env.ENGINE_LAMBDA_SG_ID;
-  const engineBaseUrl = process.env.ENGINE_BASE_URL;
+//
+// 엔진 서버 없이 개인 sandbox를 띄우고 싶으면(로그인·데이터·광고·가격 새로고침 테스트용)
+// ENGINE_DISABLED=1 을 명시적으로 켠다. 그러면 VPC 연결을 건너뛰고, parsing-proxy는 배포되지만
+// 부르면 "엔진 서버 주소가 설정되지 않았습니다" 오류를 돌려준다(태그 사진·URL 추출만 안 됨).
+//   ENGINE_DISABLED=1 npx ampx sandbox --outputs-format dart --outputs-out-dir lib
+// 기본값(안 켬)은 위 네 값이 없으면 그대로 배포 실패 — 실수로 엔진 없이 공용 환경에 배포되지 않게.
+if (engineEnv('ENGINE_DISABLED') === '1') {
+  console.warn('[backend.ts] ENGINE_DISABLED=1 — parsing-proxy를 엔진 없이 배포합니다(VPC 연결 생략).');
+} else {
+  const vpcId = engineEnv('ENGINE_VPC_ID');
+  const subnetIds = engineEnv('ENGINE_PRIVATE_SUBNET_IDS')?.split(',').map((s) => s.trim()).filter(Boolean);
+  const lambdaSgId = engineEnv('ENGINE_LAMBDA_SG_ID');
+  const engineBaseUrl = engineEnv('ENGINE_BASE_URL');
 
   if (!vpcId || !subnetIds?.length || !lambdaSgId || !engineBaseUrl) {
     throw new Error(
@@ -130,7 +143,7 @@ cfnUserPoolClient.tokenValidityUnits = {
 };
 
 // ─────────────────────────────────────────────────────────────
-// 4단계: 파일 배달망(CloudFront) + 공유 페이지 28일 자동 삭제
+// 4단계: 파일 배달망(CloudFront) 두 개 + 공유 페이지 28일 자동 삭제
 // ─────────────────────────────────────────────────────────────
 {
   const bucket = backend.storage.resources.bucket;
@@ -139,27 +152,41 @@ cfnUserPoolClient.tokenValidityUnits = {
 
   // S3 는 공개하지 않고, CloudFront 만 읽을 수 있게 한다 (Origin Access Control).
   // 앱에 저장되는 사진 주소는 https://<배달망 주소>/avatars/... 형태의 영구 주소가 된다.
+  const cachePolicy = new cloudfront.CachePolicy(stack, 'FilesCachePolicy', {
+    comment: 'wishkit files: 5분 기본, 파일 이름이 매번 달라서 오래 캐시해도 안전',
+    defaultTtl: Duration.minutes(5),
+    minTtl: Duration.seconds(0),
+    maxTtl: Duration.days(7),
+    enableAcceptEncodingGzip: true,
+    enableAcceptEncodingBrotli: true,
+  });
+  const behavior = (origin: cloudfront.IOrigin): cloudfront.BehaviorOptions => ({
+    origin,
+    viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+    cachePolicy,
+    responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+  });
+
+  // ① 앱용 배달망: 프로필 사진·태그 사진 등. 한국에서만 열린다(해외 접속은 403).
+  //    ⚠️ 해외 여행 중에는 사진이 안 보인다. 풀려면 이 줄을 지우거나 allowlist('KR', 'JP', ...) 처럼 나라를 추가한다.
   const cdn = new cloudfront.Distribution(stack, 'FilesCdn', {
-    comment: 'wishkit files (avatars, share pages)',
-    defaultBehavior: {
-      origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
-      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
-      cachePolicy: new cloudfront.CachePolicy(stack, 'FilesCachePolicy', {
-        comment: 'wishkit files: 5분 기본, 파일 이름이 매번 달라서 오래 캐시해도 안전',
-        defaultTtl: Duration.minutes(5),
-        minTtl: Duration.seconds(0),
-        maxTtl: Duration.days(7),
-        enableAcceptEncodingGzip: true,
-        enableAcceptEncodingBrotli: true,
-      }),
-      responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-    },
+    comment: 'wishkit files (avatars, tag photos)',
+    defaultBehavior: behavior(origins.S3BucketOrigin.withOriginAccessControl(bucket)),
     priceClass: cloudfront.PriceClass.PRICE_CLASS_200, // 한국 포함, 가장 비싼 지역 제외
-    // 한국에서만 열린다. 해외 접속은 403(거부).
-    // ⚠️ 해외 여행 중에는 사진이 안 보이고, 해외 친구에게 보낸 공유 링크도 안 열린다.
-    //    풀려면 이 줄을 지우거나 allowlist('KR', 'JP', ...) 처럼 나라를 추가한다.
     geoRestriction: cloudfront.GeoRestriction.allowlist('KR'),
+  });
+
+  // ② 공유 페이지 전용 배달망: 앱이 없는 사람에게 SNS로 보내는 살까말까 링크. 나라 제한 없음.
+  //    CloudFront 의 나라 제한은 배달망 단위라서, 공유 페이지만 열려면 배달망을 따로 둬야 한다.
+  //    originPath 로 share-pages/ 폴더만 연결한다 → 이 주소로는 프로필 사진 등 다른 폴더를 읽을 수 없다.
+  //    해외 SNS(인스타그램·페이스북·X 등)의 미리보기 서버도 이 페이지를 읽을 수 있게 된다.
+  const shareCdn = new cloudfront.Distribution(stack, 'SharePagesCdn', {
+    comment: 'wishkit public share pages (share-pages/ only, worldwide)',
+    defaultBehavior: behavior(
+      origins.S3BucketOrigin.withOriginAccessControl(bucket, { originPath: '/share-pages' }),
+    ),
+    priceClass: cloudfront.PriceClass.PRICE_CLASS_200,
   });
 
   // 공유 페이지(살까말까 링크)는 올린 지 28일 뒤 S3 가 알아서 지운다.
@@ -177,6 +204,10 @@ cfnUserPoolClient.tokenValidityUnits = {
 
   // 앱이 파일 주소를 만들 때 쓰는 배달망 주소 → amplify_outputs.dart 의 custom 에 들어간다.
   backend.addOutput({
-    custom: { filesBaseUrl: `https://${cdn.distributionDomainName}` },
+    custom: {
+      filesBaseUrl: `https://${cdn.distributionDomainName}`,
+      // 공유 페이지 주소: https://<공유 배달망>/<주인 폴더>/<페이지>.html (share-pages/ 는 주소에 안 붙음)
+      sharePagesBaseUrl: `https://${shareCdn.distributionDomainName}`,
+    },
   });
 }

@@ -46,18 +46,19 @@ dependencies:
   path_provider: ^2.1.5
   flutter_local_notifications: ^19.0.0
   image_picker: ^1.1.2
-  # 온디바이스 Tier 2.5: 안 보이는 WebView로 렌더링된 페이지에서 상품정보 추출
-  flutter_inappwebview: ^6.1.5
   amplify_flutter: ^2.15.0
   amplify_auth_cognito: ^2.15.1
   amplify_api: ^2.15.1
   amplify_storage_s3: ^2.15.0
+  # 상품 카드 사이 네이티브 광고 (lib/ads/). 9.1.0 = 2026-08 릴리스, Flutter 3.38.1+ / iOS 13+ / Android minSdk 24+
+  google_mobile_ads: ^9.1.0
+  # 살까말까 링크를 카카오톡·인스타그램 등으로 보내는 휴대폰 공유창.
+  # 13.x 는 Android Gradle Plugin 8.12.1·Gradle 8.13·Kotlin 2.2.0 이상이 필요하다(android/ 설정을 그에 맞춤).
+  # 11.x 는 다른 패키지와 버전이 충돌해서 설치되지 않았다(2026-10-24 flutter pub get).
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter
-  # Tier 2.5 WebView 추출을 실기기/에뮬레이터에서 검증하는 통합 테스트용
-  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to

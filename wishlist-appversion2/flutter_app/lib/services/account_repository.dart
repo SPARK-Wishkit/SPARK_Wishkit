@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import '../models/models.dart';
 import 'aws/basket_store.dart';
 import 'aws/file_store.dart';
+import 'aws/product_tag_store.dart';
 import 'aws/social_store.dart';
 import 'aws/user_data_store.dart';
 
@@ -19,10 +21,12 @@ class AccountRepository {
     AwsSocialStore? social,
     AwsBasketStore? baskets,
     AwsFileStore? files,
+    AwsProductTagStore? productTags,
   })  : _aws = userData ?? AwsUserDataStore(),
         _social = social ?? AwsSocialStore(),
         _baskets = baskets ?? AwsBasketStore(),
-        _files = files ?? AwsFileStore();
+        _files = files ?? AwsFileStore(),
+        _productTags = productTags ?? AwsProductTagStore();
 
   /// 2단계: 내 데이터 (프로필 · 아이디 · 탭 · 상품).
   final AwsUserDataStore _aws;
@@ -35,6 +39,16 @@ class AccountRepository {
 
   /// 4단계: 프로필 사진 · 공유 페이지 (S3 + CloudFront).
   final AwsFileStore _files;
+
+  /// AI 엔진: 태그 사진으로 상품 페이지 찾기.
+  final AwsProductTagStore _productTags;
+
+  /// 상품 태그 사진으로 그 상품의 상세 페이지(공식몰 우선)를 찾는다. 가격은 읽지 않는다.
+  Future<TagIdentifyResult> identifyProductFromTag(
+    Uint8List image, {
+    String mimeType = 'image/jpeg',
+  }) =>
+      _productTags.identify(image, mimeType);
 
   /// 회원 탈퇴용: [uid] 의 앱 데이터와 파일을 모두 지운다.
   /// AuthController.deleteAccount → AuthDataHooks.deleteMyData 에서 호출된다.
@@ -98,6 +112,13 @@ class AccountRepository {
   /// 프로필 사진을 올리고 영구 주소를 돌려준다. (옛 사진은 정리한다)
   Future<String> uploadAvatarFile(String uid, File file) =>
       _files.uploadAvatar(file);
+
+  /// 태그 사진으로 담은 상품의 태그 사진을 올리고 영구 주소를 돌려준다.
+  Future<String> uploadTagPhoto(List<int> bytes, {required String mimeType}) =>
+      _files.uploadTagPhoto(bytes, mimeType: mimeType);
+
+  /// 상품을 지울 때 그 상품의 태그 사진도 지운다.
+  Future<void> deleteTagPhoto(String url) => _files.removeTagPhoto(url);
 
   /// 살까말까 공유 페이지(HTML)를 올리고, 로그인 없이 열리는 주소를 돌려준다.
   /// 28일 뒤 자동 삭제는 S3 규칙이 한다. 같은 [pageId] 로 다시 올리면 같은 주소에 덮어쓴다.

@@ -6,6 +6,3 @@ google-genai>=1.0
 python-dotenv>=1.0
 psutil>=6.0
 pydantic>=2.7
-# anthropic/openai는 providers.py에서 지연 임포트(키가 있을 때만 필요) — 지금 이 서버는
-# GEMINI_API_KEY만 쓰므로 기본 설치엔 포함하지 않았다. 필요해지면:
-#   pip install anthropic openai

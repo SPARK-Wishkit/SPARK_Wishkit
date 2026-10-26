@@ -66,6 +66,22 @@ void main() {
     );
   });
 
+  test('공유 페이지: 공유 전용 배달망 주소로, share-pages/ 는 주소에서 뺀다', () async {
+    final shareStore = AwsFileStore(
+      transport: s3,
+      baseUrl: 'https://cdn.example.net',
+      sharePagesBaseUrl: 'https://share.example.net/',
+    );
+    final url = await shareStore.uploadSharePage(pageId: 'p1', html: '<html></html>');
+    expect(url, 'https://share.example.net/ap-northeast-2%3Ame-id/p1.html');
+    expect(s3.files.keys, contains('share-pages/ap-northeast-2:me-id/p1.html'));
+  });
+
+  test('공유 페이지: 공유 전용 배달망이 없으면(옛 백엔드) 앱용 배달망 주소', () async {
+    final url = await store.uploadSharePage(pageId: 'p1', html: '<html></html>');
+    expect(url, 'https://cdn.example.net/share-pages/ap-northeast-2%3Ame-id/p1.html');
+  });
+
   test('확장자별 형식 (이미지가 아니면 jpg — 기존 동작)', () {
     expect(AwsFileStore.imageType('a.PNG'), ('png', 'image/png'));
     expect(AwsFileStore.imageType('a.webp'), ('webp', 'image/webp'));
@@ -105,9 +121,42 @@ void main() {
     );
   });
 
-  test('회원 탈퇴: 두 폴더의 내 파일을 모두 지운다', () async {
+  test('태그 사진: 추측할 수 없는 이름으로 올리고, 주소로 다시 지운다', () async {
+    final url = await store.uploadTagPhoto([1, 2, 3], mimeType: 'image/jpeg');
+    final path = s3.files.keys.single;
+    expect(path, startsWith('tag-photos/${FakeTransport.identity}/'));
+    expect(RegExp(r'/[0-9a-f]{32}\.jpg$').hasMatch(path), isTrue);
+    expect(s3.files[path]!.$2, 'image/jpeg');
+    expect(url, startsWith('https://cdn.example.net/tag-photos/'));
+
+    await store.removeTagPhoto(url);
+    expect(s3.files, isEmpty);
+  });
+
+  test('태그 사진: 남의 주소나 다른 폴더 주소는 지우지 않는다', () async {
+    await store.uploadSharePage(pageId: 'p', html: 'x');
+    await store.removeTagPhoto('https://evil.example/tag-photos/x.jpg');
+    await store.removeTagPhoto(
+      'https://cdn.example.net/share-pages/${FakeTransport.identity}/p.html',
+    );
+    expect(s3.files.length, 1);
+  });
+
+  test('태그 사진: 비었거나 5MB 넘으면 거절', () async {
+    await expectLater(
+      store.uploadTagPhoto(const [], mimeType: 'image/jpeg'),
+      throwsA(predicate((e) => e.toString().contains('비어'))),
+    );
+    await expectLater(
+      store.uploadTagPhoto(List.filled(5 * 1024 * 1024 + 1, 0), mimeType: 'image/jpeg'),
+      throwsA(predicate((e) => e.toString().contains('5MB'))),
+    );
+  });
+
+  test('회원 탈퇴: 내 폴더의 파일을 모두 지운다 (태그 사진 포함)', () async {
     await store.uploadAvatar(await fileOf('a.jpg', 1));
     await store.uploadSharePage(pageId: 'p', html: 'x');
+    await store.uploadTagPhoto([1], mimeType: 'image/png');
     await store.deleteAll();
     expect(s3.files, isEmpty);
   });

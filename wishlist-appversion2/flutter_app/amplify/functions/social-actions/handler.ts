@@ -1,12 +1,8 @@
-import type { AppSyncIdentityCognito, AppSyncResolverHandler } from 'aws-lambda';
+import type { AppSyncIdentityCognito } from 'aws-lambda';
+import { type AmplifyFunctionEvent, fieldNameOf } from '../shared/appsync-event';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-  DeleteCommand,
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-  QueryCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { queryAll } from '../shared/ddb';
 import {
   ActionError,
   addComment,
@@ -44,32 +40,21 @@ const db: Db = {
   async del(table, key) {
     await ddb.send(new DeleteCommand({ TableName: TABLES[table], Key: key }));
   },
-  async query(table, keyName, keyValue) {
-    const rows: Row[] = [];
-    let startKey: Record<string, unknown> | undefined;
-    let pages = 0;
-    do {
-      const res = await ddb.send(
-        new QueryCommand({
-          TableName: TABLES[table],
-          KeyConditionExpression: '#k = :v',
-          ExpressionAttributeNames: { '#k': keyName },
-          ExpressionAttributeValues: { ':v': keyValue },
-          ExclusiveStartKey: startKey,
-        }),
-      );
-      rows.push(...((res.Items ?? []) as Row[]));
-      startKey = res.LastEvaluatedKey as Record<string, unknown> | undefined;
-      pages++;
-    } while (startKey && pages < 20);
-    return rows;
+  query(table, keyName, keyValue) {
+    return queryAll(ddb, {
+      TableName: TABLES[table],
+      KeyConditionExpression: '#k = :v',
+      ExpressionAttributeNames: { '#k': keyName },
+      ExpressionAttributeValues: { ':v': keyValue },
+    });
   },
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Args = Record<string, any>;
 
-export const handler: AppSyncResolverHandler<Args, unknown> = async (event) => {
+export const handler = async (event: AmplifyFunctionEvent<Args>): Promise<unknown> => {
+  const fieldName = fieldNameOf(event);
   // 호출한 사람은 토큰에서만 가져온다. (앱이 보낸 값은 믿지 않는다)
   const caller = (event.identity as AppSyncIdentityCognito | null)?.sub;
   if (!caller) throw new Error('UNAUTHENTICATED');
@@ -77,7 +62,7 @@ export const handler: AppSyncResolverHandler<Args, unknown> = async (event) => {
   const a = event.arguments;
 
   try {
-    switch (event.info.fieldName) {
+    switch (fieldName) {
       case 'sendBasket':
         return await sendBasket(env, caller, {
           threadId: a.threadId,
@@ -107,12 +92,12 @@ export const handler: AppSyncResolverHandler<Args, unknown> = async (event) => {
       case 'notifyFollow':
         return await notifyFollow(env, caller, { targetId: a.targetId });
       default:
-        throw new Error(`Unknown field: ${event.info.fieldName}`);
+        throw new Error(`Unknown field: ${fieldName}`);
     }
   } catch (e) {
     // 약속된 오류 코드는 그대로, 그 밖의 오류는 내부 내용을 숨긴다.
     if (e instanceof ActionError) throw new Error(e.code);
-    console.error('social-actions failed', event.info.fieldName, e);
+    console.error('social-actions failed', fieldName, e);
     throw new Error('INTERNAL');
   }
 };

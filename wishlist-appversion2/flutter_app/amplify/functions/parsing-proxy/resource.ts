@@ -14,7 +14,7 @@ export const parsingProxy = defineFunction({
   name: 'parsing-proxy',
   entry: './handler.ts',
   resourceGroupName: 'data',
-  // 엔진 서버 자체 타임아웃(EXTRACT_TIMEOUT_S=45초)보다 여유 있게 60초.
-  timeoutSeconds: 60,
+  // AppSync 가 30초 넘게 기다리지 않으므로 그 이상은 의미가 없다(handler.ts 는 27초에 엔진 요청을 끊는다).
+  timeoutSeconds: 30,
   memoryMB: 256,
 });

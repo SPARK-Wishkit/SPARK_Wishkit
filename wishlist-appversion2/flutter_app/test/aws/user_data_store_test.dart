@@ -133,9 +133,13 @@ void main() {
         platform: '무신사',
       );
       await store.upsertProduct('uid-a', p);
-      await store.upsertProduct('uid-a', p.copyWith(memo: '살까?'));
+      await store.upsertProduct(
+        'uid-a',
+        p.copyWith(memo: '살까?', tagImageUrl: 'https://cdn/tag-photos/a/x.jpg'),
+      );
       var list = await store.loadProducts('uid-a');
       expect(list.single.memo, '살까?');
+      expect(list.single.tagImageUrl, 'https://cdn/tag-photos/a/x.jpg');
       expect(list.single.isPublic, isTrue); // '전체' 탭이 공개라 맞춰진다
 
       await store.deleteProduct('uid-a', 7);

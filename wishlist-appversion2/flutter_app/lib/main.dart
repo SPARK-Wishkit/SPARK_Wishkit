@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ads/ads_config.dart';
 import 'auth/amplify_setup.dart';
 import 'auth/auth_controller.dart';
 import 'auth/auth_routes.dart';
@@ -24,7 +26,6 @@ import 'screens/shared/shared_basket_detail_screen.dart';
 import 'screens/shared/shared_wishlist_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
 import 'services/share_input.dart';
-import 'services/webview_extract_host.dart';
 import 'theme/diary_scale.dart';
 import 'theme/diary_theme.dart';
 import 'widgets/diary_widgets.dart';
@@ -44,6 +45,9 @@ Future<void> main() async {
   final store = AppStore(auth: auth, backendConfigured: amplifyError == null);
   auth.hooks = store.authHooks;
   await store.init();
+
+  // 4) 광고 SDK 준비 — 기다리지 않는다(광고가 늦게 떠도 앱 시작은 막지 않음).
+  if (AdsConfig.supported) unawaited(MobileAds.instance.initialize());
 
   runApp(WishlistApp(auth: auth, store: store));
 }
@@ -129,7 +133,7 @@ class _WishlistAppState extends State<WishlistApp> {
 
     _lastHandledShareUrl = url;
     _lastHandledShareAt = now;
-    widget.store.setPendingShareUrl(input);
+    widget.store.setPendingShareUrl(ShareInput.normalize(input));
     router.go('/share');
   }
 
@@ -153,11 +157,8 @@ class _WishlistAppState extends State<WishlistApp> {
         debugShowCheckedModeBanner: false,
         theme: DiaryTheme.light,
         routerConfig: router,
-        builder: (context, child) {
-          final scaled =
-              DiaryScale.wrap(context, child ?? const SizedBox.shrink());
-          return WebViewExtractHost(child: scaled);
-        },
+        builder: (context, child) =>
+            DiaryScale.wrap(context, child ?? const SizedBox.shrink()),
       ),
     );
   }

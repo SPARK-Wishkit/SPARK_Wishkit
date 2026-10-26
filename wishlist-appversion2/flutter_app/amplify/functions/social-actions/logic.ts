@@ -40,9 +40,11 @@ export class ActionError extends Error {
     super(code);
   }
 }
-const fail = (code: string): never => {
+// 화살표 함수(const fail = ...)가 아니라 함수 선언으로 둬야 TypeScript가 `if (!x) fail(...)`
+// 뒤에서 x를 non-null로 좁혀 준다 → 아래 코드에서 `!` 단언과 `as` 캐스팅이 필요 없어진다.
+function fail(code: string): never {
   throw new ActionError(code);
-};
+}
 
 export interface Env {
   db: Db;
@@ -64,9 +66,9 @@ async function authorOf(env: Env, uid: string): Promise<Author> {
   if (!p) fail('PROFILE_MISSING');
   return {
     uid,
-    name: String(p!.name ?? '사용자'),
-    handle: String(p!.handle ?? '@user'),
-    avatar: String(p!.avatarUrl ?? ''),
+    name: String(p.name ?? '사용자'),
+    handle: String(p.handle ?? '@user'),
+    avatar: String(p.avatarUrl ?? ''),
   };
 }
 
@@ -137,8 +139,8 @@ async function notify(
 function sanitizeItems(raw: unknown): Row[] {
   const list = asJson(raw);
   if (!Array.isArray(list) || list.length === 0) fail('INVALID_INPUT');
-  if ((list as unknown[]).length > LIMITS.items) fail('TOO_MANY_ITEMS');
-  return (list as unknown[]).map((it) => {
+  if (list.length > LIMITS.items) fail('TOO_MANY_ITEMS');
+  return list.map((it: unknown) => {
     if (typeof it !== 'object' || it === null) fail('INVALID_INPUT');
     const p = it as Row;
     const id = typeof p.id === 'number' ? p.id : Number(p.id);
@@ -370,7 +372,7 @@ export async function updateComment(
   const text = cleanText(args.text, LIMITS.text, { required: true });
   const row = await ownComment(env, caller, args.threadId, args.commentId);
   if (!row) fail('COMMENT_NOT_FOUND');
-  const data = { ...(asJson(row!.data) as Row), text, updatedAt: now };
+  const data = { ...(asJson(row.data) as Row), text, updatedAt: now };
   await env.db.put('BasketComment', { ...row, data, updatedAt: now });
   return true;
 }

@@ -73,7 +73,7 @@ class _SharedBasketDetailScreenState extends State<SharedBasketDetailScreen> {
         actions: [
           if (isMine)
             IconButton(
-              tooltip: '다시 보내기',
+              tooltip: '공유하기',
               onPressed: () => showSentBasketShareSheet(context, store, basket),
               icon: const Icon(Icons.ios_share),
             ),

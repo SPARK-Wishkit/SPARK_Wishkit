@@ -126,6 +126,7 @@ void main() {
           image: 'i',
           platform: '나이키',
           memo: '월급날 사기',
+          tagImageUrl: 'https://cdn.example.net/tag-photos/bob/abc.jpg',
         ),
       );
       await data.upsertProduct(
@@ -156,6 +157,11 @@ void main() {
     test('메모는 친구에게 보이지 않는다', () async {
       final lists = await social.loadFriendWishlists([friend(true)]);
       expect(lists.single.items.single.memo, isNull);
+    });
+
+    test('태그 사진도 친구에게 보이지 않는다', () async {
+      final lists = await social.loadFriendWishlists([friend(true)]);
+      expect(lists.single.items.single.tagImageUrl, isNull);
     });
 
     test('팔로우하지 않는 사람은 불러오지 않는다', () async {

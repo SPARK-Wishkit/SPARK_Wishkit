@@ -1,0 +1,28 @@
+# Amplify 콘솔이 GitHub main 에 푸시될 때마다 이 설정으로 백엔드를 배포한다.
+# 콘솔에서 "My app is a monorepo" 체크 + 경로 wishlist-appversion2/flutter_app 로 연결할 것.
+version: 1
+applications:
+  - appRoot: wishlist-appversion2/flutter_app
+    backend:
+      phases:
+        build:
+          commands:
+            # npm ci 가 아니라 npm install: @aws-amplify/data-construct 가 안에 묶어 둔 패키지 때문에
+            # 잠금 파일을 새로 만들어도 npm ci 가 "lock 파일이 안 맞음"으로 실패한다(npm 10·11 공통).
+            - npm install --no-audit --no-fund --cache .npm --prefer-offline
+            # 콘솔 환경 변수(ENGINE_*)는 ampx 가 backend.ts 에 넘겨주지 않아서 파일로 옮겨 둔다(amplify/engine-env.ts).
+            - env | grep '^ENGINE_' > amplify/.engine.env || true
+            - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+    frontend:
+      # 앱(Flutter)은 여기서 빌드하지 않는다 — 백엔드만 배포하는 앱. Amplify 가 결과물 폴더를 요구해서 빈 페이지만 둔다.
+      phases:
+        build:
+          commands:
+            - mkdir -p dist && echo "wishkit backend" > dist/index.html
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - .npm/**/*

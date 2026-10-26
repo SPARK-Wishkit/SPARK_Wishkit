@@ -98,6 +98,9 @@ const schema = a.schema({
       productUrl: a.string(),
       memo: a.string(),
       isPublic: a.boolean().required(),
+      // 태그 사진으로 담은 상품의 태그 사진 주소(파일 배달망). 메모처럼 본인만 본다 —
+      // publicWishlist(친구에게 보이는 목록)에는 넣지 않는다.
+      tagImageUrl: a.string(),
     })
     .identifier(['ownerId', 'productId'])
     .authorization((allow) => [
@@ -308,6 +311,8 @@ const schema = a.schema({
    * 필드 설명은 parsing-engine/server/main.py `_extract()` 참고.
    */
   ExtractedProduct: a.customType({
+    // 엔진이 실제로 연 상품 페이지 주소(공유용 짧은 링크를 푼 결과). 앱은 이 주소를 저장한다.
+    productUrl: a.string(),
     productName: a.string(),
     unconditionalPrice: a.integer(),
     regularPrice: a.integer(),
@@ -327,6 +332,38 @@ const schema = a.schema({
     .query()
     .arguments({ url: a.string().required() })
     .returns(a.ref('ExtractedProduct'))
+    .authorization((allow) => [allow.authenticated()])
+    .handler(a.handler.function(parsingProxy)),
+
+  /**
+   * 태그 사진으로 찾은 결과. 필드 설명은 parsing-engine/server/tag_identify.py 참고.
+   * status: 'found'(matchUrl 있음) | 'not_found'(태그 정보만 있음) | 'not_a_tag'
+   * matchSource: 'official'(브랜드 공식몰) | 'mall'(공식몰에 없어 국내 쇼핑몰에서 찾음)
+   * verifiedBy: 'product_code' | 'barcode' | 'name'(품번 없이 이름으로만 확인 — 앱이 한 번 더 확인)
+   */
+  IdentifiedTag: a.customType({
+    status: a.string().required(),
+    brand: a.string(),
+    productCode: a.string(),
+    productName: a.string(),
+    color: a.string(),
+    tagPrice: a.integer(),
+    officialDomain: a.string(),
+    matchUrl: a.string(),
+    matchHost: a.string(),
+    matchSource: a.string(),
+    verifiedBy: a.string(),
+    note: a.string(),
+  }),
+
+  /**
+   * 상품 태그 사진(base64)으로 그 상품의 상세 페이지 URL을 찾는다(공식몰 우선). 가격은 읽지
+   * 않는다 — 앱이 찾은 URL을 기존 "URL로 담기"와 같은 경로로 읽는다. 로그인 사용자만 호출 가능.
+   */
+  identifyProductTag: a
+    .query()
+    .arguments({ imageBase64: a.string().required(), mimeType: a.string().required() })
+    .returns(a.ref('IdentifiedTag'))
     .authorization((allow) => [allow.authenticated()])
     .handler(a.handler.function(parsingProxy)),
 });

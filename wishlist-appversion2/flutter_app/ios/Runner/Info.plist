@@ -48,10 +48,13 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<!-- AdMob 앱 ID: 구글 공식 테스트 ID. 출시 전에 실제 AdMob iOS 앱 ID로 바꿀 것. 없으면 앱이 바로 죽는다. -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>프로필 사진을 선택하기 위해 사진 라이브러리에 접근합니다.</string>
+	<string>프로필 사진이나 상품 태그 사진을 고르기 위해 사진 라이브러리에 접근합니다.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>프로필 사진을 찍기 위해 카메라에 접근합니다.</string>
+	<string>프로필 사진이나 상품 태그 사진을 찍기 위해 카메라에 접근합니다.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

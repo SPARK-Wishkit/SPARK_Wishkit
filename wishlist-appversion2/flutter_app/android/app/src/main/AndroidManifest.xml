@@ -6,6 +6,11 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
+        <!-- AdMob 앱 ID. 지금은 구글 공식 "테스트" 앱 ID — 출시 전에 실제 AdMob 앱 ID로 바꿀 것
+             (광고 단위 ID는 lib/ads/ads_config.dart 참고). 이 값이 없으면 앱이 시작하자마자 죽는다. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
