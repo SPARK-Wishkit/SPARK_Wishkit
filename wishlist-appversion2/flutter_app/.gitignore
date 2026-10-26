@@ -54,3 +54,6 @@ node_modules/
 # amplify
 amplify_outputs*
 amplifyconfiguration*
+
+# Amplify 빌드가 콘솔 환경 변수(ENGINE_*)를 옮겨 적는 파일 — amplify/engine-env.ts 참고
+amplify/.engine.env

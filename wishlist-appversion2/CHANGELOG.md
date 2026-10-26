@@ -1,5 +1,233 @@
 # 변경 이력 (CHANGELOG)
 
+## 2026-10-26 - 무신사 품번 검색 결과를 "검색 일치"로 받아 주기
+
+🌟 **쉬운 설명**
+- 무신사에서 품번으로 검색해 상품이 1~2개만 나오면, 그 상품 페이지에 품번이 안 적혀 있어도 브랜드나 태그 가격이 보이면 찾은 것으로 보여 줘요. 이때는 "같은 상품인지 확인해 주세요"라고 안내해요.
+
+🔧 **기술 설명**
+- 2026-10-26 로그: 무신사 검색 '93251TTL1202' → 상품 1개(`products/5046318`), 그런데 페이지 글자에 품번이 없어 탈락 → 구글 검색 429 → 못 찾음.
+- `verified_by="search_match"`: 쇼핑몰 품번 검색 결과가 `SEARCH_MATCH_MAX_RESULTS`(2)개 이하이고 페이지에 브랜드(영문 그대로) 또는 태그 가격이 있을 때. 근거 단계는 품번 확인(0)과 이름만(2) 사이(1). 품번 확인이 아니므로 구글 검색도 시도하고, 거기서 품번이 확인된 페이지가 나오면 그쪽을 고른다.
+- 못 찾았을 때 쇼핑몰 후보를 열어 봤으면 그 이유를 note 로(검색 실패 대신).
+- 앱: `needsUserCheck`에 `search_match` 포함, 안내 문구 추가.
+- 테스트 5개 추가.
+
+---
+
+## 2026-10-26 - 태그 찾기: 무신사에서 먼저 찾고, 없을 때만 구글 검색
+
+🌟 **쉬운 설명**
+- 태그 사진으로 찾을 때 먼저 **무신사 검색창에 품번을 넣어** 찾아요(AI·구글 검색을 안 써서 무료, 한도 없음).
+- 무신사에 없을 때만 Gemini 구글 검색을 써요. 무료 키는 구글 검색 한도가 0이라, 유료 키가 있어야 이 단계가 동작해요.
+
+🔧 **기술 설명**
+- 새 `mall_search.py`: 쇼핑몰별 검색 주소·상품 링크 모양(`MallSearch`). 무신사는 `/search/goods?keyword=` → `/search/musinsa/goods?q=` 순으로 시도, 상품 링크 `/products/<번호>`. 주소가 바뀌면 `MUSINSA_SEARCH_URLS` 환경변수로 바꿀 수 있다.
+- `tag_identify.identify`: ① 쇼핑몰 검색 결과 앞 3개를 열어 품번 확인 → 확인되면 끝 ② 아니면 Gemini 구글 검색. 두 단계가 같은 확인 규칙(`_Checker`)을 쓴다. 쇼핑몰 단계는 구글 검색 몫 10초를 남기고, 검색 페이지가 막히면 바로 구글 검색으로 넘어간다.
+- `PageView.html`(정제된 HTML)로 검색 결과의 상품 링크를 꺼낸다.
+- 테스트 7개 추가(무신사에서 찾음·구글 검색 안 씀, 두 번째 검색 주소, 막힘 → 바로 구글, 시간 몫 등).
+- 앱·백엔드 변경 없음(엔진만 `engine.sh deploy`).
+
+---
+
+## 2026-10-26 - 태그 사진 찾기: 못 찾은 이유 보여 주기·기록 남기기
+
+🌟 **쉬운 설명**
+- 태그는 읽었는데 판매 페이지를 못 찾으면, 이제 **왜 못 찾았는지**(시간이 모자람 / 품번이 적힌 페이지가 없음 / 검색 실패 등)를 한 줄로 보여 줘요.
+
+🔧 **기술 설명**
+- 엔진 `/identify-tag`: 요청마다 한 줄 요약 로그(`[identify] …`) — 읽은 브랜드·품번, 단계별 시간(read_tag·search·render), 열어 본 후보와 탈락 이유. 사진은 남기지 않음.
+- 못 찾은 이유(`note`)를 사람이 읽는 문장으로(`_not_found_note`), 검색 실패의 원문은 로그로만.
+- 앱: 못 찾았을 때 `이유: …` 줄을 보여 준다(서버가 보내던 note 를 화면에 안 쓰고 있었음).
+
+---
+
+## 2026-10-24 - 광고 카드를 상품 카드와 같은 크기로
+
+🌟 **쉬운 설명**
+- 목록 사이 광고가 상품 카드보다 훨씬 크게(빈 회색 칸까지) 보이던 문제를 고쳤어요. 이제 광고도 상품 카드와 같은 높이·모서리·그림자예요.
+
+🔧 **기술 설명**
+- 원인: `AdWidget`은 자기 크기가 없어 주어진 최대 크기까지 늘어나는데 최대 높이가 200이었다(내용은 약 90). 위에 "광고" 줄이 따로 있어 더 커졌다.
+- 새 `lib/theme/list_card.dart`(`ListCardMetrics`: 높이 100·모서리 14·그림자 0.6). `WishlistProductCard`(내 위시리스트·친구 공유 위시리스트 공통)는 최소 높이 100, `NativeAdCard`는 높이 100 고정. 따로 붙이던 "광고" 줄은 빼고 템플릿의 "Ad" 표시를 쓴다(회색 바탕으로 상품과 구분 유지).
+
+---
+
+## 2026-10-24 - 무신사 앱 공유 링크(짧은 링크)도 읽기
+
+🌟 **쉬운 설명**
+- 무신사 앱에서 공유하면 `musinsa.onelink.me/…` 같은 짧은 링크가 오는데, 서버가 이걸 그대로 열다가 시간이 다 돼서 못 읽었어요. 이제 짧은 링크를 먼저 실제 상품 주소로 바꾼 뒤 읽어요.
+- 저장되는 상품 링크도 짧은 링크가 아니라 실제 상품 주소(`musinsa.com/products/…`)예요.
+
+🔧 **기술 설명**
+- 원인(2026-10-24 로그): 엔진이 `https://musinsa.onelink.me/PvkC/…` 를 휴대폰 UA 로 열어 앱/스토어로 넘기려다 `Page.goto Timeout 20000ms`.
+- 엔진: 새 `share_links.py` — 짧은 링크(onelink.me·app.link·page.link·naver.me·link.coupang.com 등)는 렌더링 전에 HTTP 리다이렉트를 PC 브라우저인 척 따라가 실제 주소를 얻는다. 앱 주소(`intent://`, `musinsa://`)가 나오면 `af_web_dp`·`browser_fallback_url` 등에서 웹 주소를 꺼내고, JS 로 넘기는 중간 페이지면 본문에서 쇼핑몰 이름(`musinsa`)이 든 주소만 고른다(추측하지 않음). 못 풀면 원래 주소로 진행. 총 4초 이내.
+- `render.py`: `onelink.me` 를 모바일 UA 목록에서 뺐다.
+- 시간 예산: 엔진 페이지 로딩 대기 20초 → 12초(`RENDER_NAV_TIMEOUT_MS`, `engine.sh`). 전체 25초 안에 AI 시간을 남긴다.
+- GraphQL `ExtractedProduct.productUrl` 추가(엔진 `render.final_url`). 앱은 이 주소를 저장한다.
+- 테스트: `test_share_links.py`(14개, 실제 HTTP 302 체인 포함), `parsing_bridge_test.dart` 2개 추가.
+- ⚠️ 순서: 백엔드 배포(push) → `engine.sh deploy` → 앱 재설치. 앱을 먼저 깔면 서버에 아직 없는 `productUrl` 을 물어서 실패한다.
+
+---
+
+## 2026-10-24 - 서버 함수 3개가 호출될 때마다 실패하던 문제
+
+🌟 **쉬운 설명**
+- 서버 AI 상품 읽기, 태그 사진 찾기, 친구에게 살까말까 보내기·댓글·팔로우 알림, 공개 위시리스트 보기가 서버에서 바로 실패하고 있었어요. 고쳤어요.
+- 앱은 바꾸지 않아도 돼요(백엔드만 다시 배포).
+
+🔧 **기술 설명**
+- 원인: Amplify Gen 2 의 `a.handler.function()` 은 Lambda 에 `{ typeName, fieldName, arguments, identity, … }` 를 넘기는데(@aws-amplify/graphql-function-transformer), 세 함수 모두 AppSync 직접 리졸버 모양인 `event.info.fieldName` 을 읽어서 `Cannot read properties of undefined (reading 'fieldName')` 로 실패했다(2026-10-24 CloudWatch 로그).
+- `functions/shared/appsync-event.ts`(`AmplifyFunctionEvent`, `fieldNameOf`) 추가. parsing-proxy·social-actions·public-wishlist 핸들러가 이걸 쓴다. `info` 모양도 받아 둠.
+- `engine.sh`: 시작할 때 AWS CLI·로그인·(deploy 면) Docker 를 먼저 확인하고, 권한 오류는 원문 그대로 보여 준다(전에는 "기본 VPC 가 없어요"로 잘못 안내).
+
+---
+
+## 2026-10-24 - 상품 읽기를 서버 AI 로 일원화 (WebView 추출기 제거)
+
+🌟 **쉬운 설명**
+- 상품 링크를 넣으면 이제 휴대폰이 아니라 **서버의 AI**가 페이지를 읽어서 이름·가격·사진을 채워요(9월 18일 결정을 앱까지 반영).
+- 서버 엔진이 꺼져 있으면 자동으로 안 채워지고, "자동 읽기 서버가 꺼져 있어요" 안내와 함께 직접 입력하면 돼요.
+- 로그인해야 자동 읽기가 돼요. 가격 새로고침도 같은 방식이에요.
+
+🔧 **기술 설명**
+- 앱: `ParsingBridge`가 GraphQL `extractProduct`를 부른다(새 `Gql.extractProduct`). 응답→모델 변환과 오류 해석은 새 `lib/services/server_extract.dart`(순수 Dart). 실패해도 예외 대신 URL·공유 제목을 남기고 `ExtractFailureReason`(not_logged_in/engine_off/timeout/network/failed/ambiguous)으로 화면 문구를 고른다.
+- 제거: `webview_scraper.dart`, `webview_extract_host.dart`(앱 전체에 깔린 숨은 WebView), `product_extract_js.dart`, `live_field_compare.dart`, `flutter_inappwebview`·`integration_test` 의존성, WebView 단위·통합 테스트, `tools/`(WebView 대조용 파이썬 스크립트). `ParsedProductInfo`에서 WebView 전용 필드(`onDeviceExtracted`, `mergeOnDevice`, 옵션·근거·Tier 필드) 정리.
+- 서버: `parsing-proxy`가 오류를 코드로 돌려준다(`ENGINE_NOT_CONFIGURED`·`ENGINE_UNAVAILABLE`·`ENGINE_TIMEOUT`·`ENGINE_ERROR`·`INVALID_INPUT`, 자세한 원인은 CloudWatch). AppSync 30초 한도에 맞춰 엔진 요청 27초·Lambda 30초, 엔진 태스크는 `EXTRACT_TIMEOUT_S=25`(`engine.sh`). 원래 /extract 는 55초를 기다려서 AppSync 에서 먼저 끊겼다.
+- 테스트: `parsing_bridge_test.dart`(9개)·`price_refresh_test.dart`를 서버 응답 기준으로 다시 씀(`test/fake_extract_gql.dart`).
+- 기록 문서(`ENGINE_DEVELOPMENT_HANDOFF.md`, `MALL_SUPPORT.md`) 맨 위에 WebView 제거 안내를 달았다. 내용은 기록으로 남김.
+
+---
+
+## 2026-10-24 - 공유한 상품 URL 이 여러 번 들어가던 문제
+
+🌟 **쉬운 설명**
+- 아이폰에서 쇼핑몰 상품을 우리 앱으로 공유하면 입력칸에 같은 주소가 3~4번 들어가고, 주소가 띄어쓰기 없이 붙어 들어오면 상품을 못 읽던 문제를 고쳤어요.
+- 이제 같은 주소는 한 번만 들어가고, 저장할 때도 첫 주소 하나만 상품 URL 로 저장돼요.
+
+🔧 **기술 설명**
+- 원인: iOS 공유 시트가 한 번에 같은 URL 을 공유 글·URL 첨부·텍스트 첨부로 넘기고, `AppDelegate`가 첨부 경로를 한 번 더 붙였다. URL 이 붙어 들어오면 `ShareInput.firstUrl`이 `https://a/1https://a/1…` 전체를 주소 하나로 돌려줘서 읽기에 실패했다. 저장 시에는 읽은 주소가 없으면 입력칸 글 전체가 `productUrl`에 들어갔다.
+- `ShareInput.normalize()` 추가(줄·URL 중복 제거, 붙은 같은 URL 하나로; `?to=https://…` 같은 정상 주소는 자르지 않음). `main.dart`·`share_intake_screen.dart`에서 사용. 저장 시 `productUrl`은 입력칸의 첫 URL.
+- iOS: `ShareViewController.uniqueMessages`(같은 글·다른 글에 포함된 글 제외), `AppDelegate`는 공유 글에 이미 있는 URL 을 다시 붙이지 않음.
+- 테스트 6개 추가(`share_input_test.dart`).
+
+---
+
+## 2026-10-23 - 공용 백엔드 자동 배포 · 엔진 켜고 끄기
+
+🌟 **쉬운 설명**
+- GitHub `main`에 올리면 백엔드가 자동으로 배포돼요(Amplify 콘솔 연결 필요). 팀원은 각자 sandbox를 안 켜도 돼요.
+- 엔진 서버는 `parsing-engine/deploy/engine.sh`로 시연·테스트할 때만 켜고 끌 수 있어요. 켜져 있는 동안만 요금이 나가요.
+
+🔧 **기술 설명**
+- 레포 맨 위 `amplify.yml`: 백엔드 전용 Amplify 앱(모노레포, appRoot `wishlist-appversion2/flutter_app`). `npm ci` 대신 `npm install` — `@aws-amplify/data-construct`의 묶음 패키지 때문에 잠금 파일을 새로 만들어도 `npm ci`가 실패한다(npm 10·11 공통).
+- `package-lock.json` 갱신(`package.json`과 맞춤).
+- Amplify 콘솔 환경 변수가 `ampx pipeline-deploy` 안의 backend.ts 까지 전달되지 않는 문제(배포 2번 로그로 확인) → `amplify.yml`이 `ENGINE_*` 값을 `amplify/.engine.env`(gitignore)로 옮겨 적고, 새 `amplify/engine-env.ts`가 `process.env` → 그 파일 순으로 읽는다.
+- `engine.sh`: 기본 VPC 퍼블릭 서브넷 + 퍼블릭 IP(NAT·로드밸런서 없음), 들어오는 연결은 parsing-proxy Lambda 보안그룹의 8000번만. 주소는 Cloud Map `engine.wishkit.local`이라 껐다 켜도 백엔드 설정이 그대로. Gemini 키는 SSM SecureString. macOS 기본 bash(3.2)에서 동작 확인.
+
+---
+
+## 2026-10-23 - 살까말까를 링크로 SNS에 공유
+
+🌟 **쉬운 설명**
+- 살까말까 "공유하기"를 누르면 **앱 친구에게 보내기**와 **링크로 공유** 중에서 고를 수 있어요.
+- 링크로 공유를 고르면 휴대폰 공유창이 떠서 카카오톡·인스타그램 DM·문자 등으로 바로 보낼 수 있어요. 받은 사람은 앱이 없어도 브라우저에서 상품을 볼 수 있어요.
+- 링크는 **해외에서도 열려요**(앱 안 사진은 지금처럼 한국에서만). 링크는 28일 동안 열리고, 다시 공유하면 같은 주소로 28일이 새로 시작돼요.
+- 마이페이지 "보낸 살까말까"와 살까말까 상세 화면의 버튼도 "공유하기"로 바뀌었고, 같은 선택창이 떠요.
+
+🔧 **기술 설명**
+- ⚠️ **백엔드를 먼저 배포해야 링크가 해외에서 열립니다.** 앱만 먼저 나가면 옛 배달망 주소로 링크가 만들어져 지금처럼 한국에서만 열려요(오류는 없음).
+- `backend.ts`: 공유 페이지 전용 CloudFront 배달망 `SharePagesCdn` 추가 — 나라 제한 없음, `originPath: /share-pages`로 그 폴더만 연결. 기존 `FilesCdn`(한국 전용)과 캐시 정책은 그대로 같이 씀. `amplify_outputs`의 `custom.sharePagesBaseUrl`로 주소 전달.
+- `share_plus: ^13.3.1` 추가 → `flutter pub get` 필요. 11.x는 다른 패키지와 충돌해서 설치가 안 됐다. 13.x에 맞춰 Android 빌드 도구를 올림: AGP 8.10.1→8.12.1, Gradle 8.12→8.13, Kotlin 2.1.0→2.2.0.
+- 새 파일 `lib/screens/share/share_link.dart`(공유 방법 선택창·공유창 띄우기, 공유창 실패 시 링크 복사). 쓰이지 않던 `copy_public_share_link.dart`와 가짜 주소를 만들던 `AppStore.shareUrlFor`는 삭제.
+- `AppStore.publishSelectedBasketLink()` 추가. 로그인 확인을 먼저 해서, 실패했을 때 "보낸 살까말까"에 빈 기록이 남지 않게 함. `publishSharePage()`는 화면이 옛 basket을 넘겨도 최신 값(같은 공유 주소)을 쓰도록 수정.
+- `AwsFileStore.sharePageUrlFor()`: 공유 페이지만 공유 전용 배달망 주소로 만든다. 테스트 2개 추가(`file_store_test.dart`).
+- 공유 페이지에는 기존처럼 상품 메모·고민 이유가 들어가지 않음(친구 공개 범위와 같음).
+
+---
+
+## 2026-10-23 - 태그 사진으로 찾기 정확도 개선
+
+🌟 **쉬운 설명**
+- 태그에 색상 번호까지 붙은 품번(예: 485454-26)도, 쇼핑몰 페이지에 색상 없이 적혀 있으면 이제 찾아요.
+- 매장에서 붙인 가격 스티커 번호를 품번으로 잘못 읽어도, 태그에 같이 적힌 진짜 품번으로 다시 확인해요.
+- 바코드 숫자를 잘못 읽으면(검증 숫자가 안 맞으면) 그 바코드는 쓰지 않아요.
+- 앱은 바뀌지 않았어요(서버만 배포).
+
+🔧 **기술 설명**
+- 바코드는 AI가 읽은 숫자를 서버가 검증 숫자로 확인하는 방식(앱 변경 없음). 휴대폰 바코드 판독(ML Kit)은 보류.
+- 새 모듈 `tag_codes.py`(GTIN 검증 숫자, 기본 번호/색상 분리, 페이지 코드 확인). 모든 브랜드가 같은 경로(태그 읽기 → 검색 → 페이지 확인)를 탄다 — 브랜드별 예외 규칙 없음.
+- 태그 스키마에 `other_codes` 추가. 응답 `tag`에 `barcode_rejected`(버린 바코드), `match`에 `tag_price_seen` 추가 —
+  앱·Lambda가 쓰는 필드는 그대로라 하위 호환.
+- `verified_by`에 `product_code_base`(색상을 뗀 기본 번호/다른 코드로 확인) 추가. 앱은 `name`일 때만 확인을 묻는다.
+- 후보 순위: 이름으로만 확인 → 공식몰 여부 → 코드 근거 세기 → 태그 가격 순. 공식몰에서 코드로 확인되면 즉시 종료.
+- 테스트: `test_tag_codes.py` 신규, `test_tag_identify.py`에 4개 추가. 새 기능과 무관한 경우는 이전 코드와 결과 동일(무작위 5,000건 비교).
+
+---
+
+## 2026-10-23 - 태그 사진 찾기 서버 코드 정리 · 시간 초과 보완
+
+🌟 **쉬운 설명**
+- 태그 사진으로 찾기가 사람이 몰릴 때 25초를 다 쓰고 실패하던 경우를 줄였습니다. 이제 시간이 모자라면 기다리지 않고, 태그에서 읽은 정보라도 앱에 돌려줍니다(앱은 그 정보로 직접 입력 화면을 보여줌).
+- 기능·결과는 그대로입니다.
+
+🔧 **기술 설명**
+- `main._render_for_identify`: 렌더링 슬롯(`render_semaphore`) 대기 시간도 `budget_s` 안에 포함. 원래는 /extract로 슬롯이 다 차 있으면 무한정 기다리다 전체 504 → 태그 정보까지 잃었음.
+- `providers.generate(max_retry_wait_s=...)`: 429 재시도 대기가 남은 시간보다 길면 바로 실패로 돌려줌. /identify-tag는 남은 시간 − 2초를 상한으로 넘긴다.
+- /identify-tag: base64 길이로 큰 사진을 디코딩 전에 413으로 거름.
+- `providers._generate` / `_to_gemini_schema` → `generate` / `to_gemini_schema`(tag_identify.py가 다른 모듈의 비공개 이름을 가져다 쓰던 것 정리).
+- `tag_identify.py`: 품번·바코드 길이·이름 일치 비율을 상수로, 후보 기록(`candidates_checked`) 생성 중복 제거, 페이지 글자 정규화를 한 번만. 결과는 원본과 동일(무작위 입력 비교로 확인).
+- `parsing-proxy`: 모르는 GraphQL 필드가 /extract로 흘러가던 것을 `Unknown field` 오류로 막음.
+- 테스트 추가: `test_providers.py`(재시도 대기 상한), `test_main.py`(슬롯 대기 시간 초과·큰 사진 413).
+
+---
+
+## 2026-10-22 - 태그 사진을 상품에 함께 저장
+
+🌟 **쉬운 설명**
+- 태그 사진으로 담은 상품은 그 태그 사진도 함께 저장됩니다. 상품 상세 페이지의 "고민하는 이유" 아래에 작은 미리보기가 생기고, 누르면 크게 볼 수 있습니다(두 손가락으로 확대 가능).
+- 태그 사진은 **나만 봅니다.** 친구 위시리스트나 살까말까로 보낸 바구니에는 들어가지 않습니다. 상품을 지우면 사진도 같이 지워집니다.
+
+🔧 **기술 설명**
+- ⚠️ **백엔드를 먼저 배포해야 합니다.** `WishProduct.tagImageUrl` 필드를 추가해서, 새 앱이 옛 백엔드에 붙으면 상품 목록을 불러오지 못합니다(GraphQL 필드 없음).
+- S3 `tag-photos/{entity_id}/*` 폴더 추가(주인만 쓰기·지우기). 파일 이름은 128비트 무작위 값, 주소는 주인의 상품 기록에만 저장.
+- `Product.tagImageUrl` — `toJson`에는 넣지 않음(살까말까 전송에 쓰이므로). 공개 위시리스트 Lambda도 이 필드를 복사하지 않음.
+- 저장 순서: 사진 업로드 → 상품 저장. 사진 업로드 실패 시 상품만 저장하고 안내. 상품 저장 실패·중복 시 올린 사진을 지움.
+- 회원 탈퇴 시 `tag-photos` 폴더도 삭제.
+
+---
+
+## 2026-10-22 - 상품 카드 사이 광고 (AdMob 네이티브)
+
+🌟 **쉬운 설명**
+- 내 위시리스트와 친구 위시리스트에서 상품 6개마다 광고 카드 1개가 들어갑니다. 상품 카드(흰색)보다 한 톤 어두운 회색 바탕에 "광고" 표시가 붙어서 광고인 걸 바로 알 수 있습니다.
+- 광고를 못 불러오면 그 칸은 아예 사라집니다(빈 박스 없음). 상품이 6개 이하인 목록에는 광고가 없습니다.
+
+🔧 **기술 설명**
+- `google_mobile_ads: ^9.1.0` 추가 → `flutter pub get` 필요(pubspec.lock 미갱신). Android `minSdk` 23→24(플러그인 요구).
+- `lib/ads/`: `AdFeed`(광고 칸 위치 계산, 순수 Dart), `AdsConfig`(간격·광고 단위 ID), `NativeAdCard`(작은 네이티브 템플릿 + 회색 카드 + "광고" 표시).
+- 광고 단위 ID는 `--dart-define=ADMOB_NATIVE_ANDROID/IOS`로 넣는다. 안 넣으면 구글 테스트 광고가 나온다.
+- AndroidManifest / Info.plist의 AdMob **앱 ID는 지금 구글 테스트 ID** — 출시 전에 실제 값으로 교체.
+- 웹·데스크톱·`flutter test`에서는 광고 칸 자체를 만들지 않는다(`AdsConfig.supported`).
+
+---
+
+## 2026-10-22 - 태그 사진으로 상품 담기
+
+🌟 **쉬운 설명**
+- 담기 화면에 "태그 사진으로 찾기" 버튼을 추가했습니다. 옷 태그를 찍으면 품번을 읽고, 브랜드 공식몰에서 그 상품 페이지를 찾아 담습니다. 공식몰에 없으면 무신사·29CM 같은 쇼핑몰에서 찾고, 어디서 찾았는지 화면에 보여줍니다.
+- 품번이 페이지에 실제로 있는지 확인된 경우에만 "찾았다"고 합니다. 못 찾으면 태그에서 읽은 이름만 채우고 가격은 직접 입력합니다(태그 가격은 정가라서 자동으로 넣지 않음).
+- 상품 상세 페이지에 "가격 새로고침" 버튼을 추가했습니다(같은 날 작업).
+
+🔧 **기술 설명**
+- 엔진: `POST /identify-tag` (`parsing-engine/server/tag_identify.py`). Gemini 비전으로 태그 읽기 → Gemini + Google 검색 그라운딩으로 후보 URL → Playwright로 후보 페이지를 렌더링해 품번 확인 → URL 반환. 가격은 읽지 않음 — 앱이 기존 URL 담기 경로(WebView)로 읽음.
+- AppSync 리졸버 30초 한도 때문에 엔진 25초 / Lambda fetch 27초로 맞춤. 기존 `extractProduct`(엔진 45초 / fetch 55초)도 같은 한도에 걸리므로 앱 연결 전에 정리 필요.
+- Amplify: `identifyProductTag` 쿼리 + `IdentifiedTag` 타입. 기존 `parsing-proxy` Lambda가 `fieldName`으로 두 쿼리를 나눠 처리(VPC 설정 재사용).
+- 앱: `AccountRepository.identifyProductFromTag` → `AwsProductTagStore`. `ShareIntakeScreen`에 카메라/앨범 선택(1280px · JPEG 75%).
+- 정확도 측정: `parsing-engine/tools/tag_identify_check.py` (태그 사진 + 정답 CSV).
+- 미검증: 실제 Gemini 호출, Amplify 배포, Flutter 빌드. 서버 단위·엔드포인트 테스트와 TS 타입 체크만 통과.
+
+---
+
 ## 2026-08-21 - PRICE 브랜치 통합 · 몰 지원 목록
 
 🌟 **쉬운 설명**

@@ -7,6 +7,7 @@ import '../../models/models.dart';
 import '../../theme/diary_theme.dart';
 import '../../widgets/diary_widgets.dart';
 import '../salkamalka/share_to_friends_sheet.dart';
+import '../share/share_link.dart';
 
 class SentBasketsScreen extends StatelessWidget {
   const SentBasketsScreen({super.key});
@@ -101,7 +102,7 @@ class SentBasketsScreen extends StatelessWidget {
                         child: TextButton(
                           onPressed: () =>
                               showSentBasketShareSheet(context, store, b),
-                          child: const Text('다시 보내기'),
+                          child: const Text('공유하기'),
                         ),
                       ),
                     ],
@@ -125,11 +126,22 @@ class SentBasketsScreen extends StatelessWidget {
   }
 }
 
+/// 보낸 살까말까 다시 공유하기: 앱 친구에게 다시 보내기 또는 링크로 공유(같은 주소, 28일 다시 시작).
 Future<void> showSentBasketShareSheet(
   BuildContext context,
   AppStore store,
   SharedBasket basket,
 ) async {
+  final method = await pickShareMethod(context);
+  if (method == null || !context.mounted) return;
+  if (method == ShareMethod.link) {
+    await shareBasketLink(
+      context: context,
+      publish: () => store.publishSharePage(basket),
+      message: '${basket.ownerName}님이 살까말까를 공유했어요. 어떤 게 나을까요?',
+    );
+    return;
+  }
   final picked = await showShareToFriendsSheet(
     context: context,
     store: store,

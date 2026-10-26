@@ -1,7 +1,7 @@
 import '../models/models.dart';
 import '../widgets/diary_widgets.dart';
 
-/// Public HTML snapshots live this long, then Cloud Functions delete them.
+/// 공개 공유 페이지가 열려 있는 기간. 그 뒤에는 S3 수명 규칙이 지운다(backend.ts, share-pages/ 28일).
 const kSharePageTtl = Duration(days: 28);
 
 String htmlEscape(String raw) {

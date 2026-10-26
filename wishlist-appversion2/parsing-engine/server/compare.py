@@ -12,22 +12,19 @@ from __future__ import annotations
 import difflib
 import re
 
+_PRICE_NUMBER_RE = re.compile(r"\d{1,3}(?:,\d{3})+|\d{4,}")
+_PERCENT_RE = re.compile(r"(\d{1,2})\s*%")
+
 
 def normalize_price_text(text: str) -> set[int]:
     """텍스트 안의 숫자 시퀀스(콤마 포함)를 정수 집합으로 뽑는다."""
-    nums = set()
-    for m in re.finditer(r"\d{1,3}(?:,\d{3})+|\d{4,}", text):
-        try:
-            nums.add(int(m.group(0).replace(",", "")))
-        except ValueError:
-            pass
-    return nums
+    return {int(m.replace(",", "")) for m in _PRICE_NUMBER_RE.findall(text)}
 
 
 def _extract_percents(text: str) -> set[int]:
     """원문 안의 "N%" 할인율만 따로 뽑는다. normalize_price_text의 숫자 패턴(콤마 포함 또는
     4자리 이상)은 1~2자리 할인율(예: "32%")을 못 잡기 때문에 별도 함수로 분리."""
-    return {int(m.group(1)) for m in re.finditer(r"(\d{1,2})\s*%", text)}
+    return {int(p) for p in _PERCENT_RE.findall(text)}
 
 
 def _price_grounded(price, regular_price, text_numbers: set[int], percents: set[int]) -> bool:
@@ -57,8 +54,8 @@ def _price_grounded(price, regular_price, text_numbers: set[int], percents: set[
 
 def grounding_check(extracted: dict, raw_text: str, image_candidates: list[str]) -> dict:
     """AI가 뽑은 값이 실제 페이지 원문에 등장하는지 확인 (환각 방지 안전판)."""
-    price = (extracted.get("price") or {}).get("unconditional_price")
-    regular_price = (extracted.get("price") or {}).get("regular_price")
+    price_info = extracted.get("price") or {}
+    price, regular_price = price_info.get("unconditional_price"), price_info.get("regular_price")
     name = extracted.get("product_name")
     image = extracted.get("image_url")
 
@@ -68,7 +65,7 @@ def grounding_check(extracted: dict, raw_text: str, image_candidates: list[str])
     name_grounded = bool(name) and _normalize_name(name)[:15] in _normalize_name(raw_text)
 
     image_grounded = bool(image) and (
-        image in image_candidates or _basename(image) in {_basename(u) for u in image_candidates}
+        image in image_candidates or _basename(image) in map(_basename, image_candidates)
     )
 
     return {
@@ -119,12 +116,10 @@ def compare_to_golden(extracted: dict, golden: dict) -> dict:
 
     image_match = bool(image) and _image_core_match(image, golden["image"])
 
-    full_match = price_match and name_match and image_match
-
     return {
         "price_match": price_match,
         "name_match": name_match,
         "name_similarity": round(name_ratio, 3),
         "image_match": image_match,
-        "full_match": full_match,
+        "full_match": price_match and name_match and image_match,
     }

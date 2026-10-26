@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import time
 from typing import Self
 
@@ -39,10 +40,8 @@ def _tree_rss_mb() -> float:
     except psutil.Error:
         children = []
     for child in children:
-        try:
+        with contextlib.suppress(psutil.Error):
             total += child.memory_info().rss
-        except psutil.Error:
-            continue
     return total / (1024 * 1024)
 
 
@@ -55,21 +54,17 @@ class PeakRSSSampler:
         self._interval_s = interval_ms / 1000
         self._task: asyncio.Task | None = None
         self.peak_rss_mb: float = 0.0
-        self.start_rss_mb: float = 0.0
 
     async def __aenter__(self) -> Self:
-        self.start_rss_mb = _tree_rss_mb()
-        self.peak_rss_mb = self.start_rss_mb
+        self.peak_rss_mb = _tree_rss_mb()
         self._task = asyncio.create_task(self._sample_loop())
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
         # 종료 시점 값도 한 번 더 반영 (샘플링 주기 사이에 스파이크가 있었을 수 있어서
         # 마지막 값도 놓치지 않게).
         self.peak_rss_mb = max(self.peak_rss_mb, _tree_rss_mb())

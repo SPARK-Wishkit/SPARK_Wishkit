@@ -1,5 +1,9 @@
 # WebView 가격 추출 — 몰 지원 현황
 
+> **2026-10-24: 이 문서의 WebView 추출기는 앱에서 제거됐다.** 2026-09-18 "서버 AI 완전 의존" 결정에 따라 앱은
+> 상품 URL 을 서버 AI 엔진(GraphQL `extractProduct` → parsing-proxy → `parsing-engine/server`)으로만 읽는다.
+> 아래 내용은 WebView 시절 기록으로 남겨 둔다. 현재 구조는 `CHANGELOG.md` 2026-10-24 항목 참고.
+
 기준: 2026-08-21 · Tab S7(`R54RB01SMVB`) live compare · 브랜치 `feat/webview-scraper-stabilize`  
 정책: **정가/조건 없는 판매가** 우선. 쿠폰·회원·첫구매가로 맞추지 않음.
 

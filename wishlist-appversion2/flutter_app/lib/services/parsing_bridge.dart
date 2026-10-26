@@ -1,131 +1,60 @@
 import '../models/models.dart';
+import 'aws/gql_documents.dart';
+import 'aws/gql_runner.dart';
+import 'server_extract.dart';
 import 'share_input.dart';
-import 'webview_scraper.dart';
 
-typedef OnDeviceExtractFn = Future<OnDeviceExtract?> Function(String url);
+export 'server_extract.dart' show ExtractFailureReason, platformLabelForUrl;
 
-/// 공유된 상품 URL을 단말 WebView로 읽는다. 파이썬 서버는 호출하지 않는다.
+/// 상품 URL 을 서버 AI 엔진으로 읽는다.
 ///
-/// 가격을 못 읽어도 이름·사진·URL은 남기고, 가격은 사용자가 입력한다.
+/// 앱 → GraphQL `extractProduct` → Lambda(parsing-proxy) → 엔진 서버 POST /extract
+/// (페이지 렌더링 + Gemini 로 이름·가격·사진 추출, 애매하면 화면 캡처를 Gemini 비전으로 다시 읽음).
+/// 2026-09-18 "서버 AI 완전 의존" 결정에 따라 단말 WebView 추출기는 2026-10-24 에 제거했다.
+///
+/// 못 읽어도 예외를 던지지 않는다 — URL·공유 제목은 남기고 이유([ExtractFailureReason])를 담아
+/// 돌려주며, 빈 칸은 사용자가 직접 입력한다.
 class ParsingBridge {
-  ParsingBridge({WebViewScraper? webViewScraper, OnDeviceExtractFn? extract})
-    : _webView = webViewScraper ?? WebViewScraper(),
-      _extract = extract;
+  ParsingBridge({GqlRunner? runner}) : _gql = runner ?? const AmplifyGqlRunner();
 
-  final WebViewScraper _webView;
-  final OnDeviceExtractFn? _extract;
+  final GqlRunner _gql;
 
-  Future<ParsedProductInfo> parseProductUrl(String url) {
-    final target = ShareInput.firstUrl(url) ?? url.trim();
-    return _read(target, titleHint: ShareInput.titleHint(url, target));
+  /// URL 이나 `상품명 + URL` 공유 글을 읽는다.
+  Future<ParsedProductInfo> parseProductUrl(String input) {
+    final url = ShareInput.firstUrl(input) ?? input.trim();
+    return _read(url, titleHint: ShareInput.titleHint(input, url));
   }
 
+  /// 공유 글을 읽는다. URL 이 없으면 서버를 부르지 않고 글을 상품명 후보로만 쓴다.
   Future<ParsedProductInfo> scrapShareInput(String input) {
     final url = ShareInput.firstUrl(input);
-    if (url == null || url.isEmpty) {
-      return Future.value(
-        productFromOnDeviceExtract(
-          url: '',
-          titleHint: input.trim(),
-        ),
-      );
+    if (url == null) {
+      return Future.value(productFromServerExtract(url: '', titleHint: input.trim()));
     }
     return _read(url, titleHint: ShareInput.titleHint(input, url));
   }
 
   Future<ParsedProductInfo> _read(String url, {String? titleHint}) async {
-    OnDeviceExtract? extracted;
-    if (url.isNotEmpty && (_extract != null || WebViewScraper.isSupported)) {
-      try {
-        extracted = await (_extract ?? _webView.extract)(url);
-      } catch (_) {
-        extracted = OnDeviceExtract(
-          failureReason: ExtractFailureReason.networkError,
-        );
-      }
+    Map<String, dynamic>? raw;
+    String? failure;
+    try {
+      final data = await _gql.query(Gql.extractProduct, variables: {'url': url});
+      final result = data['extractProduct'];
+      if (result is Map) raw = result.cast<String, dynamic>();
+    } on AwsDataException catch (e) {
+      failure = failureReasonFor(
+        detail: e.debugDetail,
+        unauthorized: e.isUnauthorized,
+        network: e.isNetwork,
+      );
+    } catch (_) {
+      failure = ExtractFailureReason.failed;
     }
-    return productFromOnDeviceExtract(
+    return productFromServerExtract(
       url: url,
-      extract: extracted,
+      raw: raw,
       titleHint: titleHint,
+      failureReason: failure,
     );
   }
-}
-
-ParsedProductInfo productFromOnDeviceExtract({
-  required String url,
-  OnDeviceExtract? extract,
-  String? titleHint,
-}) {
-  final extractedName = extract?.name?.trim();
-  final hint = titleHint?.trim();
-  final name = (extractedName != null && extractedName.isNotEmpty)
-      ? extractedName
-      : (hint != null && hint.isNotEmpty ? hint : '');
-  final extractedPrice = extract?.price;
-  final price = (extractedPrice != null && extractedPrice > 0)
-      ? extractedPrice
-      : 0;
-  final original = extract?.originalPrice;
-  final image = extract?.image?.trim() ?? '';
-  final platform = () {
-    final site = extract?.siteName?.trim();
-    if (site != null && site.isNotEmpty) return site;
-    return platformLabelForUrl(url);
-  }();
-  final productUrl = () {
-    final finalUrl = extract?.finalUrl;
-    if (finalUrl != null &&
-        finalUrl.startsWith('http') &&
-        isSameExtractSite(url, finalUrl)) {
-      return finalUrl;
-    }
-    return url;
-  }();
-  final missing = <String>[
-    if (name.isEmpty) 'title',
-    if (price <= 0) 'price',
-    if (image.isEmpty) 'image_url',
-  ];
-
-  return ParsedProductInfo(
-    name: name.isEmpty ? '공유된 상품' : name,
-    price: price,
-    platform: platform,
-    image: image,
-    productUrl: productUrl,
-    originalPrice: original != null && original > price ? original : null,
-    missingFields: missing,
-    resolvedTier: price > 0 ? 2 : 3,
-    engineUsed: false,
-    onDeviceExtracted: extract?.hasAnything == true,
-    purchasePriceStatus: price > 0
-        ? extract?.purchasePriceStatus ?? 'unknown'
-        : 'unknown',
-    priceConfidence: price > 0
-        ? extract?.priceConfidence ?? 'unknown'
-        : 'unknown',
-    availability: extract?.availability ?? 'unknown',
-    optionDependent: extract?.optionDependent,
-    optionPriceMin: extract?.optionPriceMin,
-    optionPriceMax: extract?.optionPriceMax,
-    priceEvidence: price > 0 ? extract?.priceEvidence ?? const [] : const [],
-    extractFailureReason: extract?.failureReason,
-  );
-}
-
-String platformLabelForUrl(String url) {
-  final host = extractHost(url) ?? '';
-  if (host.contains('musinsa')) return '무신사';
-  if (host.contains('zigzag') || host.contains('kakaostyle')) return '지그재그';
-  if (host.contains('29cm')) return '29CM';
-  if (host.contains('coupang')) return '쿠팡';
-  if (host.contains('wconcept')) return 'W CONCEPT';
-  if (host.contains('hmall')) return '현대Hmall';
-  if (host.contains('vans')) return '반스';
-  if (host.contains('nike')) return '나이키';
-  if (host.contains('elandmall')) return '이랜드몰';
-  if (host.contains('levi')) return '리바이스';
-  if (host.isEmpty) return '쇼핑몰';
-  return host;
 }

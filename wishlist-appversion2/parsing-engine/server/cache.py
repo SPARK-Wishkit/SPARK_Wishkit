@@ -12,9 +12,10 @@ import urllib.parse
 from dataclasses import dataclass
 from typing import Protocol
 
-# 캐시 무효화에 영향 없는 트래킹/세션성 쿼리 파라미터. 실제 운영 전에 몰별로 더 늘려야 할
-# 수 있다 — 지금은 흔한 패턴(utm_*, 광고/추천 트래킹용 파라미터)만 우선 넣어뒀다.
-_IGNORED_QUERY_PREFIXES = ("utm_", "gclid", "fbclid", "igshid", "ref", "referrer")
+# 캐시 키에서 제외할 트래킹성 쿼리 파라미터의 접두어(대소문자 무시). 실제 운영 전에 몰별로 더
+# 늘려야 할 수 있다. 주의: 접두어 매칭이라 "ref"는 "referrer"뿐 아니라 "refId"처럼 상품을
+# 구분하는 파라미터까지 지울 수 있다 — 그런 몰이 발견되면 정확 일치 목록으로 바꿀 것.
+_IGNORED_QUERY_PREFIXES = ("utm_", "gclid", "fbclid", "igshid", "ref")
 
 
 def normalize_cache_key(url: str) -> str:
@@ -30,11 +31,8 @@ def normalize_cache_key(url: str) -> str:
         for k, v in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
         if not any(k.lower().startswith(p) for p in _IGNORED_QUERY_PREFIXES)
     ]
-    kept_params.sort()
-    query = urllib.parse.urlencode(kept_params)
-
-    normalized = urllib.parse.urlunsplit((parsed.scheme.lower(), host, path, query, ""))
-    return normalized
+    query = urllib.parse.urlencode(sorted(kept_params))
+    return urllib.parse.urlunsplit((parsed.scheme.lower(), host, path, query, ""))
 
 
 @dataclass

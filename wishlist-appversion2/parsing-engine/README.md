@@ -12,6 +12,10 @@ Tier 1 전환까지 끝난 상태이며, 그 과정은 `REPORT_2026-09-19.md`·
 
 ## 배경 — 반드시 먼저 읽을 것
 
+**2026-10-24 갱신**: 앱의 WebView 추출기를 제거하고, 앱은 상품 URL 을 이 서버로만 읽는다(GraphQL
+`extractProduct` → `parsing-proxy` Lambda → `POST /extract`). AppSync 30초 한도 때문에 배포 시
+`EXTRACT_TIMEOUT_S=25`로 띄운다(`deploy/engine.sh`). 아래 문단은 그 전 상황 기록이다.
+
 이 폴더가 만들어진 시점(2026-09-19)에 `main` 브랜치의 `ENGINE_DEVELOPMENT_HANDOFF.md`는
 여전히 "Python 서버 폴백은 채택하지 않음, WebView 우선"이라고 적혀 있었다(마지막 갱신
 2026-08-21). 이 서버는 그 결정을 뒤집는 **2026-09-18 새 결정**("서버 AI 완전 의존" —
@@ -42,8 +46,8 @@ bakeoff_results_run6_final.json    — engine-ai-prototype 프로토타입 단�
 server/
   main.py       — FastAPI 앱, POST /extract, GET /healthz, 브라우저 생명주기(lifespan)
   render.py     — Playwright 렌더링(async, 브라우저 재사용). 로직은 engine-ai-prototype과 동일
-  providers.py  — Gemini 호출/재시도/스크린샷 폴백. engine-ai-prototype과 동일 + 재시도
-                  횟수만 환경변수로 뺌
+  providers.py  — Gemini 텍스트/스크린샷(비전) 호출 + 429 재시도. 호출 방식은
+                  engine-ai-prototype과 동일(bakeoff용 Anthropic/OpenAI 함수는 서버에서 제거)
   prompts.py    — 시스템 프롬프트/few-shot/JSON 스키마. engine-ai-prototype과 완전히 동일
                   (문구를 바꾸지 않았음)
   compare.py    — 그라운딩 체크(응답에 포함) + 골든셋 비교(회귀 테스트용)
@@ -54,6 +58,26 @@ tools/
   golden_regression_check.py — 로컬 서버에 골든셋 36개를 던져서 run6 기준선과 비교
   concurrency_load_test.py   — 동시 요청 N건 부하 테스트(AWS Fargate 검증에 사용)
 ```
+
+## 태그 사진으로 찾기 — `POST /identify-tag` (2026-10-22 추가)
+
+`{image_base64, mime_type}`를 받아 태그의 품번으로 상품 상세 페이지를 찾는다(공식몰 우선, 없으면
+국내 쇼핑몰). **가격은 읽지 않는다** — 앱이 돌려받은 URL을 기존 "URL로 담기" 경로로 읽는다.
+
+1. 태그 읽기: Gemini 비전 + JSON 스키마(브랜드·품번·다른 코드들·바코드·상품명·색상·태그 가격).
+   바코드는 검증 숫자가 안 맞으면 버린다(`tag_codes.py`).
+2. 검색: Gemini + Google 검색 그라운딩(텍스트 응답을 직접 파싱 — 도구와 JSON 스키마를 같이
+   쓰면 그라운딩 메타데이터가 비는 문제가 보고돼 있음)
+3. 확인: 후보 페이지를 렌더링해서 **품번(또는 바코드)이 페이지에 실제로 있는지** 확인. 품번이
+   있는데 페이지에 없으면 이름이 비슷해도 인정하지 않는다. 색상 코드를 뗀 기본 번호(`product_code_base`)도
+   근거로 쓰고, 같은 수준의 후보끼리는 태그 가격이 페이지에 보이는 쪽(`tag_price_seen`)을 고른다.
+4. 응답: `status`(found / not_found / not_a_tag), `tag`, `match`(url·host·source·verified_by)
+
+⚠️ 앱 → AppSync → Lambda 경로는 AppSync가 30초에 끊는다. 그래서 `IDENTIFY_TIMEOUT_S` 기본값을
+25초로 두고, 남은 시간이 모자라면 후보 확인을 덜 하고 not_found로 끝낸다.
+
+정확도는 실제 태그 사진으로 잰다: `tools/tag_identify_check.py --photos ./photos`
+(사용법은 파일 상단 참고. 품번 읽기 정확도와 페이지 찾기 정확도를 따로 센다.)
 
 ## 실행
 

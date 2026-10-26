@@ -126,6 +126,7 @@ void main() {
           image: 'i',
           platform: '나이키',
           memo: '월급날 사기',
+          tagImageUrl: 'https://cdn.example.net/tag-photos/bob/abc.jpg',
         ),
       );
       await data.upsertProduct(
@@ -158,6 +159,11 @@ void main() {
       expect(lists.single.items.single.memo, isNull);
     });
 
+    test('태그 사진도 친구에게 보이지 않는다', () async {
+      final lists = await social.loadFriendWishlists([friend(true)]);
+      expect(lists.single.items.single.tagImageUrl, isNull);
+    });
+
     test('팔로우하지 않는 사람은 불러오지 않는다', () async {
       expect(await social.loadFriendWishlists([friend(false)]), isEmpty);
     });
@@ -168,32 +174,6 @@ void main() {
         throwsA(isA<AwsDataException>()),
       );
     });
-  });
-
-  test('친구 리뷰는 로그인한 사람이 읽을 수 있다', () async {
-    appsync.caller = 'bob';
-    await data.upsertReview(
-      'bob',
-      ProductReview(
-        id: 'r1',
-        authorUid: 'bob',
-        authorName: '밥',
-        authorHandle: '@bob',
-        authorAvatar: '',
-        productId: 10,
-        productName: '운동화',
-        productImage: '',
-        productPlatform: '',
-        productPrice: 1,
-        title: '편해요',
-        body: '',
-        createdAt: DateTime.utc(2026, 9, 1),
-        updatedAt: DateTime.utc(2026, 9, 1),
-      ),
-    );
-    appsync.caller = 'amy';
-    final reviews = await data.loadReviews('bob');
-    expect(reviews.single.title, '편해요');
   });
 
   test('회원 탈퇴: 내가 한 팔로우와 나를 향한 팔로우가 모두 지워진다', () async {

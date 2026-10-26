@@ -38,7 +38,7 @@ class MyPageScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               CustomPaint(
-                painter: _TagPainter(color: const Color(0xFFE8B4A8)),
+                painter: _TagPainter(color: DiaryColors.fileStone),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(28, 18, 14, 14),
                   child: Row(
@@ -89,14 +89,6 @@ class MyPageScreen extends StatelessWidget {
                                 Text(
                                   '${store.products.length} 아이템',
                                   style: DiaryTheme.body(11),
-                                ),
-                                Text('  |  ', style: DiaryTheme.body(11)),
-                                GestureDetector(
-                                  onTap: () => context.push('/my-reviews'),
-                                  child: Text(
-                                    '${store.myReviews.length} 리뷰',
-                                    style: DiaryTheme.body(11),
-                                  ),
                                 ),
                               ],
                             ),
@@ -193,12 +185,6 @@ class MyPageScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 18),
-              DiaryButton(
-                label: '내 리뷰',
-                icon: Icons.menu_book_outlined,
-                onPressed: () => context.push('/my-reviews'),
-              ),
-              const SizedBox(height: 8),
               DiaryButton(
                 label: '내가 보낸 살까말까',
                 icon: Icons.outbox_outlined,

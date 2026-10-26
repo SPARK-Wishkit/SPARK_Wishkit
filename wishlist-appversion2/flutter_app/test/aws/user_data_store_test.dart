@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -134,9 +133,13 @@ void main() {
         platform: '무신사',
       );
       await store.upsertProduct('uid-a', p);
-      await store.upsertProduct('uid-a', p.copyWith(memo: '살까?'));
+      await store.upsertProduct(
+        'uid-a',
+        p.copyWith(memo: '살까?', tagImageUrl: 'https://cdn/tag-photos/a/x.jpg'),
+      );
       var list = await store.loadProducts('uid-a');
       expect(list.single.memo, '살까?');
+      expect(list.single.tagImageUrl, 'https://cdn/tag-photos/a/x.jpg');
       expect(list.single.isPublic, isTrue); // '전체' 탭이 공개라 맞춰진다
 
       await store.deleteProduct('uid-a', 7);
@@ -177,36 +180,6 @@ void main() {
         store.loadTabs('uid-a'),
         throwsA(isA<AwsDataException>()),
       );
-    });
-  });
-
-  group('리뷰', () {
-    test('JSON 으로 저장했다가 그대로 복원된다', () async {
-      final r = ProductReview(
-        id: 'r1',
-        authorUid: 'uid-a',
-        authorName: '지은',
-        authorHandle: '@kim',
-        authorAvatar: '',
-        productId: 7,
-        productName: '니트',
-        productImage: '',
-        productPlatform: '무신사',
-        productPrice: 30000,
-        title: '좋아요',
-        body: '따뜻해요',
-        createdAt: DateTime.utc(2026, 9, 1),
-        updatedAt: DateTime.utc(2026, 9, 1),
-        imageUrls: const ['https://x/1.jpg'],
-      );
-      await store.upsertReview('uid-a', r);
-      final stored = appsync.tables['Review']!['uid-a#r1']!['data'];
-      expect(stored, isA<String>()); // AWSJSON 은 문자열로 보낸다
-      expect(jsonDecode(stored as String)['title'], '좋아요');
-
-      final back = (await store.loadReviews('uid-a')).single;
-      expect(back.body, '따뜻해요');
-      expect(back.imageUrls, ['https://x/1.jpg']);
     });
   });
 

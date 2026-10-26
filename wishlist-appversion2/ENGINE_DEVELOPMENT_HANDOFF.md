@@ -1,5 +1,9 @@
 # wishkit 파싱 엔진 개발 인수인계서
 
+> **2026-10-24: 이 문서의 WebView 추출기는 앱에서 제거됐다.** 2026-09-18 "서버 AI 완전 의존" 결정에 따라 앱은
+> 상품 URL 을 서버 AI 엔진(GraphQL `extractProduct` → parsing-proxy → `parsing-engine/server`)으로만 읽는다.
+> 아래 내용은 WebView 시절 기록으로 남겨 둔다. 현재 구조는 `CHANGELOG.md` 2026-10-24 항목 참고.
+
 작성 기준일: 2026-08-16
 
 작업 디렉터리: `C:\0.My_Project\17.SoftStudio\2026-softstudio-project\wishlist-appversion2`

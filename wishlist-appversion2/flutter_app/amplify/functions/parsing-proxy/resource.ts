@@ -14,10 +14,7 @@ export const parsingProxy = defineFunction({
   name: 'parsing-proxy',
   entry: './handler.ts',
   resourceGroupName: 'data',
-  // AppSync는 요청당 30초 고정 한도(조정 불가)라서 그 안에서 전부 끝나야 한다.
-  // 체인: 엔진 EXTRACT_TIMEOUT_S 22초(배포 시 env로 지정, 코드 기본값 45는 안 건드림)
-  //     < Lambda fetch 중단 25초(handler.ts FETCH_TIMEOUT_MS)
-  //     < 이 timeoutSeconds 28초 < AppSync 30초 < 앱 엔진 대기 27초.
-  timeoutSeconds: 28,
+  // AppSync 가 30초 넘게 기다리지 않으므로 그 이상은 의미가 없다(handler.ts 는 27초에 엔진 요청을 끊는다).
+  timeoutSeconds: 30,
   memoryMB: 256,
 });

@@ -101,7 +101,7 @@ final class ShareViewController: UIViewController {
         }
 
         group.notify(queue: .main) { [weak self] in
-            self?.saveAndRedirect(shared: shared, message: messages.joined(separator: "\n"))
+            self?.saveAndRedirect(shared: shared, message: Self.uniqueMessages(messages).joined(separator: "\n"))
         }
     }
 
@@ -165,6 +165,18 @@ final class ShareViewController: UIViewController {
             return String(extensionId[..<lastDot])
         }
         return "com.softstudio.wishlist"
+    }
+
+    /// 같은 공유 안에서 공유 글·URL 첨부·텍스트 첨부가 같은 URL 을 여러 번 넘겨서(쇼핑몰 앱마다 다름),
+    /// 똑같은 글과 다른 글에 이미 들어 있는 글은 뺀다. 예: "상품명 https://a" 가 있으면 "https://a" 는 뺀다.
+    private static func uniqueMessages(_ messages: [String]) -> [String] {
+        var unique: [String] = []
+        for message in messages where !unique.contains(message) {
+            unique.append(message)
+        }
+        return unique.filter { message in
+            !unique.contains { other in other != message && other.contains(message) }
+        }
     }
 
     private static func media(

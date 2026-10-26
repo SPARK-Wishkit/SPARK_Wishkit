@@ -9,8 +9,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# render.py가 channel="chrome"을 우선 시도하고 실패하면 headless=True(Chromium)로
-# 폴백하므로(render.py launch_browser 참고), 베이스 이미지의 Chromium만 있으면 충분하다.
+# render.launch_browser()가 channel="chrome"을 우선 시도하고 실패하면 번들 Chromium으로
+# 폴백하므로, 베이스 이미지의 Chromium만 있으면 충분하다.
 # 별도로 playwright install을 다시 돌리지 않는다 — 이미지에 이미 매칭된 브라우저가 있다.
 
 COPY . .

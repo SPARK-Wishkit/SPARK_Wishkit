@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import '../../data/app_store.dart';
 import '../../models/models.dart';
 import '../../theme/diary_theme.dart';
+import '../../widgets/diary_widgets.dart';
 import '../mypage/sent_baskets_screen.dart';
 import '../product/product_detail_screen.dart';
-import '../reviews/review_widgets.dart';
 import '../wishlist/wishlist_screen.dart';
 
 /// Shared 살까말까 post: products, sender memo, Instagram-style comments.
@@ -73,7 +73,7 @@ class _SharedBasketDetailScreenState extends State<SharedBasketDetailScreen> {
         actions: [
           if (isMine)
             IconButton(
-              tooltip: '다시 보내기',
+              tooltip: '공유하기',
               onPressed: () => showSentBasketShareSheet(context, store, basket),
               icon: const Icon(Icons.ios_share),
             ),

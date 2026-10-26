@@ -53,6 +53,7 @@ class Product {
     this.productUrl,
     this.memo,
     this.isPublic = false,
+    this.tagImageUrl,
   });
 
   final int id;
@@ -67,6 +68,9 @@ class Product {
   final String? memo;
   final bool isPublic;
 
+  /// 태그 사진으로 담은 상품이면 그 태그 사진 주소. 본인만 본다(친구 공개 목록에는 없음).
+  final String? tagImageUrl;
+
   Product copyWith({
     int? id,
     String? listId,
@@ -79,6 +83,7 @@ class Product {
     String? productUrl,
     String? memo,
     bool? isPublic,
+    String? tagImageUrl,
   }) {
     return Product(
       id: id ?? this.id,
@@ -92,9 +97,12 @@ class Product {
       productUrl: productUrl ?? this.productUrl,
       memo: memo ?? this.memo,
       isPublic: isPublic ?? this.isPublic,
+      tagImageUrl: tagImageUrl ?? this.tagImageUrl,
     );
   }
 
+  /// 살까말까 바구니로 친구에게 보낼 때도 쓰인다 — 그래서 본인만 보는 [tagImageUrl]은 일부러
+  /// 넣지 않는다(서버 저장은 user_data_store의 upsertProduct가 따로 한다).
   Map<String, dynamic> toJson() => {
     'id': id,
     'listId': listId,
@@ -121,6 +129,7 @@ class Product {
     productUrl: json['productUrl'] as String?,
     memo: json['memo'] as String?,
     isPublic: json['isPublic'] as bool? ?? false,
+    tagImageUrl: json['tagImageUrl'] as String?,
   );
 }
 
@@ -654,122 +663,6 @@ class SalkamalkaFeedEntry {
   final bool isMine;
 }
 
-/// Blog-style product review shared with followers.
-class ProductReview {
-  ProductReview({
-    required this.id,
-    required this.authorUid,
-    required this.authorName,
-    required this.authorHandle,
-    required this.authorAvatar,
-    required this.productId,
-    required this.productName,
-    required this.productImage,
-    required this.productPlatform,
-    required this.productPrice,
-    required this.title,
-    required this.body,
-    required this.createdAt,
-    required this.updatedAt,
-    this.productUrl,
-    this.mood = 3,
-    this.imageUrls = const [],
-  });
-
-  final String id;
-  final String authorUid;
-  final String authorName;
-  final String authorHandle;
-  final String authorAvatar;
-  final int productId;
-  final String productName;
-  final String productImage;
-  final String productPlatform;
-  final int productPrice;
-  final String? productUrl;
-  final String title;
-  final String body;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final int mood;
-  final List<String> imageUrls;
-
-  ProductReview copyWith({
-    String? title,
-    String? body,
-    DateTime? updatedAt,
-    String? authorName,
-    String? authorHandle,
-    String? authorAvatar,
-    int? mood,
-    List<String>? imageUrls,
-  }) {
-    return ProductReview(
-      id: id,
-      authorUid: authorUid,
-      authorName: authorName ?? this.authorName,
-      authorHandle: authorHandle ?? this.authorHandle,
-      authorAvatar: authorAvatar ?? this.authorAvatar,
-      productId: productId,
-      productName: productName,
-      productImage: productImage,
-      productPlatform: productPlatform,
-      productPrice: productPrice,
-      productUrl: productUrl,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      createdAt: createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      mood: mood ?? this.mood,
-      imageUrls: imageUrls ?? this.imageUrls,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'authorUid': authorUid,
-    'authorName': authorName,
-    'authorHandle': authorHandle,
-    'authorAvatar': authorAvatar,
-    'productId': productId,
-    'productName': productName,
-    'productImage': productImage,
-    'productPlatform': productPlatform,
-    'productPrice': productPrice,
-    'productUrl': productUrl,
-    'title': title,
-    'body': body,
-    'createdAt': createdAt.toIso8601String(),
-    'updatedAt': updatedAt.toIso8601String(),
-    'mood': mood,
-    'imageUrls': imageUrls,
-  };
-
-  factory ProductReview.fromJson(Map<String, dynamic> json) => ProductReview(
-    id: json['id'] as String? ?? '',
-    authorUid: json['authorUid'] as String? ?? '',
-    authorName: json['authorName'] as String? ?? '',
-    authorHandle: json['authorHandle'] as String? ?? '',
-    authorAvatar: json['authorAvatar'] as String? ?? '',
-    productId: (json['productId'] as num?)?.toInt() ?? 0,
-    productName: json['productName'] as String? ?? '',
-    productImage: json['productImage'] as String? ?? '',
-    productPlatform: json['productPlatform'] as String? ?? '',
-    productPrice: (json['productPrice'] as num?)?.toInt() ?? 0,
-    productUrl: json['productUrl'] as String?,
-    title: json['title'] as String? ?? '',
-    body: json['body'] as String? ?? '',
-    createdAt:
-        DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
-    updatedAt:
-        DateTime.tryParse(json['updatedAt'] as String? ?? '') ?? DateTime.now(),
-    mood: (json['mood'] as num?)?.toInt() ?? 3,
-    imageUrls: (json['imageUrls'] as List? ?? [])
-        .map((e) => e.toString())
-        .toList(),
-  );
-}
-
 class BasketItem {
   BasketItem({required this.product, this.isSelected = true});
 
@@ -784,7 +677,7 @@ class BasketItem {
   }
 }
 
-/// WebView에서 읽은 상품 정보. 파이썬 서버 응답을 담지 않는다.
+/// 상품 URL 에서 읽은 정보(서버 AI 엔진 결과 — services/parsing_bridge.dart). 못 읽은 칸은 비어 있다.
 class ParsedProductInfo {
   ParsedProductInfo({
     required this.name,
@@ -795,16 +688,9 @@ class ParsedProductInfo {
     this.originalPrice,
     this.discount,
     this.missingFields = const [],
-    this.resolvedTier,
     this.engineUsed = false,
-    this.onDeviceExtracted = false,
     this.purchasePriceStatus = 'unknown',
     this.priceConfidence = 'unknown',
-    this.availability = 'unknown',
-    this.optionDependent,
-    this.optionPriceMin,
-    this.optionPriceMax,
-    this.priceEvidence = const [],
     this.extractFailureReason,
   });
 
@@ -816,17 +702,17 @@ class ParsedProductInfo {
   final int? originalPrice;
   final int? discount;
   final List<String> missingFields;
-  final int? resolvedTier;
 
-  /// 파이썬 서버를 호출했으면 true. 공유 담기는 항상 false.
+  /// 서버 AI 엔진이 응답했으면 true(값을 못 읽었어도). 요청 자체가 실패했으면 false.
   final bool engineUsed;
+
+  /// 'confirmed'(AI 가 확신한 판매가) | 'unknown'.
   final String purchasePriceStatus;
+
+  /// 'high' | 'medium' | 'low' | 'unknown'. 가격 새로고침은 high/medium 만 바로 반영한다.
   final String priceConfidence;
-  final String availability;
-  final bool? optionDependent;
-  final int? optionPriceMin;
-  final int? optionPriceMax;
-  final List<Map<String, dynamic>> priceEvidence;
+
+  /// 자동으로 못 읽은 이유([ExtractFailureReason] 값). 다 읽었으면 null.
   final String? extractFailureReason;
 
   bool get needsManualPrice => price <= 0;
@@ -834,98 +720,93 @@ class ParsedProductInfo {
   /// Canonical v2 aliases. 기존 UI의 price/originalPrice는 하위 호환용이다.
   int? get purchasePrice => price > 0 ? price : null;
   int? get regularPrice => originalPrice;
+}
 
-  /// 단말 WebView(Tier 2.5)로 정보를 보완했는지. UI 배지 표시용.
-  final bool onDeviceExtracted;
+/// 태그 사진으로 상품을 찾은 결과 (서버 identifyProductTag).
+///
+/// - [found]: [matchUrl]에 그 상품 페이지가 있다. 가격은 앱이 이 URL을 다시 읽어서 얻는다.
+/// - [notFound]: 태그 정보([brand]·[productName] 등)만 있다. 사용자가 직접 입력한다.
+/// - [notATag]: 사진에서 상품 태그를 찾지 못했다.
+enum TagIdentifyStatus { found, notFound, notATag }
 
-  /// 단말 WebView 추출 결과로 비어 있는 칸을 메운다.
-  /// [replacePrice]일 때는 화면에서 검증한 정가·판매가 쌍으로 교체한다.
-  ParsedProductInfo mergeOnDevice({
-    String? name,
-    int? price,
-    int? originalPrice,
-    String? image,
-    String? platform,
-    bool replacePrice = false,
-    String? purchasePriceStatus,
-    String? priceConfidence,
-    String? availability,
-    bool? optionDependent,
-    int? optionPriceMin,
-    int? optionPriceMax,
-    List<Map<String, dynamic>>? priceEvidence,
-  }) {
-    final hasDevicePrice = price != null && price > 0;
-    final filledPrice = hasDevicePrice && (replacePrice || this.price <= 0)
-        ? price
-        : this.price;
-    final candidateOriginal = hasDevicePrice && replacePrice
-        ? originalPrice
-        : (this.originalPrice ?? originalPrice);
-    final filledOriginal =
-        candidateOriginal != null && candidateOriginal > filledPrice
-        ? candidateOriginal
-        : null;
-    final filledDiscount = filledOriginal != null && filledPrice > 0
-        ? ((filledOriginal - filledPrice) / filledOriginal * 100).round()
-        : null;
-    final filledName =
-        (this.name.isEmpty || this.name == '공유된 상품') &&
-            name != null &&
-            name.isNotEmpty
-        ? name
-        : this.name;
-    final filledImage = this.image.isEmpty && image != null && image.isNotEmpty
-        ? image
-        : this.image;
-    final filledPlatform =
-        (this.platform.isEmpty || this.platform == '쇼핑몰') &&
-            platform != null &&
-            platform.isNotEmpty
-        ? platform
-        : this.platform;
+class TagIdentifyResult {
+  const TagIdentifyResult({
+    required this.status,
+    this.brand,
+    this.productCode,
+    this.productName,
+    this.color,
+    this.tagPrice,
+    this.officialDomain,
+    this.matchUrl,
+    this.matchHost,
+    this.matchSource,
+    this.verifiedBy,
+    this.note,
+  });
 
-    final remaining = missingFields.where((f) {
-      if (f == 'price') return filledPrice <= 0;
-      if (f == 'title') return filledName.isEmpty;
-      if (f == 'image_url') return filledImage.isEmpty;
-      return true;
-    }).toList();
+  final TagIdentifyStatus status;
+  final String? brand;
+  final String? productCode;
+  final String? productName;
+  final String? color;
 
-    return ParsedProductInfo(
-      name: filledName,
-      price: filledPrice,
-      platform: filledPlatform,
-      image: filledImage,
-      productUrl: productUrl,
-      originalPrice: filledOriginal,
-      discount: filledDiscount,
-      missingFields: remaining,
-      resolvedTier: resolvedTier,
-      engineUsed: engineUsed,
-      onDeviceExtracted: true,
-      purchasePriceStatus: hasDevicePrice
-          ? (purchasePriceStatus ?? 'provisional')
-          : this.purchasePriceStatus,
-      priceConfidence: hasDevicePrice
-          ? (priceConfidence ?? 'low')
-          : this.priceConfidence,
-      availability: availability ?? this.availability,
-      optionDependent: optionDependent ?? this.optionDependent,
-      optionPriceMin: optionPriceMin ?? this.optionPriceMin,
-      optionPriceMax: optionPriceMax ?? this.optionPriceMax,
-      priceEvidence: hasDevicePrice
-          ? (priceEvidence ??
-                const [
-                  {
-                    'price_role': 'purchase_price',
-                    'source': 'rendered-webview',
-                    'adapter': null,
-                    'field': null,
-                  },
-                ])
-          : this.priceEvidence,
-      extractFailureReason: extractFailureReason,
+  /// 태그에 인쇄된 가격. 보통 정가라서 지금 판매가와 다를 수 있다 — 자동으로 채우지 않는다.
+  final int? tagPrice;
+  final String? officialDomain;
+  final String? matchUrl;
+  final String? matchHost;
+
+  /// 'official'(브랜드 공식몰) | 'mall'(공식몰에 없어 쇼핑몰에서 찾음)
+  final String? matchSource;
+
+  /// 'product_code' | 'barcode' | 'name'
+  final String? verifiedBy;
+  final String? note;
+
+  bool get foundOnOfficialSite => matchSource == 'official';
+
+  /// 품번·바코드 없이 이름만으로 찾은 경우 — 사용자가 같은 상품인지 확인해야 한다.
+  /// 품번이 페이지에서 확인되지 않은 찾기(이름으로만, 또는 쇼핑몰 품번 검색 결과) — 사용자에게 확인을 묻는다.
+  bool get needsUserCheck => verifiedBy == 'name' || verifiedBy == 'search_match';
+
+  /// 태그 정보로 만든 상품명 후보. 예: "NIKE 에어 포스 1 '07 (WHITE)"
+  String get suggestedName {
+    final parts = [
+      if ((brand ?? '').trim().isNotEmpty) brand!.trim(),
+      if ((productName ?? '').trim().isNotEmpty) productName!.trim(),
+    ];
+    final base = parts.join(' ');
+    final c = (color ?? '').trim();
+    if (base.isEmpty) return (productCode ?? '').trim();
+    return c.isEmpty ? base : '$base ($c)';
+  }
+
+  factory TagIdentifyResult.fromJson(Map<String, dynamic> json) {
+    String? s(String k) {
+      final v = json[k];
+      return v is String && v.trim().isNotEmpty ? v.trim() : null;
+    }
+
+    final status = switch (json['status']) {
+      'found' when s('matchUrl') != null => TagIdentifyStatus.found,
+      'not_a_tag' => TagIdentifyStatus.notATag,
+      _ => TagIdentifyStatus.notFound,
+    };
+    final price = (json['tagPrice'] as num?)?.toInt();
+    return TagIdentifyResult(
+      status: status,
+      brand: s('brand'),
+      productCode: s('productCode'),
+      productName: s('productName'),
+      color: s('color'),
+      tagPrice: price != null && price > 0 ? price : null,
+      officialDomain: s('officialDomain'),
+      matchUrl: s('matchUrl'),
+      matchHost: s('matchHost'),
+      matchSource: s('matchSource'),
+      verifiedBy: s('verifiedBy'),
+      note: s('note'),
     );
   }
 }

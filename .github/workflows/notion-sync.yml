@@ -37,26 +37,32 @@ jobs:
               'Content-Type': 'application/json'
             };
 
-            const queryRes = await fetch(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
-              method: 'POST',
-              headers: headers,
-              body: JSON.stringify({})
-            });
-            const queryData = await queryRes.json();
-
-            if (!queryData.results) {
-              console.error('Notion API Error:', JSON.stringify(queryData, null, 2));
-              throw new Error(`Failed to query database: ${queryData.message || 'Unknown error'}`);
-            }
+            // Notion 쿼리는 한 번에 최대 100건만 돌려준다 → has_more/next_cursor로 끝까지 읽는다.
+            const pages = [];
+            let cursor;
+            do {
+              const queryRes = await fetch(`https://api.notion.com/v1/databases/${process.env.NOTION_DATABASE_ID}/query`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(cursor ? { start_cursor: cursor } : {})
+              });
+              const queryData = await queryRes.json();
+              if (!queryData.results) {
+                console.error('Notion API Error:', JSON.stringify(queryData, null, 2));
+                throw new Error(`Failed to query database: ${queryData.message || 'Unknown error'}`);
+              }
+              pages.push(...queryData.results);
+              cursor = queryData.has_more ? queryData.next_cursor : undefined;
+            } while (cursor);
 
             let matched = false;
-            for (const page of queryData.results) {
+            for (const page of pages) {
               const taskTitle = page.properties['내용']?.title?.[0]?.plain_text;
               if (taskTitle && prTitle.includes(taskTitle)) {
                 matched = true;
                 const patchRes = await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
                   method: 'PATCH',
-                  headers: headers,
+                  headers,
                   body: JSON.stringify({
                     properties: {
                       '상태': {
@@ -65,7 +71,11 @@ jobs:
                     }
                   })
                 });
-                const patchData = await patchRes.json();
+                if (!patchRes.ok) {
+                  // 원래는 실패해도 "Successfully updated"를 찍었다 — 응답 코드를 확인한다.
+                  const err = await patchRes.text();
+                  throw new Error(`Failed to update "${taskTitle}" (${patchRes.status}): ${err}`);
+                }
                 console.log(`Successfully updated "${taskTitle}" status to "${targetStatus}" (Page ID: ${page.id})`);
               }
             }

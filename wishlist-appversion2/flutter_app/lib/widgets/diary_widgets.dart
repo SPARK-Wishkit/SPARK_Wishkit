@@ -26,36 +26,12 @@ class DiaryGridPaper extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         border: border,
       ),
-      child: CustomPaint(
-        painter: _GridPainter(color: DiaryColors.grid.withValues(alpha: 0.45)),
-        child: Padding(padding: padding, child: child),
-      ),
+      child: Padding(padding: padding, child: child),
     );
   }
 }
 
-class _GridPainter extends CustomPainter {
-  _GridPainter({required this.color});
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1;
-    const step = 18.0;
-    for (double x = 0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
+/// Grayscale filter for the black & white look.
 class SpiralNotebook extends StatelessWidget {
   const SpiralNotebook({
     super.key,
@@ -371,4 +347,14 @@ String formatWon(int price) {
     if (reverse > 1 && reverse % 3 == 1) buf.write(',');
   }
   return '${buf.toString()}원';
+}
+
+/// "방금 · N분 전 · N시간 전 · N일 전", 일주일이 넘으면 날짜로 보여준다.
+String relativeTime(DateTime t) {
+  final diff = DateTime.now().difference(t);
+  if (diff.inMinutes < 1) return '방금';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+  if (diff.inHours < 24) return '${diff.inHours}시간 전';
+  if (diff.inDays < 7) return '${diff.inDays}일 전';
+  return '${t.year}.${t.month}.${t.day}';
 }

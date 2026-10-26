@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,6 +12,7 @@ import '../auth/auth_controller.dart';
 import '../auth/auth_models.dart';
 import '../models/models.dart';
 import '../services/account_repository.dart';
+import '../services/parsing_bridge.dart';
 import '../services/push_notification_service.dart';
 import '../services/share_page_html.dart';
 import '../theme/diary_theme.dart';
@@ -25,8 +26,12 @@ class AppStore extends ChangeNotifier {
   // Legacy per-type keys, read once to migrate into _notificationsEnabledKey.
   static const _legacyNotifyFollowKey = 'notify_follow';
   static const _legacyNotifyBasketKey = 'notify_basket';
-  static const _reviewsKey = 'my_reviews';
   static const _hiddenFeedKey = 'hidden_feed_baskets';
+  static const _priceCheckedKey = 'price_checked_at';
+
+  /// 같은 상품을 이 시간 안에 다시 새로고침하면 쇼핑몰을 다시 읽지 않는다.
+  /// (연타 방지 + 쇼핑몰 차단 예방)
+  static const priceRefreshCooldown = Duration(minutes: 1);
 
   AppStore({
     AuthController? auth,
@@ -34,11 +39,24 @@ class AppStore extends ChangeNotifier {
     bool backendConfigured = true,
     ActionLock? actionLock,
     TapCooldown? actionCooldown,
+    ParsingBridge? parsingBridge,
+    DateTime Function()? clock,
   }) : _auth = auth,
        _repo = repository ?? AccountRepository(),
        _backendConfigured = backendConfigured,
        _actionLock = actionLock ?? ActionLock(),
-       _actionCooldown = actionCooldown ?? TapCooldown();
+       _actionCooldown = actionCooldown ?? TapCooldown(),
+       _parsingBridgeOverride = parsingBridge,
+       _clock = clock ?? DateTime.now;
+
+  final ParsingBridge? _parsingBridgeOverride;
+  ParsingBridge? _defaultParsingBridge;
+  ParsingBridge get _parsingBridge =>
+      _parsingBridgeOverride ?? (_defaultParsingBridge ??= ParsingBridge());
+  final DateTime Function() _clock;
+
+  /// 상품별 마지막 가격 확인 시각(이 기기 기준). 서버에는 저장하지 않는다.
+  final Map<int, DateTime> _priceCheckedAt = {};
 
   /// 로그인 상태의 원본. (테스트에서는 null 일 수 있음)
   final AuthController? _auth;
@@ -69,8 +87,6 @@ class AppStore extends ChangeNotifier {
   List<AppUser> followerUsers = [];
   List<AppNotification> notifications = [];
   List<SharedBasket> receivedBaskets = [];
-  List<ProductReview> myReviews = [];
-  List<ProductReview> friendReviews = [];
   final Map<String, SharedBasket> sharedBaskets = {};
 
   /// Baskets the user X-ed out of the 내 친구 탭 feed. The profile doc is the
@@ -125,6 +141,7 @@ class AppStore extends ChangeNotifier {
     } else {
       await _hydrateSessionSafely(user);
       await _restoreBasketForUser();
+      await _restorePriceChecks();
     }
     notifyListeners();
   }
@@ -171,7 +188,6 @@ class AppStore extends ChangeNotifier {
       debugPrint('AppStore: 친구 정보 불러오기 실패 (${e.runtimeType})');
     }
     await _loadInboxSafely(fresh.uid);
-    await _loadReviewsSafely(fresh.uid);
     _syncFriendCounts();
     isLoggedIn = true;
     selectedTabId = 'all';
@@ -255,22 +271,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _loadReviewsSafely(String userId) async {
-    try {
-      myReviews = await _repo.loadReviews(userId);
-    } catch (_) {
-      await _restoreLocalReviews();
-    }
-    if (myReviews.isEmpty) {
-      await _restoreLocalReviews();
-    }
-    try {
-      friendReviews = await _repo.loadFriendReviews(friends);
-    } catch (_) {
-      friendReviews = [];
-    }
-  }
-
   Future<void> _clearSessionLocal() async {
     _stopInboxWatch();
     isLoggedIn = false;
@@ -282,11 +282,10 @@ class AppStore extends ChangeNotifier {
     followerUsers = [];
     notifications = [];
     receivedBaskets = [];
-    myReviews = [];
-    friendReviews = [];
     _hiddenFeedIds = {};
     _pendingHideIds = {};
     _pendingUnhideIds = {};
+    _priceCheckedAt.clear();
     sharedBaskets.clear();
     currentUser = AppUser(
       name: '게스트',
@@ -480,11 +479,18 @@ class AppStore extends ChangeNotifier {
   }
 
   Future<void> removeProduct(int id) async {
+    final tagImageUrl = productById(id)?.tagImageUrl;
     products = products.where((p) => p.id != id).toList();
     basket = basket.where((b) => b.product.id != id).toList();
     final userId = uid;
     if (userId != null) {
       await _repo.deleteProduct(userId, id);
+      // 태그 사진도 같이 지운다. 실패해도 상품 삭제는 이미 끝났으니 그냥 넘어간다.
+      if (tagImageUrl != null) {
+        try {
+          await _repo.deleteTagPhoto(tagImageUrl);
+        } catch (_) {}
+      }
     }
     await _persistBasket();
     notifyListeners();
@@ -524,6 +530,163 @@ class AppStore extends ChangeNotifier {
       await _repo.upsertProduct(userId, product);
     }
     notifyListeners();
+  }
+
+  /// 상품 태그 사진으로 그 상품의 상세 페이지(공식몰 우선)를 찾는다.
+  /// 서버 AI 엔진을 쓰므로 로그인해야 한다. 가격은 찾은 URL을 [ParsingBridge]로 다시 읽는다.
+  Future<TagIdentifyResult> identifyProductFromTag(
+    Uint8List image, {
+    String mimeType = 'image/jpeg',
+  }) async {
+    if (!backendReady || uid == null) {
+      throw const TagIdentifyUnavailable();
+    }
+    return _repo.identifyProductFromTag(image, mimeType: mimeType);
+  }
+
+  /// 태그 사진을 저장소에 올리고 주소를 돌려준다. 상품 저장([addParsedProduct]) 전에 부른다.
+  Future<String> uploadTagPhoto(
+    Uint8List image, {
+    String mimeType = 'image/jpeg',
+  }) async {
+    if (!backendReady || uid == null) {
+      throw const TagIdentifyUnavailable();
+    }
+    return _repo.uploadTagPhoto(image, mimeType: mimeType);
+  }
+
+  /// 올렸지만 상품 저장에 쓰이지 못한 태그 사진을 지운다. 실패해도 조용히 넘어간다.
+  Future<void> discardTagPhoto(String url) async {
+    try {
+      await _repo.deleteTagPhoto(url);
+    } catch (_) {}
+  }
+
+  /// 이 기기에서 마지막으로 가격을 확인한 시각. 확인한 적이 없으면 null.
+  DateTime? priceCheckedAt(int productId) => _priceCheckedAt[productId];
+
+  /// 상품 페이지를 다시 읽어 가격만 새로 고친다. (이름·사진·메모는 건드리지 않음)
+  ///
+  /// "틀린 값보다 빈 값이 안전하다" 원칙:
+  /// - 가격을 못 읽으면 기존 가격을 그대로 둔다 ([PriceRefreshStatus.failed]).
+  /// - 확신이 낮은 가격(priceConfidence가 high/medium이 아님)은 바로 바꾸지 않고
+  ///   [PriceRefreshStatus.needsConfirm]으로 돌려준다 — 화면에서 사용자에게 물어본 뒤
+  ///   [applyRefreshedPrice]로 반영한다.
+  Future<PriceRefreshResult> refreshProductPrice(int id) async {
+    final product = productById(id);
+    final url = product?.productUrl?.trim() ?? '';
+    if (product == null || url.isEmpty) {
+      return const PriceRefreshResult(PriceRefreshStatus.unavailable);
+    }
+    final last = _priceCheckedAt[id];
+    if (last != null && _clock().difference(last) < priceRefreshCooldown) {
+      return PriceRefreshResult(
+        PriceRefreshStatus.tooSoon,
+        previousPrice: product.price,
+        newPrice: product.price,
+      );
+    }
+    final result = await _withLock('refreshPrice:$id', () async {
+      ParsedProductInfo info;
+      try {
+        info = await _parsingBridge.parseProductUrl(url);
+      } catch (_) {
+        return PriceRefreshResult(
+          PriceRefreshStatus.failed,
+          previousPrice: product.price,
+        );
+      }
+      if (info.price <= 0) {
+        return PriceRefreshResult(
+          PriceRefreshStatus.failed,
+          previousPrice: product.price,
+        );
+      }
+      const trusted = {'high', 'medium'};
+      if (!trusted.contains(info.priceConfidence)) {
+        return PriceRefreshResult(
+          PriceRefreshStatus.needsConfirm,
+          previousPrice: product.price,
+          newPrice: info.price,
+          info: info,
+        );
+      }
+      return await applyRefreshedPrice(id, info);
+    });
+    return result ??
+        const PriceRefreshResult(PriceRefreshStatus.busy);
+  }
+
+  /// 새로 읽은 가격을 상품(과 살까말까 바구니에 담긴 같은 상품)에 반영한다.
+  Future<PriceRefreshResult> applyRefreshedPrice(
+    int id,
+    ParsedProductInfo info,
+  ) async {
+    final product = productById(id);
+    if (product == null || info.price <= 0) {
+      return const PriceRefreshResult(PriceRefreshStatus.failed);
+    }
+    final newPrice = info.price;
+    final original =
+        info.originalPrice != null && info.originalPrice! > newPrice
+        ? info.originalPrice
+        : null;
+    final discount = original != null
+        ? ((original - newPrice) / original * 100).round()
+        : null;
+    // copyWith는 null로 지우지 못하므로(?? 패턴) 직접 만든다 — 할인이 끝났으면
+    // 취소선 정가·할인 배지도 같이 사라져야 한다.
+    final updated = Product(
+      id: product.id,
+      listId: product.listId,
+      name: product.name,
+      price: newPrice,
+      image: product.image,
+      platform: product.platform,
+      originalPrice: original,
+      discount: discount,
+      productUrl: product.productUrl,
+      memo: product.memo,
+      isPublic: product.isPublic,
+      tagImageUrl: product.tagImageUrl,
+    );
+    final changed =
+        product.price != newPrice ||
+        product.originalPrice != original ||
+        product.discount != discount;
+
+    final previousProducts = products;
+    final previousBasket = basket;
+    if (changed) {
+      products = [for (final p in products) p.id == id ? updated : p];
+      basket = [
+        for (final b in basket)
+          b.product.id == id ? b.copyWith(product: updated) : b,
+      ];
+      final userId = uid;
+      if (userId != null) {
+        try {
+          await _repo.upsertProduct(userId, updated);
+        } catch (_) {
+          products = previousProducts;
+          basket = previousBasket;
+          notifyListeners();
+          return PriceRefreshResult(
+            PriceRefreshStatus.failed,
+            previousPrice: product.price,
+          );
+        }
+      }
+      await _persistBasket();
+    }
+    _priceCheckedAt[id] = _clock();
+    await _persistPriceChecks();
+    notifyListeners();
+    return PriceRefreshResult(
+      changed ? PriceRefreshStatus.updated : PriceRefreshStatus.unchanged,
+      previousPrice: product.price,
+      newPrice: newPrice,
+    );
   }
 
   Future<void> addToBasket(Product product) async {
@@ -568,6 +731,7 @@ class AppStore extends ChangeNotifier {
     ParsedProductInfo info, {
     required String listId,
     String memo = '',
+    String? tagImageUrl,
   }) async {
     final lockKey =
         'addParsedProduct:${info.productUrl.isEmpty ? info.name : info.productUrl}';
@@ -586,6 +750,7 @@ class AppStore extends ChangeNotifier {
         productUrl: info.productUrl,
         memo: trimmedMemo.isEmpty ? null : trimmedMemo,
         isPublic: _isListPublic(listId),
+        tagImageUrl: tagImageUrl,
       );
       products = [...products, product];
       final userId = uid;
@@ -795,7 +960,6 @@ class AppStore extends ChangeNotifier {
     friendWishlists = await _repo.loadFriendWishlists(friends);
     followerUsers = await _repo.loadUsers(await _repo.followerIds(userId));
     await _loadInboxSafely(userId);
-    await _loadReviewsSafely(userId);
     _syncFriendCounts();
     final profile = await _repo.loadProfile(userId);
     if (profile != null) {
@@ -859,9 +1023,6 @@ class AppStore extends ChangeNotifier {
         following: friends.where((f) => f.isFollowing).length,
       );
       friendWishlists = await _repo.loadFriendWishlists(friends);
-      try {
-        friendReviews = await _repo.loadFriendReviews(friends);
-      } catch (_) {}
       _syncFriendCounts();
       notifyListeners();
       return true;
@@ -1048,11 +1209,8 @@ class AppStore extends ChangeNotifier {
     return shared;
   }
 
-  /// Returns false when a send for the same basket is already in flight.
-  Future<bool> sendBasketToFriends(
-    List<String> friendIds, {
-    String memo = '',
-  }) async {
+  /// 장바구니에서 고른 상품들. 하나도 없으면 예외.
+  List<Product> _selectedBasketProducts() {
     final selected = basket
         .where((b) => b.isSelected)
         .map((b) => b.product)
@@ -1060,11 +1218,36 @@ class AppStore extends ChangeNotifier {
     if (selected.isEmpty) {
       throw Exception('공유할 상품을 선택해 주세요.');
     }
+    return selected;
+  }
+
+  /// Returns false when a send for the same basket is already in flight.
+  Future<bool> sendBasketToFriends(
+    List<String> friendIds, {
+    String memo = '',
+  }) async {
     return resendBasketToFriends(
-      items: selected,
+      items: _selectedBasketProducts(),
       friendIds: friendIds,
       memo: memo,
     );
+  }
+
+  /// 장바구니에서 고른 상품으로 살까말까를 만들고, 링크로 볼 수 있는 공유 페이지를 올려 주소를 돌려준다.
+  /// 만든 살까말까는 마이페이지 "보낸 살까말까"에 남는다(다시 공유하면 같은 주소).
+  Future<String> publishSelectedBasketLink() async {
+    final items = _selectedBasketProducts();
+    _ensureBackend();
+    // 로그인 확인을 먼저 한다 — 안 그러면 공유는 실패했는데 "보낸 살까말까"에 빈 기록만 남는다.
+    _requireLinkShareLogin();
+    final shared = await rememberSentBasket(items: items);
+    return publishSharePage(shared);
+  }
+
+  void _requireLinkShareLogin() {
+    if (uid == null || !isLoggedIn) {
+      throw Exception('로그인하면 링크로 공유할 수 있어요.');
+    }
   }
 
   /// Returns false when a send for the same basket is already in flight.
@@ -1229,31 +1412,31 @@ class AppStore extends ChangeNotifier {
   /// clock so an actively re-shared link stays alive.
   Future<String> publishSharePage(SharedBasket basket) async {
     _ensureBackend();
-    final userId = uid;
-    if (userId == null || !isLoggedIn) {
-      throw Exception('로그인하면 링크로 공유할 수 있어요.');
-    }
+    _requireLinkShareLogin();
+    final userId = uid!;
+    // 화면이 들고 있던 basket 이 옛 값이어도 같은 공유 주소(publicPageId)를 다시 쓰도록 최신 값을 쓴다.
+    final current = sharedBaskets[basket.id] ?? basket;
     final pageId =
-        (basket.publicPageId != null && basket.publicPageId!.isNotEmpty)
-        ? basket.publicPageId!
+        (current.publicPageId != null && current.publicPageId!.isNotEmpty)
+        ? current.publicPageId!
         : const Uuid().v4();
     final expiresAt = DateTime.now().add(kSharePageTtl);
-    final html = buildSharePageHtml(basket: basket, expiresAt: expiresAt);
+    final html = buildSharePageHtml(basket: current, expiresAt: expiresAt);
     final url = await _repo.uploadSharePage(
       uid: userId,
       pageId: pageId,
-      basketId: basket.id,
+      basketId: current.id,
       html: html,
       expiresAt: expiresAt,
     );
-    final updated = basket.copyWith(
+    final updated = current.copyWith(
       publicPageId: pageId,
       publicUrl: url,
       publicUrlExpiresAt: expiresAt,
-      channels: {...basket.channels, SharedChannel.link}.toList(),
+      channels: {...current.channels, SharedChannel.link}.toList(),
       lastSharedAt: DateTime.now(),
     );
-    sharedBaskets[basket.id] = updated;
+    sharedBaskets[current.id] = updated;
     await _persistShared();
     try {
       await _repo.upsertSentBasket(userId, updated);
@@ -1261,9 +1444,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
     return url;
   }
-
-  String shareUrlFor(SharedBasket basket) =>
-      basket.publicUrl ?? 'https://wishlist.app/shared/${basket.id}';
 
   Future<void> _persistShared() async {
     final prefs = await SharedPreferences.getInstance();
@@ -1321,6 +1501,35 @@ class AppStore extends ChangeNotifier {
       }
     }
     await _restoreHiddenFeedLocal();
+    await _restorePriceChecks();
+  }
+
+  Future<void> _restorePriceChecks() async {
+    final prefs = await SharedPreferences.getInstance();
+    _priceCheckedAt.clear();
+    final raw = prefs.getString('${_priceCheckedKey}_${uid ?? 'guest'}');
+    if (raw == null) return;
+    try {
+      final map = Map<String, dynamic>.from(jsonDecode(raw) as Map);
+      map.forEach((k, v) {
+        final id = int.tryParse(k);
+        final at = v is String ? DateTime.tryParse(v) : null;
+        if (id != null && at != null) _priceCheckedAt[id] = at;
+      });
+    } catch (_) {
+      // 깨진 값이면 무시 — "마지막 확인" 표시만 사라질 뿐이다.
+    }
+  }
+
+  Future<void> _persistPriceChecks() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      '${_priceCheckedKey}_${uid ?? 'guest'}',
+      jsonEncode({
+        for (final e in _priceCheckedAt.entries)
+          '${e.key}': e.value.toIso8601String(),
+      }),
+    );
   }
 
   Future<void> _persistNotificationPrefs() async {
@@ -1376,133 +1585,6 @@ class AppStore extends ChangeNotifier {
     return null;
   }
 
-  List<ProductReview> get reviewFeed {
-    final byId = <String, ProductReview>{};
-    for (final r in [...friendReviews, ...myReviews]) {
-      byId[r.id] = r;
-    }
-    final list = byId.values.toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    return list;
-  }
-
-  ProductReview? reviewById(String id) {
-    return reviewFeed.where((r) => r.id == id).firstOrNull;
-  }
-
-  ProductReview? myReviewForProduct(int productId) {
-    return myReviews.where((r) => r.productId == productId).firstOrNull;
-  }
-
-  Future<void> _restoreLocalReviews() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('${_reviewsKey}_${uid ?? 'guest'}');
-    if (raw == null || raw.isEmpty) return;
-    try {
-      final list = jsonDecode(raw) as List;
-      final restored = list
-          .map(
-            (e) => ProductReview.fromJson(Map<String, dynamic>.from(e as Map)),
-          )
-          .toList();
-      if (myReviews.isEmpty) {
-        myReviews = restored;
-      }
-    } catch (_) {}
-  }
-
-  Future<void> _persistLocalReviews() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      '${_reviewsKey}_${uid ?? 'guest'}',
-      jsonEncode(myReviews.map((r) => r.toJson()).toList()),
-    );
-  }
-
-  /// Returns null when a publish for this product is already in flight.
-  Future<ProductReview?> publishReview({
-    required Product product,
-    required String title,
-    required String body,
-    int mood = 3,
-    List<String> imageUrls = const [],
-    List<File> newPhotos = const [],
-    String? existingId,
-  }) async {
-    final userId = uid;
-    if (userId == null) {
-      throw Exception('로그인된 계정이 없어요.');
-    }
-    final trimmedTitle = title.trim();
-    final trimmedBody = body.trim();
-    if (trimmedTitle.isEmpty) {
-      throw Exception('제목을 입력해 주세요.');
-    }
-    if (trimmedBody.isEmpty) {
-      throw Exception('본문을 입력해 주세요.');
-    }
-
-    return _withLock('publishReview:${existingId ?? product.id}', () async {
-      final now = DateTime.now();
-      final existing = existingId != null
-          ? myReviews.where((r) => r.id == existingId).firstOrNull
-          : myReviewForProduct(product.id);
-      final reviewId = existing?.id ?? 'rv-${now.millisecondsSinceEpoch}';
-      final uploaded = [...imageUrls];
-      for (var i = 0; i < newPhotos.length; i++) {
-        uploaded.add(
-          await _storeReviewPhoto(
-            userId: userId,
-            reviewId: reviewId,
-            file: newPhotos[i],
-            index: uploaded.length,
-          ),
-        );
-      }
-
-      final review = existing == null
-          ? ProductReview(
-              id: reviewId,
-              authorUid: userId,
-              authorName: currentUser.name,
-              authorHandle: currentUser.handle,
-              authorAvatar: currentUser.avatarUrl,
-              productId: product.id,
-              productName: product.name,
-              productImage: product.image,
-              productPlatform: product.platform,
-              productPrice: product.price,
-              productUrl: product.productUrl,
-              title: trimmedTitle,
-              body: trimmedBody,
-              createdAt: now,
-              updatedAt: now,
-              mood: mood,
-              imageUrls: uploaded,
-            )
-          : existing.copyWith(
-              title: trimmedTitle,
-              body: trimmedBody,
-              updatedAt: now,
-              authorName: currentUser.name,
-              authorHandle: currentUser.handle,
-              authorAvatar: currentUser.avatarUrl,
-              mood: mood,
-              imageUrls: uploaded,
-            );
-
-      myReviews = [review, ...myReviews.where((r) => r.id != review.id)];
-      await _persistLocalReviews();
-      try {
-        await _repo.upsertReview(userId, review);
-      } catch (_) {
-        // Local review still works if the backend is unreachable.
-      }
-      notifyListeners();
-      return review;
-    });
-  }
-
   Future<T?> _withLock<T>(String key, Future<T> Function() action) async {
     if (!_actionLock.begin(key)) return null;
     try {
@@ -1511,46 +1593,51 @@ class AppStore extends ChangeNotifier {
       _actionLock.end(key);
     }
   }
+}
 
-  Future<String> _storeReviewPhoto({
-    required String userId,
-    required String reviewId,
-    required File file,
-    required int index,
-  }) async {
-    try {
-      return await _repo.uploadReviewPhoto(
-        uid: userId,
-        reviewId: reviewId,
-        file: file,
-        index: index,
-      );
-    } catch (_) {
-      final dir = await getApplicationDocumentsDirectory();
-      final folder = Directory('${dir.path}/reviews/$reviewId');
-      if (!await folder.exists()) {
-        await folder.create(recursive: true);
-      }
-      final ext = file.path.split('.').last.toLowerCase();
-      final safeExt =
-          (ext == 'png' || ext == 'webp' || ext == 'jpg' || ext == 'jpeg')
-          ? ext
-          : 'jpg';
-      final dest = File('${folder.path}/$index.$safeExt');
-      await file.copy(dest.path);
-      return dest.path;
-    }
-  }
+enum PriceRefreshStatus {
+  /// 가격(또는 정가·할인율)이 바뀌어 반영했다.
+  updated,
 
-  Future<void> deleteReview(String reviewId) async {
-    final userId = uid;
-    myReviews = myReviews.where((r) => r.id != reviewId).toList();
-    await _persistLocalReviews();
-    if (userId != null) {
-      try {
-        await _repo.deleteReview(userId, reviewId);
-      } catch (_) {}
-    }
-    notifyListeners();
-  }
+  /// 다시 읽었는데 그대로다.
+  unchanged,
+
+  /// 새 가격을 읽었지만 확신이 낮다 — 사용자 확인 후 반영한다.
+  needsConfirm,
+
+  /// 가격을 읽지 못했다. 기존 가격을 유지한다.
+  failed,
+
+  /// 방금 확인해서 쿨다운 중이다.
+  tooSoon,
+
+  /// 같은 상품 새로고침이 이미 진행 중이다.
+  busy,
+
+  /// 상품 URL이 없어 새로고침할 수 없다.
+  unavailable,
+}
+
+class PriceRefreshResult {
+  const PriceRefreshResult(
+    this.status, {
+    this.previousPrice,
+    this.newPrice,
+    this.info,
+  });
+
+  final PriceRefreshStatus status;
+  final int? previousPrice;
+  final int? newPrice;
+
+  /// [PriceRefreshStatus.needsConfirm]일 때 [AppStore.applyRefreshedPrice]에 넘길 값.
+  final ParsedProductInfo? info;
+}
+
+/// 로그인 전이거나 AWS 연결이 안 돼서 태그 사진 찾기를 쓸 수 없을 때.
+class TagIdentifyUnavailable implements Exception {
+  const TagIdentifyUnavailable();
+
+  @override
+  String toString() => '로그인 후 사용할 수 있어요';
 }

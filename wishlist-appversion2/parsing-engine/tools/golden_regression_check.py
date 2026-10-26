@@ -76,18 +76,24 @@ def main():
             record["extracted"] = body
             record["compare"] = cmp
             tag = "MATCH" if cmp["full_match"] else "MISMATCH"
+            # price가 null로 오는 경우(ambiguous 기권)가 정상 응답이라 `or {}`로 받는다 —
+            # 원래 `.get('price', {})`는 값이 None이면 AttributeError로 스크립트가 죽었다.
             print(f"[{i}/{len(cases)}] {case['mall']:8s} {tag:8s} "
-                  f"price={body.get('price', {}).get('unconditional_price')} "
+                  f"price={(body.get('price') or {}).get('unconditional_price')} "
                   f"ambiguous={body.get('ambiguous')} "
-                  f"grounded={body.get('grounding', {}).get('all_grounded')} "
-                  f"({wall_ms}ms, peak_rss={body.get('metrics', {}).get('peak_rss_mb')}MB)")
+                  f"grounded={(body.get('grounding') or {}).get('all_grounded')} "
+                  f"({wall_ms}ms, peak_rss={(body.get('metrics') or {}).get('peak_rss_mb')}MB)")
         else:
             print(f"[{i}/{len(cases)}] {case['mall']:8s} HTTP {status}: {body.get('detail')}")
         results.append(record)
 
+    if not results:
+        print("대상 상품이 없습니다 (--mall 이름 확인).")
+        return
+
     ok_results = [r for r in results if r["http_status"] == 200]
     full_match = sum(1 for r in ok_results if r["compare"]["full_match"])
-    grounded = sum(1 for r in ok_results if r["extracted"].get("grounding", {}).get("all_grounded"))
+    grounded = sum(1 for r in ok_results if (r["extracted"].get("grounding") or {}).get("all_grounded"))
     n = len(results)
 
     print("\n" + "=" * 60)
@@ -97,14 +103,9 @@ def main():
 
     if args.baseline:
         baseline = json.loads(Path(args.baseline).read_text(encoding="utf-8"))
-        base_match = sum(
-            1 for r in baseline
-            if r.get("providers", {}).get("gemini", {}).get("compare", {}).get("full_match")
-        )
-        base_grounded = sum(
-            1 for r in baseline
-            if r.get("providers", {}).get("gemini", {}).get("grounding", {}).get("all_grounded")
-        )
+        gemini = [r.get("providers", {}).get("gemini", {}) for r in baseline]
+        base_match = sum(1 for g in gemini if g.get("compare", {}).get("full_match"))
+        base_grounded = sum(1 for g in gemini if g.get("grounding", {}).get("all_grounded"))
         print(f"\n기준선(run6): 완전 일치 {base_match}/{len(baseline)}, 그라운딩 {base_grounded}/{len(baseline)}")
         if full_match < base_match:
             print(f"⚠️  회귀 발생: 완전 일치가 기준선보다 {base_match - full_match}건 낮음 — 원인 조사 필요")

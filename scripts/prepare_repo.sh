@@ -5,7 +5,7 @@ set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 if [ ! -d wishlist-appversion2/flutter_app ]; then
-  echo "❌ 레포 맨 위 폴더(2026-softstudio-project-main)가 아니에요: $ROOT"; exit 1
+  echo "❌ 레포 맨 위 폴더(wishlist-appversion2 가 들어 있는 폴더)가 아니에요: $ROOT"; exit 1
 fi
 
 echo "① 필요 없는 파일 삭제"

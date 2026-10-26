@@ -5,6 +5,7 @@ import '../../data/app_store.dart';
 import '../../models/models.dart';
 import '../../theme/diary_theme.dart';
 import '../../widgets/diary_widgets.dart';
+import '../share/share_link.dart';
 import 'basket_picker_sheet.dart';
 import 'share_to_friends_sheet.dart';
 
@@ -241,8 +242,20 @@ class _ShareBasketButtonState extends State<_ShareBasketButton> {
 
   Future<void> _share() async {
     if (_sharing) return;
+    final origin = shareOriginOf(context);
     setState(() => _sharing = true);
     try {
+      final method = await pickShareMethod(context);
+      if (method == null || !mounted) return;
+      if (method == ShareMethod.link) {
+        await shareBasketLink(
+          context: context,
+          publish: widget.store.publishSelectedBasketLink,
+          message: '${widget.store.currentUser.name}님이 살까말까를 공유했어요. 어떤 게 나을까요?',
+          origin: origin,
+        );
+        return;
+      }
       final picked = await showShareToFriendsSheet(
         context: context,
         store: widget.store,

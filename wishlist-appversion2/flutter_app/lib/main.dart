@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ads/ads_config.dart';
 import 'auth/amplify_setup.dart';
 import 'auth/auth_controller.dart';
 import 'auth/auth_routes.dart';
@@ -18,16 +20,12 @@ import 'screens/mypage/follow_list_screen.dart';
 import 'screens/mypage/mypage_screen.dart';
 import 'screens/mypage/sent_baskets_screen.dart';
 import 'screens/product/product_detail_screen.dart';
-import 'screens/reviews/my_reviews_screen.dart';
-import 'screens/reviews/review_compose_screen.dart';
-import 'screens/reviews/review_detail_screen.dart';
 import 'screens/salkamalka/salkamalka_screen.dart';
 import 'screens/share/share_intake_screen.dart';
 import 'screens/shared/shared_basket_detail_screen.dart';
 import 'screens/shared/shared_wishlist_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
 import 'services/share_input.dart';
-import 'services/webview_extract_host.dart';
 import 'theme/diary_scale.dart';
 import 'theme/diary_theme.dart';
 import 'widgets/diary_widgets.dart';
@@ -47,6 +45,9 @@ Future<void> main() async {
   final store = AppStore(auth: auth, backendConfigured: amplifyError == null);
   auth.hooks = store.authHooks;
   await store.init();
+
+  // 4) 광고 SDK 준비 — 기다리지 않는다(광고가 늦게 떠도 앱 시작은 막지 않음).
+  if (AdsConfig.supported) unawaited(MobileAds.instance.initialize());
 
   runApp(WishlistApp(auth: auth, store: store));
 }
@@ -132,7 +133,7 @@ class _WishlistAppState extends State<WishlistApp> {
 
     _lastHandledShareUrl = url;
     _lastHandledShareAt = now;
-    widget.store.setPendingShareUrl(input);
+    widget.store.setPendingShareUrl(ShareInput.normalize(input));
     router.go('/share');
   }
 
@@ -156,11 +157,8 @@ class _WishlistAppState extends State<WishlistApp> {
         debugShowCheckedModeBanner: false,
         theme: DiaryTheme.light,
         routerConfig: router,
-        builder: (context, child) {
-          final scaled =
-              DiaryScale.wrap(context, child ?? const SizedBox.shrink());
-          return WebViewExtractHost(child: scaled);
-        },
+        builder: (context, child) =>
+            DiaryScale.wrap(context, child ?? const SizedBox.shrink()),
       ),
     );
   }
@@ -229,25 +227,6 @@ GoRouter _buildRouter(AuthController auth, AppStore store) {
         path: '/following',
         builder: (context, state) =>
             const FollowListScreen(kind: FollowListKind.following),
-      ),
-      GoRoute(
-        path: '/reviews/write',
-        builder: (context, state) {
-          final productId = int.tryParse(
-            state.uri.queryParameters['productId'] ?? '',
-          );
-          final reviewId = state.uri.queryParameters['reviewId'];
-          return ReviewComposeScreen(productId: productId, reviewId: reviewId);
-        },
-      ),
-      GoRoute(
-        path: '/reviews/:id',
-        builder: (context, state) =>
-            ReviewDetailScreen(reviewId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/my-reviews',
-        builder: (context, state) => const MyReviewsScreen(),
       ),
       GoRoute(
         path: '/sent-baskets',
@@ -337,10 +316,7 @@ class HomeShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final store = context.watch<AppStore>();
     final showWishlistFab = navigationShell.currentIndex == 0;
-    final showReviewFab =
-        navigationShell.currentIndex == 1 && store.friendsTab == 4;
 
     return Scaffold(
       body: navigationShell,
@@ -396,14 +372,6 @@ class HomeShell extends StatelessWidget {
               onPressed: () => context.push('/share'),
               label: const Text('공유 담기'),
               icon: const Icon(Icons.add_link),
-            )
-          : showReviewFab
-          ? FloatingActionButton.extended(
-              backgroundColor: DiaryColors.folderYellow,
-              foregroundColor: DiaryColors.ink,
-              onPressed: () => context.push('/reviews/write'),
-              label: const Text('리뷰 쓰기'),
-              icon: const Icon(Icons.edit_outlined),
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,

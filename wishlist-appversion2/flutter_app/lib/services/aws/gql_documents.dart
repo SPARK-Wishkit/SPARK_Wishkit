@@ -10,8 +10,7 @@ const _handleFields = 'handleLower ownerId maskedEmail';
 const _tabFields = 'ownerId tabId name isPublic colorHex sortOrder';
 const _productFields =
     'ownerId productId listId name price image platform originalPrice '
-    'discount productUrl memo isPublic';
-const _reviewFields = 'ownerId reviewId productId data';
+    'discount productUrl memo isPublic tagImageUrl';
 
 abstract final class Gql {
   // ── Profile ──
@@ -104,27 +103,6 @@ mutation UpdateWishProduct(\$input: UpdateWishProductInput!) {
   static const deleteProduct = '''
 mutation DeleteWishProduct(\$input: DeleteWishProductInput!) {
   deleteWishProduct(input: \$input) { ownerId productId }
-}''';
-
-  // ── Review ──
-  static const listReviews = '''
-query ListReviews(\$ownerId: ID!, \$limit: Int, \$nextToken: String) {
-  listReviews(ownerId: \$ownerId, limit: \$limit, nextToken: \$nextToken) {
-    items { $_reviewFields }
-    nextToken
-  }
-}''';
-  static const createReview = '''
-mutation CreateReview(\$input: CreateReviewInput!) {
-  createReview(input: \$input) { ownerId reviewId }
-}''';
-  static const updateReview = '''
-mutation UpdateReview(\$input: UpdateReviewInput!) {
-  updateReview(input: \$input) { ownerId reviewId }
-}''';
-  static const deleteReview = '''
-mutation DeleteReview(\$input: DeleteReviewInput!) {
-  deleteReview(input: \$input) { ownerId reviewId }
 }''';
 
   // ── 3-1: 친구 목록 ──
@@ -252,6 +230,24 @@ mutation NotifyFollow(\$targetId: ID!) {
   notifyFollow(targetId: \$targetId)
 }''';
 
+  // ── AI 엔진: 상품 URL 읽기 (서버 함수 parsing-proxy → 엔진 /extract) ──
+  static const extractProduct = '''
+query ExtractProduct(\$url: String!) {
+  extractProduct(url: \$url) {
+    productUrl productName unconditionalPrice regularPrice currency imageUrl
+    ambiguous ambiguityReason confidence
+  }
+}''';
+
+  // ── AI 엔진: 태그 사진으로 상품 찾기 (서버 함수 parsing-proxy) ──
+  static const identifyProductTag = '''
+query IdentifyProductTag(\$imageBase64: String!, \$mimeType: String!) {
+  identifyProductTag(imageBase64: \$imageBase64, mimeType: \$mimeType) {
+    status brand productCode productName color tagPrice officialDomain
+    matchUrl matchHost matchSource verifiedBy note
+  }
+}''';
+
   /// 검증 스크립트가 전부 훑어볼 수 있도록 한곳에 모은 목록.
   static const all = <String>[
     getProfile, createProfile, updateProfile, deleteProfile,
@@ -260,7 +256,6 @@ mutation NotifyFollow(\$targetId: ID!) {
     getHandle, createHandle, deleteHandle,
     listTabs, createTab, updateTab, deleteTab,
     listProducts, createProduct, updateProduct, deleteProduct,
-    listReviews, createReview, updateReview, deleteReview,
     listProfiles, listFollowing, listFollowers, createFollow, deleteFollow,
     publicWishlist, publicWishlistCounts,
     listSentBaskets, createSentBasket, updateSentBasket, deleteSentBasket,
@@ -268,5 +263,6 @@ mutation NotifyFollow(\$targetId: ID!) {
     listBasketComments, addBasketComment, editBasketComment,
     removeBasketComment,
     listNotifications, markNotificationRead, deleteNotification, notifyFollow,
+    extractProduct, identifyProductTag,
   ];
 }

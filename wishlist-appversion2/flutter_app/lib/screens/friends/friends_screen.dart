@@ -7,7 +7,6 @@ import '../../models/models.dart';
 import '../../theme/diary_theme.dart';
 import '../../widgets/diary_widgets.dart';
 import '../product/product_detail_screen.dart';
-import '../reviews/review_widgets.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -73,12 +72,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
       final b = e.basket;
       return _matchesQuery(b.ownerName, b.fromHandle, q) ||
           b.recipientNames.any((n) => n.toLowerCase().contains(q));
-    }).toList();
-    final reviews = store.reviewFeed.where((r) {
-      if (q.isEmpty) return true;
-      return _matchesQuery(r.authorName, r.authorHandle, q) ||
-          r.title.toLowerCase().contains(q) ||
-          r.productName.toLowerCase().contains(q);
     }).toList();
     final unread = store.unreadNotificationCount;
     final tab = store.friendsTab;
@@ -185,15 +178,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                           onTap: () => store.selectFriendsTab(3),
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: _TabChip(
-                          label: '리뷰',
-                          color: DiaryColors.folderLilac,
-                          active: tab == 4,
-                          onTap: () => store.selectFriendsTab(4),
-                        ),
-                      ),
                     ],
                   ),
                 ],
@@ -222,11 +206,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                           .where((f) => f.isFollowing)
                           .isEmpty,
                     ),
-                    3 => _SalkamalkaFeedPane(entries: salkamalkaFeed),
-                    _ => _FriendReviewsPane(
-                      reviews: reviews,
-                      myUid: store.uid ?? '',
-                    ),
+                    _ => _SalkamalkaFeedPane(entries: salkamalkaFeed),
                   },
                 ),
               ),
@@ -735,39 +715,6 @@ class _SalkamalkaFeedPane extends StatelessWidget {
       return '친구에게 보냄  ·  상품 ${b.items.length}개';
     }
     return '${b.ownerName}에게 받음  ·  상품 ${b.items.length}개';
-  }
-}
-
-class _FriendReviewsPane extends StatelessWidget {
-  const _FriendReviewsPane({required this.reviews, required this.myUid});
-
-  final List<ProductReview> reviews;
-  final String myUid;
-
-  @override
-  Widget build(BuildContext context) {
-    if (reviews.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            '아직 올라온 리뷰가 없어요.\n오른쪽 아래 리뷰 쓰기로 첫 글을 남겨보세요',
-            textAlign: TextAlign.center,
-            style: DiaryTheme.body(14, color: DiaryColors.inkMuted),
-          ),
-        ),
-      );
-    }
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 88),
-      children: [
-        for (final r in reviews)
-          ReviewPostCard(
-            review: r,
-            isMine: r.authorUid == myUid && myUid.isNotEmpty,
-          ),
-      ],
-    );
   }
 }
 

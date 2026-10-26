@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../ads/ad_feed.dart';
+import '../../ads/ads_config.dart';
+import '../../ads/native_ad_card.dart';
 import '../../models/models.dart';
 import '../../theme/diary_theme.dart';
 import '../../widgets/diary_widgets.dart';
@@ -36,6 +39,7 @@ class SharedWishlistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final border = accentColor ?? DiaryColors.fileSand;
+    final adFeed = AdFeed(products.length, every: AdsConfig.feedEvery);
 
     return Scaffold(
       backgroundColor: DiaryColors.canvas,
@@ -102,11 +106,16 @@ class SharedWishlistScreen extends StatelessWidget {
                             )
                           : ListView.separated(
                               padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
-                              itemCount: products.length,
+                              itemCount: adFeed.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 10),
                               itemBuilder: (context, i) {
-                                final p = products[i];
+                                if (adFeed.isAd(i)) {
+                                  return NativeAdCard(
+                                    key: ValueKey('ad-${adFeed.adSlot(i)}'),
+                                  );
+                                }
+                                final p = products[adFeed.itemIndex(i)];
                                 return WishlistProductCard(
                                   product: p,
                                   onOpen: () => context.push(
