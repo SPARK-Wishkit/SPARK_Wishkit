@@ -71,6 +71,7 @@ class RenderResult:
     raw_text: str = ""
     image_candidates: list[str] = field(default_factory=list)
     screenshot: bytes = b""
+    meta_text: str = ""  # <title>·설명 메타 태그 글자. 품번이 본문엔 없고 메타에만 있는 몰이 있다(무신사)
     error: str | None = None
 
     @property
@@ -111,6 +112,26 @@ def _clean_html(html: str) -> tuple[str, str, list[str]]:
         cleaned_html = cleaned_html[:MAX_CLEANED_CHARS] + "\n<!-- truncated -->"
 
     return cleaned_html, soup.get_text(separator=" ", strip=True), image_candidates
+
+
+# 품번·상품명이 본문 대신 여기에만 들어 있는 몰이 많다(예: 무신사 description "제품번호 : 93251TTL1202").
+_META_TEXT_KEYS = {"description", "keywords", "og:title", "og:description", "twitter:title", "twitter:description"}
+
+
+def _meta_text(html: str) -> str:
+    """<title>과 설명용 메타 태그(content)를 한 줄 글자로 모은다. 메타는 보통 <head>에 있으니
+    <head>만 파싱한다(큰 페이지를 두 번 통째로 파싱하지 않게)."""
+    end = html.lower().find("</head>")
+    soup = BeautifulSoup(html if end < 0 else html[:end], "html.parser")
+    parts: list[str] = []
+    if soup.title and soup.title.string:
+        parts.append(soup.title.string.strip())
+    for m in soup.find_all("meta"):
+        key = (m.get("name") or m.get("property") or "").strip().lower()
+        content = (m.get("content") or "").strip()
+        if content and (key in _META_TEXT_KEYS or key.startswith("product:")):
+            parts.append(content)
+    return " ".join(dict.fromkeys(p for p in parts if p))  # 같은 문장 중복 제거(순서 유지)
 
 
 async def _goto_and_wait(page, url: str, nav_timeout_ms: int) -> None:
@@ -157,6 +178,7 @@ async def render(browser: Browser, url: str, *, nav_timeout_ms: int = 20000) -> 
             raw_text=raw_text,
             image_candidates=images,
             screenshot=screenshot,
+            meta_text=_meta_text(html),
         )
     except Exception as exc:  # noqa: BLE001
         return RenderResult(error=f"{type(exc).__name__}: {exc}")
