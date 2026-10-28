@@ -4,9 +4,11 @@
 흐름:
   1. 태그 읽기  — Gemini 비전으로 사진 속 태그에서 브랜드·품번·바코드·상품명·색상·태그 가격과, 태그에
                   같이 적힌 다른 코드들을 읽는다. 바코드는 검증 숫자가 안 맞으면 버린다(tag_codes.py).
-  2. 검색       — Gemini + Google 검색 그라운딩으로 브랜드 공식 홈페이지의 상품 페이지를 찾는다.
-                  공식몰에 없을 때만 국내 주요 쇼핑몰 페이지를 후보로 쓴다. (2026-10-28: 무신사 검색창을
-                  먼저 쓰던 단계는 뺐다 — 공식몰을 먼저 연결하는 게 목적. 구글 검색 그라운딩은 유료 키 필요)
+  2. 검색       — Gemini + Google 검색 그라운딩으로 "브랜드 품번"(예: "1993STUDIO 93251TTL1202")을
+                  검색해서 나온 상품 상세 페이지를 공식몰·쇼핑몰 가리지 않고 모두 후보로 받는다.
+                  공식몰 우선은 확인 단계의 순위로 처리한다. 사이트 메인 페이지는 후보에서 뺀다.
+                  (2026-10-28: 공식몰을 먼저 찾게 하면 모델이 공식몰 메인 주소 하나만 돌려주고 끝내는
+                  문제가 있어서 바꿨다. 구글 검색 그라운딩은 유료 키 필요)
   3. 확인       — 후보 페이지를 실제로 렌더링해서 **품번이 페이지에 실제로 있는지** 확인한다.
                   AI가 말한 URL을 그대로 믿지 않는다(검색 결과·URL 환각 방지). 색상 코드를 뗀 기본
                   번호로도 확인하고, 태그 가격이 페이지에 보이면 같은 근거끼리 비교할 때 우선한다.
@@ -112,27 +114,38 @@ def call_gemini_tag(
 
 # ── 2. 검색 ────────────────────────────────────────────────
 
+def search_query(tag: dict) -> str:
+    """구글에 넣을 검색어: "브랜드 품번". 품번이 없으면 다른 코드 → 바코드 → 상품명 순으로 대신 쓴다."""
+    brand = str(tag.get("brand") or "").strip()
+    key = str(tag.get("product_code") or "").strip()
+    if not key:
+        others = tag.get("other_codes") or []
+        key = str(others[0]).strip() if others else ""
+    if not key:
+        key = str(tag.get("barcode") or "").strip()
+    if not key:
+        key = str(tag.get("product_name") or "").strip()
+    return " ".join(p for p in (brand, key) if p)
+
+
 def build_search_prompt(tag: dict) -> str:
     def v(key: str) -> str:
         return str(tag.get(key) or "").strip() or "(없음)"
 
     return f"""\
-아래 상품 태그 정보로, 이 상품을 지금 판매하는 **상품 상세 페이지**를 구글에서 찾아주세요.
+구글에서 정확히 아래 검색어로 검색하세요.
 
-브랜드: {v("brand")}
-품번: {v("product_code")}
-태그의 다른 코드: {", ".join(tag.get("other_codes") or []) or "(없음)"}
-바코드: {v("barcode")}
-상품명: {v("product_name")}
-색상: {v("color")}
+검색어: {search_query(tag)}
 
-1. 이 브랜드의 한국 공식 온라인몰(공식 홈페이지) 도메인을 찾으세요.
-2. 공식몰에서 이 품번의 상품 상세 페이지를 찾으세요.
-3. 공식몰에 없으면 무신사, 29CM, W컨셉, SSF샵 같은 국내 쇼핑몰에서 같은 품번의 상품 상세 페이지를 찾으세요.
+참고용 태그 정보 (검색어를 바꾸는 데 쓰지 마세요):
+브랜드: {v("brand")} / 품번: {v("product_code")} / 상품명: {v("product_name")} / 색상: {v("color")}
 
-검색 결과 목록 페이지, 블로그, 리뷰, 커뮤니티 글은 제외하세요. 실제로 찾지 못한 URL을 지어내지 마세요.
-아래 형식으로만 답하세요(URL은 최대 6개, 공식몰 먼저):
-OFFICIAL_DOMAIN: <도메인, 모르면 없음>
+검색 결과에 나온 이 상품의 **상품 상세 페이지** URL을 공식몰·쇼핑몰(무신사, 29CM, W컨셉, 쿠팡 등)
+가리지 말고 모두 적으세요. 공식몰을 찾았다고 멈추지 마세요.
+사이트 메인 페이지, 카테고리·검색 결과 목록 페이지, 블로그, 리뷰, 커뮤니티 글은 제외하세요.
+실제로 찾지 못한 URL을 지어내지 마세요.
+아래 형식으로만 답하세요(URL은 최대 6개, 공식몰 상세 페이지가 있으면 먼저):
+OFFICIAL_DOMAIN: <브랜드 공식몰 도메인, 모르면 없음>
 URL: <상품 상세 페이지 URL>
 URL: <상품 상세 페이지 URL>
 """
@@ -148,6 +161,7 @@ def call_gemini_search(
     그라운딩 메타데이터가 비는 문제가 보고돼 있어서, 여기서는 일반 텍스트로 받아 직접 파싱한다."""
     from google.genai import types
 
+    logger.info("[identify] 검색어: %s", search_query(tag))
     gen_config = types.GenerateContentConfig(tools=[types.Tool(google_search=types.GoogleSearch())])
     result = generate(
         "gemini_search", build_search_prompt(tag), max_retries,
@@ -204,6 +218,12 @@ def host_of(url: str) -> str:
     return host.removeprefix("www.")
 
 
+def is_root_url(url: str) -> bool:
+    """사이트 메인 페이지(경로·쿼리가 없는 주소)인지. 메인 페이지에는 특정 상품의 품번이 없다."""
+    parts = urllib.parse.urlsplit(url)
+    return parts.path in ("", "/") and not parts.query
+
+
 def _domain_matches(host: str, domain: str) -> bool:
     return host == domain or host.endswith("." + domain)
 
@@ -247,13 +267,15 @@ def parse_search_output(text: str, sources: list[dict]) -> tuple[str | None, lis
     raw: list[tuple[str, str]] = []
     for url in _URL_LINE_RE.findall(text or ""):
         url = url.strip().rstrip(".,)>]")
-        if url.startswith(("http://", "https://")):
+        if url.startswith(("http://", "https://")) and not is_root_url(url):
             raw.append((url, host_of(url)))
     for s in sources:
         uri = s.get("uri") or ""
         host = host_of(uri)
         if any(_domain_matches(host, d) for d in GROUNDING_REDIRECT_HOSTS):
             host = _clean_domain(s.get("title")) or ""
+        elif is_root_url(uri):
+            continue  # 리다이렉트 주소는 렌더링 후 확인 단계에서 거른다
         if uri.startswith(("http://", "https://")):
             raw.append((uri, host))
 
@@ -466,6 +488,9 @@ class _Checker:
             page = await self._render(cand.url)
             if not page.ok:
                 self.checked.append(_checked(cand.url, cand.source, None, page.error or "렌더링 실패/차단"))
+                continue
+            if is_root_url(page.final_url):
+                self.checked.append(_checked(page.final_url, cand.source, None, "상품 페이지가 아닌 메인 페이지"))
                 continue
             final_host = host_of(page.final_url) or cand.hint_host
             source = classify_host(final_host, official)
