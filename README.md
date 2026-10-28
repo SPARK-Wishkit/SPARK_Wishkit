@@ -2,8 +2,9 @@
 
 쇼핑몰 상품을 공유 한 번으로 담는 위시리스트 앱. 친구와 위시리스트를 보고, "살까말까"로 의견을 묻는다.
 
-- **앱:** Flutter (`wishlist-appversion2/flutter_app/`)
-- **백엔드:** AWS Amplify Gen 2 — 서울 리전 (`wishlist-appversion2/flutter_app/amplify/`)
+- **앱:** Flutter (`app/`)
+- **백엔드:** AWS Amplify Gen 2 — 서울 리전 (`app/amplify/`)
+- **상품 읽기 엔진:** Python + Gemini, AWS Fargate (`engine/`)
 
 | 기능 | AWS 서비스 |
 |---|---|
@@ -12,7 +13,7 @@
 | 남의 받은함·알림함에 쓰는 일, 친구 공개 위시리스트 | Lambda (서버 함수 2개) |
 | 사진 · 공유 페이지 | S3 + CloudFront (한국에서만 접속) |
 
-팀 약속과 역할별 규칙은 **[`wishlist-appversion2/TEAM_CONTRACT.md`](wishlist-appversion2/TEAM_CONTRACT.md)** 를 먼저 읽어 주세요.
+팀 약속과 역할별 규칙은 **[`docs/TEAM_CONTRACT.md`](docs/TEAM_CONTRACT.md)** 를 먼저 읽어 주세요.
 
 ---
 
@@ -24,7 +25,7 @@
 git clone <이 레포 주소>
 cd <레포 폴더>
 cp scripts/check_secrets.sh .git/hooks/pre-commit    # 비밀 정보 커밋 방지 검사 켜기
-cd wishlist-appversion2/flutter_app
+cd app
 flutter pub get
 npm install
 ```
@@ -63,17 +64,24 @@ flutter test
 ## 폴더 안내
 
 ```
-scripts/                  커밋 전 비밀 정보 검사 · 레포 준비
-wishlist-appversion2/
-├── flutter_app/
-│   ├── amplify/          백엔드 설계 (로그인 · 데이터 · 서버 함수 · 파일)
-│   ├── lib/
-│   │   ├── auth/         로그인
-│   │   ├── services/aws/ AWS 저장소 (AccountRepository 가 사용)
-│   │   └── screens/      화면
-│   └── test/aws/         백엔드 테스트 (가짜 AWS 로 돌아감 — 인터넷 불필요)
-├── TEAM_CONTRACT.md      팀 약속 · 단계별 변경 기록
-└── (엔진 담당 문서 · 도구 · 테스트 기록)
+app/                        Flutter 앱
+├── amplify/                백엔드 설계 (로그인 · 데이터 · 서버 함수 · 파일)
+├── lib/
+│   ├── auth/               로그인
+│   ├── services/aws/       AWS 저장소 (AccountRepository 가 사용)
+│   └── screens/            화면
+└── test/aws/               백엔드 테스트 (가짜 AWS 로 돌아감 — 인터넷 불필요)
+engine/                     상품 읽기 · 태그 찾기 AI 서버 (자세한 건 engine/README.md)
+├── server/                 서버 코드 (FastAPI)
+├── deploy/engine.sh        AWS 엔진 켜기 · 끄기 · 배포
+├── tools/                  회귀 · 부하 · 태그 정확도 검사 스크립트
+└── testdata/               골든셋 정답지(golden_catalog.json) · 기준선 · 지난 결과
+docs/
+├── TEAM_CONTRACT.md        팀 약속 · 단계별 변경 기록
+└── reports/                엔진 검증 보고서
+scripts/                    커밋 전 비밀 정보 검사 · 레포 준비 · 앱 실행(run_app.sh)
+CHANGELOG.md                변경 이력
+amplify.yml                 Amplify 콘솔 백엔드 배포 설정
 ```
 
 ## 남은 일

@@ -4,14 +4,11 @@
 set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-if [ ! -d wishlist-appversion2/flutter_app ]; then
-  echo "❌ 레포 맨 위 폴더(wishlist-appversion2 가 들어 있는 폴더)가 아니에요: $ROOT"; exit 1
+if [ ! -d app ] || [ ! -d engine ]; then
+  echo "❌ 레포 맨 위 폴더(app · engine 이 들어 있는 폴더)가 아니에요: $ROOT"; exit 1
 fi
 
 echo "① 필요 없는 파일 삭제"
-for f in wishlist-appversion2/AUTH_README.md wishlist-appversion2/run_engine.sh; do
-  [ -e "$f" ] && rm -f "$f" && echo "  🗑  $f"
-done
 n=$(find . -name .DS_Store -not -path "*/node_modules/*" | wc -l | tr -d ' ')
 find . -name .DS_Store -not -path "*/node_modules/*" -delete
 find . -type d -name __MACOSX -prune -exec rm -rf {} +

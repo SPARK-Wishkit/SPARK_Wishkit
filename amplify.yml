@@ -1,8 +1,8 @@
 # Amplify 콘솔이 GitHub main 에 푸시될 때마다 이 설정으로 백엔드를 배포한다.
-# 콘솔에서 "My app is a monorepo" 체크 + 경로 wishlist-appversion2/flutter_app 로 연결할 것.
+# 콘솔에서 "My app is a monorepo" 체크 + 경로 app 로 연결할 것 (환경 변수 AMPLIFY_MONOREPO_APP_ROOT=app).
 version: 1
 applications:
-  - appRoot: wishlist-appversion2/flutter_app
+  - appRoot: app
     backend:
       phases:
         build:
