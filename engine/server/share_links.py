@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -128,14 +129,24 @@ def web_url_in_page(html: str, short_url: str) -> str | None:
 
 
 def resolve_share_link(url: str, *, fetch=_fetch, total_timeout: float = TOTAL_TIMEOUT_S) -> str:
-    """짧은 링크면 실제 상품 주소로, 아니면 그대로. 실패해도 예외 없이 원래 주소를 돌려준다."""
+    """짧은 링크면 실제 상품 주소로, 아니면 그대로. 실패해도 예외 없이 원래 주소를 돌려준다.
+
+    total_timeout은 한 홉의 타임아웃 값이 아니라 전체 누적 시간의 상한이다 — per_hop만 짧게
+    잡고 hop 수(MAX_HOPS)를 제한하지 않으면, 매 홉이 (에러 없이) per_hop 가까이 걸릴 때
+    총 소요 시간이 total_timeout의 몇 배까지 늘어날 수 있다(렌더링·AI 호출에 남겨둬야 할
+    시간을 깎아먹는다). 그래서 매 홉 전에 남은 예산을 직접 확인한다."""
     if not is_short_link(url):
         return url
     current = url
     per_hop = max(0.5, total_timeout / 3)
+    deadline = time.monotonic() + total_timeout
     try:
         for _ in range(MAX_HOPS):
-            nxt, body = fetch(current, per_hop)
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                logger.warning("공유 링크 풀기 시간 초과(%s): 누적 %.1f초", url, total_timeout)
+                break
+            nxt, body = fetch(current, min(per_hop, remaining))
             if nxt is None:
                 # 최종 페이지. 아직 짧은 링크 쪽이면 JS 로 넘기는 중간 페이지라 본문에서 웹 주소를 찾는다.
                 if is_short_link(current):

@@ -1,6 +1,7 @@
 """share_links.py — 앱 공유용 짧은 링크를 실제 상품 주소로 풀기."""
 import http.server
 import threading
+import time
 
 import pytest
 
@@ -75,6 +76,26 @@ def test_landing_page_without_shop_url_keeps_original_instead_of_guessing():
 def test_network_error_returns_original():
     fetch, _ = _fake({SHORT: TimeoutError("timed out")})
     assert resolve_share_link(SHORT, fetch=fetch) == SHORT
+
+
+def test_total_timeout_bounds_cumulative_time_not_just_each_hop():
+    """홉마다 에러 없이(그래서 MAX_HOPS까지 계속 진행되며) 주어진 타임아웃만큼 걸리면, 누적
+    시간이 total_timeout 근처에서 끊겨야 한다 — per_hop만 보고 MAX_HOPS(6)번을 다 돌면
+    total_timeout의 몇 배까지 걸려서, 렌더링·AI 호출에 남겨둬야 할 예산을 깎아먹는다."""
+    call_count = 0
+
+    def slow_fetch(url, timeout):
+        nonlocal call_count
+        call_count += 1
+        time.sleep(timeout)
+        return f"{SHORT}?hop={call_count}", ""  # 계속 짧은 링크로만 리다이렉트(끝나지 않음)
+
+    started = time.monotonic()
+    resolve_share_link(SHORT, fetch=slow_fetch, total_timeout=0.6)
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 1.0  # MAX_HOPS(6) 전부 돌았다면 per_hop(0.5초 이상) × 6 ≈ 3초 이상 걸렸을 것
+    assert call_count < 6
 
 
 @pytest.mark.parametrize("url,expected", [
