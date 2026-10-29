@@ -27,7 +27,7 @@ from playwright.async_api import async_playwright
 from pydantic import BaseModel, HttpUrl
 
 import config
-from cache import CachedExtraction, NoOpCache, normalize_cache_key
+from cache import CachedExtraction, InProcessCache, normalize_cache_key
 from compare import grounding_check
 from metrics import PeakRSSSampler, now_ms
 from providers import ProviderResult, call_gemini, call_gemini_vision
@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
         app.state.browser = browser
         app.state.gemini_semaphore = asyncio.Semaphore(config.GEMINI_MAX_CONCURRENCY)
         app.state.render_semaphore = asyncio.Semaphore(config.RENDER_MAX_CONCURRENCY)
-        app.state.cache = NoOpCache()  # 실제 캐시 백엔드는 아직 미구현
+        app.state.cache = InProcessCache()  # 태스크 프로세스 안에서만 유효(여러 태스크 간 공유 안 됨)
         logger.info(
             "서버 시작 — 브라우저 준비 완료 (GEMINI_MAX_CONCURRENCY=%s, RENDER_MAX_CONCURRENCY=%s, EXTRACT_TIMEOUT_S=%s)",
             config.GEMINI_MAX_CONCURRENCY, config.RENDER_MAX_CONCURRENCY, config.EXTRACT_TIMEOUT_S,
@@ -138,9 +138,13 @@ async def _extract(url: str) -> dict:
             "cache_hit": False,
         },
     }
-    await app.state.cache.set(
-        cache_key, CachedExtraction(data=response, cached_at_ms=now_ms()), ttl_seconds=CACHE_TTL_S
-    )
+    # ambiguous(기권)는 캐시에 안 넣는다 — 렌더링이 그 순간만 꼬여서 생긴 일시적 실패일 수
+    # 있어서(2026-10-29 KREAM·SSF샵 조사: 같은 URL이 재시도로 정상 응답을 받기도 함),
+    # 1시간 동안 실패 응답을 그대로 돌려주는 것보다는 다음 요청이 다시 시도해 보는 게 낫다.
+    if not extracted.get("ambiguous"):
+        await app.state.cache.set(
+            cache_key, CachedExtraction(data=response, cached_at_ms=now_ms()), ttl_seconds=CACHE_TTL_S
+        )
     return response
 
 
