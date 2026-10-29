@@ -440,3 +440,87 @@ parsing-engine 관련으로 이 계정에서 과금되는 것은 **없음** — 
    참고 기록으로만 남고 더 반영 안 함
 2. `feat/engine-deploy` 브랜치 자체를 지울지, 기록용으로 남겨둘지는
    아직 미정
+
+## 2026-10-29 — 저장소 정리: `feat/app-engine-client`도 폐기 + 브랜치/AWS 잔여물 전체 정리
+
+### `feat/app-engine-client` 발견: 엔진 배포와 똑같은 패턴
+
+`feat/engine-deploy`를 지운 뒤 main을 다시 살펴보니, 지은 님의
+"폴더 정리" 커밋(`feat/cleanup-structure`, PR #5)에서 레포 구조
+자체가 바뀌어 있었다 — `wishlist-appversion2/flutter_app` → `app`,
+`wishlist-appversion2/parsing-engine` → `engine`.
+
+그 안의 새 `app/lib/services/parsing_bridge.dart` 주석:
+
+> "2026-09-18 '서버 AI 완전 의존' 결정에 따라 단말 WebView 추출기는
+> 2026-10-24에 제거했다."
+
+즉 팀은 **엔진 실패 시 단말 WebView로 폴백하는 이원화 구조를 이미
+버리고, 서버(엔진) 단일 경로로 전환 완료**한 상태였다. 확인 결과:
+
+- `EngineClient`/`AppSyncEngineClient`/`kEngineEnabled` 피처플래그 —
+  main에 없음
+- `_supplementFromWebView`(WebView 8초 보충 로직) — main에 없음,
+  `webview_scraper.dart` 자체가 삭제됨
+- `mergeOnDevice`/`onDeviceExtracted` — `models.dart`에서 완전히 제거
+- 대신 main은 `server_extract.dart` + 단순화된 `ParsingBridge`(바로
+  `extractProduct` GraphQL 호출, 실패 이유만 `ExtractFailureReason`
+  으로 분류)로 **이미 동작하는 구조**를 갖추고 있었음
+
+`feat/app-engine-client`의 Flutter 쪽 작업 전체가 엔진 배포 건과
+동일하게 **지금은 안 쓰는 설계**였던 것. 사용자 확인 후 이 브랜치도
+폐기(삭제).
+
+### 보고 로그 보존 — `docs/COWORK_REPORTS.md`로 이관
+
+`COWORK_REPORTS.md`가 `feat/app-engine-client`에만 있어서(main에는
+이 파일 자체가 없음), 브랜치를 지우기 전에 내용을 그대로 옮겨서
+보존했다:
+
+- 새 브랜치 `docs/preserve-cowork-reports`에서 `docs/COWORK_REPORTS.md`
+  로 추가(경로만 이동, 내용 변경 없음), PR #6 오픈:
+  https://github.com/SPARK-Wishkit/wishkit/pull/6
+- PR 머지는 "리뷰 없이 머지" 범주라 자동으로는 못 하고 팀 리뷰 후
+  머지 필요 — 내용 자체는 이미 push되어 있어 안전.
+- (참고: main의 `docs/reports/`는 팀의 보고서별 개별 파일 관례라서,
+  거기 맞추지 않고 사용자가 원래 요청한 "하나의 md 파일" 형태를
+  그대로 유지했다.)
+
+### 브랜치 정리
+
+삭제(로컬+원격):
+- `feat/app-engine-client` (위 사유)
+- `feat/bw-theme`, `feat/remove-reviews`, `feat/cleanup-structure` —
+  전부 PR로 main에 이미 머지 확인 후 삭제
+- `feat/ai-extraction-server` — main에 없는 커밋이 `f0c5ca2`(구버전
+  AppSync 타임아웃 수정) 하나뿐이었는데, main엔 이미 지은 님의 다른
+  버전이 들어가 있어 내용상 폐기해도 되는 걸 확인 후 삭제
+
+### AWS 잔여물 정리 (예전 Fargate 검증 단계에서 남아있던 것들)
+
+전부 비용은 0이었지만(실행 중인 것 없음) 정리:
+- ECS 클러스터 `wishkit-parsing-engine-validation`(서비스/태스크
+  0개 확인 후) 삭제
+- task definition 9개 deregister: `wishkit-parsing-engine-2048cpu-4096mb`
+  (:1~:4), `wishkit-parsing-engine-2048cpu-6144mb`(:1~:4),
+  `wishkit-test-runner`(:1)
+- ECR 리포지토리 `wishkit-parsing-engine` 삭제
+
+지은 님의 `wishkit-engine` 클러스터/ECR, CDK 부트스트랩 리포
+(`cdk-hnb659fds-...`)는 건드리지 않음.
+
+### 최종 상태
+
+- 브랜치: `main` + `docs/preserve-cowork-reports`(PR #6, 머지
+  대기) 둘만 남음
+- 열려있는 PR: #6 하나(머지만 하면 됨)
+- AWS: parsing-engine 관련으로 이 계정에 남은 건 지은 님
+  `wishkit-engine`(desired=0, 대기 중)과 그 ECR뿐 — 우리 쪽 잔여물
+  전부 제거
+
+### 확인/결정 요청
+
+1. PR #6(`docs/COWORK_REPORTS.md` 이관) 리뷰 후 머지 필요
+2. origin 리모트 주소가 `SPARK-Wishkit/wishkit.git`로 바뀌었다는
+   안내가 계속 뜸 — 로컬 리모트 주소를 새 걸로 바꿀지는 아직 미정
+   (push는 리다이렉트로 정상 동작 중이라 급하지 않음)
