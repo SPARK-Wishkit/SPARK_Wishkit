@@ -1,14 +1,21 @@
 """
-캐시 인터페이스 (요구사항 5 — 실제 캐시 저장소는 아직 구현하지 않는다).
+캐시 인터페이스 + 인메모리 구현.
 
-AWS DB 이관 트랙이 아직 정해지지 않았으므로, 여기서는 "나중에 실제 캐시(Redis/DynamoDB
-등)를 붙일 자리"만 Protocol로 열어두고, 지금은 아무것도 저장하지 않는 `NoOpCache`만
-기본으로 꽂아둔다. main.py는 `RenderCache` 타입에만 의존하므로, 나중에 실제 구현체로
-바꿔 끼워도 main.py를 고칠 필요가 없다.
+AWS DB 이관 트랙(Redis/DynamoDB 등 여러 태스크가 공유하는 백엔드)은 아직 정해지지
+않아서, 당장은 "나중에 그 백엔드를 붙일 자리"만 Protocol로 열어둔다. 대신 그 결정을
+기다리는 동안 추출 결과를 전혀 안 재사용하는 손해를 줄이려고, 태스크 프로세스 하나
+안에서만 유효한 `InProcessCache`를 기본값으로 둔다 — 인프라 추가 없이 바로 쓸 수 있고,
+나중에 공유 백엔드로 바꿔도 main.py는 `RenderCache` 타입에만 의존하므로 안 고쳐도 된다.
+
+⚠️ 한계(알고 쓸 것): 태스크가 여러 개로 늘어나면(현재는 engine.sh가 `desired-count`
+1개로만 운영) 각 태스크가 서로 다른 캐시를 가진다 — 태스크 간에 캐시가 공유되지
+않는다. 그 땐 공유 백엔드가 필요하다.
 """
 from __future__ import annotations
 
+import time
 import urllib.parse
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -49,11 +56,43 @@ class RenderCache(Protocol):
 
 
 class NoOpCache:
-    """지금 당장 쓰는 기본 구현 — 아무것도 저장하지 않고 항상 캐시 미스로 취급한다.
-    DB/캐시 백엔드가 정해지면 이 클래스를 실제 구현체로 교체한다(main.py는 안 고쳐도 됨)."""
+    """아무것도 저장하지 않고 항상 캐시 미스로 취급한다. 테스트나 "캐시를 끄고 싶을 때"용 —
+    평소 기본값은 아래 InProcessCache."""
 
     async def get(self, key: str) -> CachedExtraction | None:
         return None
 
     async def set(self, key: str, value: CachedExtraction, ttl_seconds: int) -> None:
         return None
+
+
+# 엔트리 수 상한 — 메모리를 무제한으로 늘리지 않기 위함(TTL이 지나기 전에 트래픽이 몰려도
+# 한도 이상 쌓이지 않게). 캐시된 응답 하나는 보통 1~2KB(스크린샷은 캐시에 안 들어감) 수준.
+DEFAULT_MAX_ENTRIES = 1000
+
+
+class InProcessCache:
+    """태스크 프로세스 메모리 안에서만 유효한 캐시. TTL이 지났거나 엔트리 수가 상한을 넘으면
+    (가장 오래전에 쓰인 것부터, LRU) 치운다. asyncio는 단일 스레드라 await 사이에 다른
+    코루틴이 끼어들 순 있어도 get/set 각각은 원자적으로 끝나 별도 락이 필요 없다."""
+
+    def __init__(self, max_entries: int = DEFAULT_MAX_ENTRIES):
+        self._max_entries = max_entries
+        self._store: OrderedDict[str, tuple[CachedExtraction, float]] = OrderedDict()
+
+    async def get(self, key: str) -> CachedExtraction | None:
+        entry = self._store.get(key)
+        if entry is None:
+            return None
+        value, expires_at = entry
+        if time.monotonic() >= expires_at:
+            del self._store[key]
+            return None
+        self._store.move_to_end(key)  # 최근 사용으로 표시 (LRU)
+        return value
+
+    async def set(self, key: str, value: CachedExtraction, ttl_seconds: int) -> None:
+        self._store[key] = (value, time.monotonic() + ttl_seconds)
+        self._store.move_to_end(key)
+        while len(self._store) > self._max_entries:
+            self._store.popitem(last=False)  # 가장 오래전에 쓰인 것부터 제거

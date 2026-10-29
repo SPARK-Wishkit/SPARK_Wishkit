@@ -87,6 +87,63 @@ def test_identify_render_budget_includes_waiting_for_render_slot(monkeypatch):
     assert elapsed < 2.0
 
 
+def _counting_render(calls: dict, cleaned_html="<html>본문</html>", raw_text="가격 10,000원"):
+    """render()를 가짜로 바꾸면서 호출 횟수를 센다 — 캐시가 정말 렌더링을 건너뛰는지 확인용."""
+    from render import RenderResult
+
+    async def render(browser, url, nav_timeout_ms=20000):
+        calls["render"] = calls.get("render", 0) + 1
+        return RenderResult(final_url=url, cleaned_html=cleaned_html, raw_text=raw_text,
+                            image_candidates=[], screenshot=b"")
+
+    return render
+
+
+def test_extract_caches_non_ambiguous_result(monkeypatch):
+    """ambiguous:false 결과는 캐시돼서, 같은 URL 두 번째 요청은 렌더링을 다시 안 한다."""
+    import main
+    from providers import ProviderResult
+
+    calls: dict = {}
+    monkeypatch.setattr(main, "render", _counting_render(calls))
+    monkeypatch.setattr(main, "call_gemini", lambda html: ProviderResult(
+        "g", "m", True,
+        {"product_name": "상품", "price": {"unconditional_price": 10000, "regular_price": None, "currency": "KRW"},
+         "image_url": None, "ambiguous": False, "ambiguity_reason": None, "confidence": "high"}, 1))
+
+    with TestClient(app) as client:
+        r1 = client.post("/extract", json={"url": "https://example.com/products/1"})
+        r2 = client.post("/extract", json={"url": "https://example.com/products/1"})
+
+    assert r1.status_code == 200 and r2.status_code == 200
+    assert r1.json()["metrics"]["cache_hit"] is False
+    assert r2.json()["metrics"]["cache_hit"] is True
+    assert calls["render"] == 1
+
+
+def test_extract_does_not_cache_ambiguous_result(monkeypatch):
+    """ambiguous:true(기권)는 캐시하지 않는다 — 다음 요청이 다시 시도해 볼 수 있어야 한다
+    (2026-10-29 KREAM·SSF샵 조사: 같은 URL 재시도가 정상 응답을 받기도 함)."""
+    import main
+    from providers import ProviderResult
+
+    calls: dict = {}
+    monkeypatch.setattr(main, "render", _counting_render(calls))
+    monkeypatch.setattr(main, "call_gemini", lambda html: ProviderResult(
+        "g", "m", True,
+        {"product_name": None, "price": {"unconditional_price": None, "regular_price": None, "currency": "KRW"},
+         "image_url": None, "ambiguous": True, "ambiguity_reason": "test", "confidence": "low"}, 1))
+
+    with TestClient(app) as client:
+        r1 = client.post("/extract", json={"url": "https://example.com/products/2"})
+        r2 = client.post("/extract", json={"url": "https://example.com/products/2"})
+
+    assert r1.json()["ambiguous"] is True and r2.json()["ambiguous"] is True
+    assert r1.json()["metrics"]["cache_hit"] is False
+    assert r2.json()["metrics"]["cache_hit"] is False
+    assert calls["render"] == 2  # 둘 다 새로 렌더링함 — 캐시가 안 걸렸다는 뜻
+
+
 def test_identify_tag_rejects_oversized_base64_before_decoding(monkeypatch):
     import config
     import main
