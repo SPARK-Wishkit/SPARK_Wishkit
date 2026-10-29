@@ -4,15 +4,16 @@
 포팅한 뒤에도 engine-ai-prototype의 배치 스크립트(bakeoff.py) 결과와 같은 수준의 정확도가
 나오는지 확인한다 (요구사항 3 — run6 기준선: 완전 일치 21/36=58%, 그라운딩 통과 31/36=86%).
 
-golden_catalog.json / bakeoff_results_run6_final.json은 원래 engine-ai-prototype
-폴더(2026-softstudio-project 저장소 밖)에 있었으나, 이 저장소로 이관하면서
-engine/testdata/ 로 옮겨왔다 — 이 스크립트는 그 파일들을 읽기만 한다.
+golden_catalog.json은 원래 engine-ai-prototype 폴더(2026-softstudio-project 저장소 밖)에
+있었으나, 이 저장소로 이관하면서 engine/testdata/ 로 옮겨왔다 — 이 스크립트는 그 파일을
+읽기만 한다. run6 기준선(bakeoff_results_run6_final.json)은 골든셋 갱신 뒤 더 이상 쓰지
+않아 저장소에서 지웠다(수치는 docs/reports/2026-09-19-engine-server-port.md에 남아 있다)
+— 비교할 과거 결과가 있으면 --baseline으로 아무 JSON이나 넣을 수 있다(선택사항).
 
 사용법 (서버를 먼저 `uvicorn main:app`으로 띄운 상태에서, engine/tools에서 실행):
     python golden_regression_check.py \\
         --server http://127.0.0.1:8000 \\
-        --golden-catalog ../testdata/golden_catalog.json \\
-        --baseline ../testdata/bakeoff_results_run6_final.json
+        --golden-catalog ../testdata/golden_catalog.json
 """
 from __future__ import annotations
 
