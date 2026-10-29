@@ -27,23 +27,24 @@ Tier 1 전환까지 끝난 상태이며, 그 과정은 `docs/reports/2026-09-19-
 
 `engine-ai-prototype/`(이 저장소 밖, 별도 폴더)은 이 파이프라인의 **원본 프로토타입**이다 —
 로컬 배치 스크립트(`bakeoff.py`)로 골든셋 36개 상품에 대해 정확도만 검증했다(완전 일치
-21/36=58%, 그라운딩 통과 31/36=86% — `testdata/bakeoff_results_run6_final.json`). 이 폴더
-(`server/`)는 그 검증된 로직(`render.py`/`prompts.py`/`providers.py`/`compare.py`)을 실제
-HTTP 요청에 응답하는 서버로 감싼 것 — 로직 자체(프롬프트 문구, few-shot, 가격 정책,
+21/36=58%, 그라운딩 통과 31/36=86% — `docs/reports/2026-09-19-engine-server-port.md` 참고).
+이 폴더(`server/`)는 그 검증된 로직(`render.py`/`prompts.py`/`providers.py`/`compare.py`)을
+실제 HTTP 요청에 응답하는 서버로 감싼 것 — 로직 자체(프롬프트 문구, few-shot, 가격 정책,
 그라운딩 체크)는 바뀐 게 없고, 브라우저 생명주기만 "요청마다 새로 띄움"에서 "앱 시작 시
 한 번 띄워서 재사용"으로 바뀌었다(자세한 이유는 `server/render.py` 상단 주석 참고).
 
 원래 `engine-ai-prototype/`(2026-softstudio-project 저장소 밖, 이 저장소에는 없음) 폴더에
-있던 참고용 기준선(`golden_catalog.json`, `bakeoff_results_run6_final.json`)은 이관하면서
-**이 폴더의 `testdata/`로 같이 옮겨왔다** — `tools/golden_regression_check.py`
-가 이제 이 폴더 안에서만 실행돼도 회귀 검사를 할 수 있게 자기완결적으로 구성했다.
+있던 골든셋(`golden_catalog.json`)은 이관하면서 **이 폴더의 `testdata/`로 같이 옮겨왔다**.
+프로토타입 단계의 1회성 베이스라인(`bakeoff_results_run6_final.json`)도 같이 옮겨왔었지만,
+골든셋을 갱신(`docs/reports/2026-10-29-golden-catalog-refresh.md`)하면서 이제는 그 옛 기준과
+비교할 일이 없어 지웠다 — 당시 수치는 위 두 리포트에 남아 있다.
 
 ## 구성
 
 ```
 testdata/
-  golden_catalog.json             — 골든셋 36개 상품(12개 몰) 정답지
-  bakeoff_results_run6_final.json — engine-ai-prototype 프로토타입 단계 기준선(run6)
+  golden_catalog.json             — 골든셋 36개 상품(12개 몰) 정답지(수시로 갱신됨, 변경
+                                     근거는 docs/reports/ 참고)
   results/                        — 지난 회귀·부하 테스트 결과 기록
 deploy/
   engine.sh     — AWS Fargate 엔진 켜기·끄기·배포 (bash deploy/engine.sh start 등)
@@ -59,7 +60,8 @@ server/
   metrics.py    — 요청별 elapsed_ms/peak_rss_mb 측정
   config.py     — 전부 환경변수로 오버라이드 가능한 설정값
 tools/
-  golden_regression_check.py — 로컬 서버에 골든셋 36개를 던져서 run6 기준선과 비교
+  golden_regression_check.py — 로컬 서버에 골든셋 36개를 던져서 완전 일치·그라운딩 통과율을
+                                확인(--baseline으로 과거 결과 JSON과 비교도 가능, 선택사항)
   concurrency_load_test.py   — 동시 요청 N건 부하 테스트(AWS Fargate 검증에 사용)
 ```
 
@@ -97,9 +99,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ```bash
 # 다른 터미널에서 회귀 테스트 (engine/tools에서 실행)
 cd ../tools
-python golden_regression_check.py \
-  --golden-catalog ../testdata/golden_catalog.json \
-  --baseline ../testdata/bakeoff_results_run6_final.json
+python golden_regression_check.py --golden-catalog ../testdata/golden_catalog.json
 ```
 
 ## 하지 않은 것 (의도적으로 범위 밖에 둠)
