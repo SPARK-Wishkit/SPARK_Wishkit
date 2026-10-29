@@ -94,7 +94,19 @@ def code_evidence(tag: dict, raw_text: str, final_url: str) -> str | None:
     None                — 코드로는 확인 못 함
 
     품번 전체는 구분자를 무시하고(정규화한 뒤) 찾는다 — 'DV1234-100'과 'dv1234 100'을 같게 본다.
-    기본 번호·보조 코드는 짧아서 우연히 겹치기 쉬우므로 한 덩어리일 때만 인정한다."""
+    기본 번호·보조 코드는 짧아서 우연히 겹치기 쉬우므로 한 덩어리일 때만 인정한다.
+
+    ⚠️ 알려진 한계(2026-10-29, 아직 안 고침): 품번 전체·바코드도 순수 숫자이면서 구분자가
+    없으면(예: 5자리 숫자 품번) 이론상 haystack의 더 긴 숫자열(가격 등) 안에 우연히 포함돼
+    오탐할 수 있다 — product_code_base와 같은 종류의 위험인데 여기만 한 덩어리 검사
+    (_standalone_in)를 안 쓴다. 다만 _standalone_in은 raw_text를 normalize하지 않고
+    검사하므로, 이미 정규화된 haystack(normalize_code가 구분자를 전부 지워 token 경계가
+    사라진 문자열)에 그대로 적용하면 "품번이 공백으로 끊여 적힌 페이지"(테스트
+    test_full_code_match_ignores_separators)나 "품번 바로 뒤에 다른 숫자(가격 등)가 공백만
+    두고 붙어 있는 페이지"(test_google_search_finds_official_site_without_musinsa_step)
+    같은 정상 케이스까지 거부하게 된다 — 실제로 시도해보고 두 테스트가 깨져서 되돌렸다.
+    고치려면 "코드 자체의 구분자"와 "코드와 그 다음 토큰 사이의 경계"를 구분해서 인식하는
+    정규화 방식이 필요하다(지금의 전역 정규화로는 둘을 구별할 수 없음)."""
     url_text = urllib.parse.unquote(final_url or "")
     haystack = normalize_code(raw_text) + " " + normalize_code(url_text)
 
