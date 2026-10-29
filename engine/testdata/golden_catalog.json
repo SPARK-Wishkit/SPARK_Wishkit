@@ -19,7 +19,7 @@
       {
         "url": "https://www.musinsa.com/products/6677115",
         "name": "소프트 헨리넥 반팔 티셔츠 [브라운]",
-        "price": 45000,
+        "price": 24900,
         "image": "https://image.msscdn.net/images/goods_img/20260616/6677115/6677115_17852914703616_500.jpg",
         "brand": null
       }
@@ -31,22 +31,22 @@
       {
         "url": "https://www.wconcept.co.kr/Product/308678703",
         "name": "멀티 유즈 슬리브리스 탑 브라운 OU2006",
-        "price": 52000,
-        "image": "https://product-image.wconcept.co.kr/productimg/image/img9/03/308678703_UI25679.jpg",
+        "price": 38454,
+        "image": "https://product-image.wconcept.co.kr/productimg/image/img2/03/308678703_UI25679.jpg",
         "brand": "ouie"
       },
       {
         "url": "https://www.wconcept.co.kr/Product/308589275",
         "name": "Soft Drape T-shirt_3Color",
         "price": 88000,
-        "image": "https://product-image.wconcept.co.kr/productimg/image/img9/75/308589275_EP72624.jpg",
+        "image": "https://product-image.wconcept.co.kr/productimg/image/img2/75/308589275_EP72624.jpg",
         "brand": "FLOWOOM"
       },
       {
         "url": "https://www.wconcept.co.kr/Product/308629259",
         "name": "[단독][SET] Wrap Detail T-Shirt & V-Neck Sleeveless Top",
-        "price": 102000,
-        "image": "https://product-image.wconcept.co.kr/productimg/image/img9/59/308629259_VW44687.jpg",
+        "price": 72828,
+        "image": "https://product-image.wconcept.co.kr/productimg/image/img2/59/308629259_VW44687.jpg",
         "brand": "THE RYE"
       }
     ]
@@ -56,23 +56,23 @@
     "products": [
       {
         "url": "https://www.29cm.co.kr/products/3769341",
-        "name": "[꼬민지PICK/29CM 단독] SIOT4182 하이 넥 버튼 블루종_Navy",
-        "price": 167000,
-        "image": "https://img.29cm.co.kr/item/202602/11f10e4064ca6ebca3c031a646d4f5cd.jpg",
+        "name": "SIOT4182 하이 넥 버튼 블루종_Navy",
+        "price": 112230,
+        "image": "https://img.29cm.co.kr/item/202602/11f10e4064ca6ebca3c031a646d4f5cd.jpg?width=1200&format=webp",
         "brand": null
       },
       {
         "url": "https://www.29cm.co.kr/products/3423314",
-        "name": "[Atelier Edition] W/Two Way Vegan Leather Jacket_2COLOR(WC25-OT09)",
-        "price": 225500,
-        "image": "https://img.29cm.co.kr/item/202509/11f093803023ba4494a2b7e59c753ef1.jpg",
+        "name": "[10차 리오더][Atelier Edition] W/Two Way Vegan Leather Jacket_2COLOR(WC25-OT09)",
+        "price": 136090,
+        "image": "https://img.29cm.co.kr/item/202509/11f093803023ba4494a2b7e59c753ef1.jpg?width=1200&format=webp",
         "brand": null
       },
       {
         "url": "https://www.29cm.co.kr/products/3765311",
-        "name": "[10월 02일 예약발송][꼬민지 PICK][14th] faux leather half coat_black",
-        "price": 219000,
-        "image": "https://img.29cm.co.kr/item/202608/11f199cc75fcdd8885e1f77211683ab4.jpg",
+        "name": "[10월30일 예약발송][20th] faux leather half coat_black",
+        "price": 137970,
+        "image": "https://img.29cm.co.kr/item/202602/11f101747f13e3d0a540354b70be0763.jpg?width=1200&format=webp",
         "brand": null
       }
     ]
@@ -82,23 +82,23 @@
     "products": [
       {
         "url": "https://www.uniqlo.com/kr/ko/products/E488796-000/00?colorDisplayCode=00&sizeDisplayCode=005",
-        "name": "젠더리스 옥스포드오버사이즈셔츠",
+        "name": "옥스포드오버사이즈셔츠",
         "price": 49900,
-        "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488796/sub/krgoods_488796_sub14_3x4.jpg",
+        "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488796/item/krgoods_00_488796_3x4.jpg",
         "brand": null
       },
       {
         "url": "https://www.uniqlo.com/kr/ko/products/E488798-000/00?colorDisplayCode=32&sizeDisplayCode=005",
-        "name": "젠더리스 옥스포드오버사이즈셔츠(스트라이프)B",
+        "name": "옥스포드오버사이즈셔츠(스트라이프)B",
         "price": 49900,
-        "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488798/sub/krgoods_488798_sub3_3x4.jpg",
+        "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488798/item/krgoods_32_488798_3x4.jpg",
         "brand": null
       },
       {
         "url": "https://www.uniqlo.com/kr/ko/products/E488797-000/00?colorDisplayCode=54&sizeDisplayCode=005",
         "name": "젠더리스 옥스포드오버사이즈셔츠(스트라이프)A",
         "price": 49900,
-        "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488797/sub/krgoods_488797_sub3_3x4.jpg",
+        "image": "https://image.uniqlo.com/UQ/ST3/kr/imagesgoods/488797/item/krgoods_54_488797_3x4.jpg",
         "brand": null
       }
     ]
@@ -115,9 +115,9 @@
       },
       {
         "url": "https://mobile.a-bly.com/goods/75506878",
-        "name": "[여리코어🪡] made 소피 여리 펀칭 니트 - 4color",
-        "price": 30000,
-        "image": "https://imgb.a-bly.com/data/goods/1ae2f183f57bb3474c726cf53f09e5e0.gif",
+        "name": "홀리 [여리코어🪡] made 소피 여리 펀칭 니트 - 4color",
+        "price": 19780,
+        "image": "https://d3ha2047wt6x28.cloudfront.net/pqksfpcQu04/pr:GOODS_DETAIL/czM6Ly9hYmx5LWltYWdlLWxlZ2FjeS9kYXRhL2dvb2RzLzIwMjYwODEyXzE3ODY1MTg3NDM2ODI4MDVtLmpwZw",
         "brand": null
       },
       {
@@ -134,23 +134,23 @@
     "products": [
       {
         "url": "https://zigzag.kr/catalog/products/159126270",
-        "name": "[MADE] 로브닝 레이스 브이넥 슬리브리스",
-        "price": 22000,
-        "image": "https://cf.product-image.s.zigzag.kr/original/c/15/912/627/159126270-2264955569924090591.jpeg",
+        "name": "모어렌 [5만장판매🏆직잭단독] [MADE] 로브닝 레이스 브이넥 슬리브리스",
+        "price": 16600,
+        "image": "https://cf.product-image.s.zigzag.kr/original/c/15/912/627/159126270-2264955569924090591.jpeg?width=720&height=720&quality=80&format=jpeg",
         "brand": null
       },
       {
         "url": "https://zigzag.kr/catalog/products/168362278",
-        "name": "화이트랩스 치아미백기 LED 셀프 자가 치아미백기계 & 치아미백젤 세트 (1인용)",
+        "name": "화이트랩스 화이트랩스 치아미백기 LED 셀프 자가 치아미백기계 & 치아미백젤 세트 (1인용)",
         "price": 179000,
-        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/2/3/59382_202602031710060884_61349.jpeg",
+        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/2/3/59382_202602031710060884_61349.jpeg?width=720&height=720&quality=80&format=jpeg",
         "brand": null
       },
       {
         "url": "https://zigzag.kr/catalog/products/161980550",
-        "name": "💓뷰티위크 특가💓 [조말론] 블랙베리 앤 베이 코롱 100ml (블랙베리향) (+선물포장)",
-        "price": 191290,
-        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/7/16/40976_202607161436522871_71643.jpeg",
+        "name": "[조말론] 블랙베리 앤 베이 코롱 100ml (블랙베리향) (+선물포장)",
+        "price": 129900,
+        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/7/16/40976_202607161436522871_71643.jpeg?width=720&height=720&quality=80&format=jpeg",
         "brand": null
       }
     ]
@@ -186,22 +186,22 @@
     "products": [
       {
         "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%9E%AC%ED%82%B7-6afaYkrC/IM4254-104",
-        "name": "ACG '돌로미티' 코듀로이 재킷",
-        "price": 189000,
+        "name": "ACG 돌로미티 코듀로이 재킷",
+        "price": 170100,
         "image": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/02416b55-9304-42b2-95fc-12ff75aada31/AS+U+ACG+DOLOMITI+YUNNAN+CORD.png",
         "brand": null
       },
       {
         "url": "https://www.nike.com/kr/t/acg-%EB%8F%8C%EB%A1%9C%EB%AF%B8%ED%8B%B0-%EC%BD%94%EB%93%80%EB%A1%9C%EC%9D%B4-%EC%87%BC%EC%B8%A0-wqfRDNM2/IM4222-104",
-        "name": "ACG '돌로미티' 코듀로이 쇼츠",
-        "price": 115000,
+        "name": "ACG 돌로미티 코듀로이 쇼츠",
+        "price": 103500,
         "image": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/1ca8ce9e-fa71-4dd0-a7ec-722906e781da/AS+U+ACG+DOLOMITI+YUNNAN+CRD+S.png",
         "brand": null
       },
       {
         "url": "https://www.nike.com/kr/t/%EB%82%98%EC%9D%B4%ED%82%A4-%ED%8E%98%EA%B0%80%EC%88%98%EC%8A%A4-42-%EC%97%AC%EC%84%B1-%EB%A1%9C%EB%93%9C-%EB%9F%AC%EB%8B%9D%ED%99%94-J3FQiYIc/IB1881-106",
-        "name": "나이키 페가수스 42 여성 로드 러닝화",
-        "price": 169000,
+        "name": "나이키 페가수스 42",
+        "price": 152100,
         "image": "https://static.nike.com/a/images/t_default/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/522aebea-2c93-411d-a8ef-cad78715368a/W+NIKE+AIR+ZOOM+PEGASUS+42.png",
         "brand": null
       }
@@ -219,7 +219,7 @@
       },
       {
         "url": "https://web.queenit.kr/product/360e9e7089a6346d2e9b5de2b2d8e121",
-        "name": "[비버리힐스폴로클럽]여성 케이블 라운드 니트 폴로 가디건 TK001 _A",
+        "name": "여성 케이블 라운드 니트 폴로 가디건 TK001 _A",
         "price": 33900,
         "image": "https://imgs.kshop.co.kr/d2/emc/goods/openmarket/queenit/5250535/5250535_20250421165441.png",
         "brand": null
@@ -291,22 +291,22 @@
       {
         "url": "https://posty.kr/products/169042232",
         "name": "[1+1] 바겐슈타이거  플래티넘 실리콘 멜로우 와이드 뒤집개",
-        "price": 10900,
-        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/3/17/58450_202603171149510230_29243.jpeg?width=720&height=720&quality=80&format=jpeg",
+        "price": 12380,
+        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/3/17/58450_202603171149510230_29243.jpeg?width=1200&height=1200&quality=80&format=jpeg",
         "brand": null
       },
       {
         "url": "https://posty.kr/products/171822906",
         "name": "[쉬즈프리티] 아모스빈티지스웨이드자켓",
-        "price": 39900,
-        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/9/6/62697_202609061801101378_79249.jpeg?width=720&height=720&quality=80&format=jpeg",
+        "price": 35910,
+        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/9/6/62697_202609061801101378_79249.jpeg?width=1200&height=1200&quality=80&format=jpeg",
         "brand": null
       },
       {
         "url": "https://posty.kr/products/170139765",
         "name": "[예쎄] 셔링 주름 퍼프 소매 롱 원피스(S6MOP064A)",
         "price": 31900,
-        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/6/22/27674_202606221018040984_36315.jpeg?width=720&height=720&quality=80&format=jpeg",
+        "image": "https://cf.product-image.s.zigzag.kr/original/d/2026/6/22/27674_202606221018040984_36315.jpeg?width=1200&height=1200&quality=80&format=jpeg",
         "brand": null
       }
     ]
